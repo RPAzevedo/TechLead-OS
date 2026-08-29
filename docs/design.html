@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Commonplace OS — print companion</title>
+<title>TechLead OS — print companion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
 <style>
-/* Commonplace OS — print companion. Single visual world: ink on paper. */
+/* TechLead OS — print companion. Single visual world: ink on paper. */
 @page { size: A4; margin: 18mm 16mm 20mm; }
 
 :root {
@@ -289,13 +289,13 @@ dl.spec dd ol { margin: 0; }
 </head>
 <body>
 <div class="print-bar">
-  <span>Commonplace OS · design v0.5 · A4 portrait · about 31 pages · use your browser's print dialog for page numbers</span>
+  <span>TechLead OS · design v0.5 · A4 portrait · about 31 pages · use your browser's print dialog for page numbers</span>
   <button type="button" onclick="window.print()">Print / Save as PDF</button>
 </div>
 <div class="sheet">
 <header class="doc">
 <p class="eyebrow">Design proposal · v0.5 · print companion <span class="status">draft — awaiting human:rafael</span></p>
-<h1>Commonplace OS</h1>
+<h1>TechLead OS</h1>
 <p class="lede">A personal operating system for a lead engineer: Karpathy's LLM Wiki loop, running on Google's Open Knowledge Format v0.2 page contract, weighted by the Level 5 role. An engine of instructions, a data root of markdown, one config file joining them. Obsidian to read it, Claude Code to maintain it, git underneath.</p>
 <p class="meta"><span><b>For</b> Rafael</span><span><b>Scope</b> delivery · team &amp; stakeholders · systems · design · learning</span><span><b>Sources</b> Slack · Google Docs · Confluence · Jira · Trello · MD docs · web</span><span><b>Next step</b> the scaffold, Phase 0</span></p>
 </header>
@@ -320,9 +320,9 @@ dl.spec dd ol { margin: 0; }
 <p>v0.1 weighted four domains equally, with the AI-transformation radar first. The Level 5 role description reweights the whole thing: the job is delivery coordination, people and stakeholders, system ownership and accountability for technical design. v0.2 therefore adds <code>System</code>, <code>Stakeholder</code>, <code>RFC</code>, <code>Vision</code>, <code>Objective</code> and OKF's <code>Attested Computation</code> as page types; splits the cadence into a weekly tick and a sprint tick; adds <code>/brief</code> for outbound communication and <code>/measure</code> for Jira delivery metrics; widens the verification gates; and turns the radar into a feed for technical vision rather than a domain of its own. Decisions D3, D4, D5, D7 and D8 change; D9 and D10 are new.</p>
 </div>
 <p class="lead-in">Every page in the wiki, including this document, opens with the same header. Here is this document's:</p>
-<pre><div class="code-title">commonplace-os-design.md — its own OKF frontmatter</div><code>---
+<pre><div class="code-title">techlead-os-design.md — its own OKF frontmatter</div><code>---
 <span class="k">type</span>: Design
-<span class="k">title</span>: Commonplace OS
+<span class="k">title</span>: TechLead OS
 <span class="k">description</span>: A lead engineer's personal OS — the LLM Wiki loop on the OKF v0.2 contract.
 <span class="k">tags</span>: [personal-os, llm-wiki, okf, obsidian, claude-code, lead-engineer]
 <span class="k">sources</span>:
@@ -360,7 +360,7 @@ dl.spec dd ol { margin: 0; }
 <p>The two documents were written for different worlds, a personal Obsidian vault and an enterprise data catalog, yet they converge on the same physical form: a directory of markdown files with YAML frontmatter, an <code>index.md</code> the agent reads first, and a <code>log.md</code> that records every change. That convergence is what makes the merge cheap. What each adds is different.</p>
 <div class="table-wrap cmp">
 <table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/></colgroup>
-<thead><tr><th>Concern</th><th>Karpathy's LLM Wiki</th><th>Google OKF v0.2</th><th>In Commonplace</th></tr></thead>
+<thead><tr><th>Concern</th><th>Karpathy's LLM Wiki</th><th>Google OKF v0.2</th><th>In TechLead OS</th></tr></thead>
 <tbody>
 <tr><td><strong>Division of labour</strong></td><td>Human curates and asks; LLM summarises, cross-references, files, maintains.</td><td>Producers and consumers; agents emit and filter trust signals.</td><td>Karpathy's roles, with OKF's actor names (<code>human:rafael</code>, <code>claude-code/…</code>).</td></tr>
 <tr><td><strong>Layers</strong></td><td>Immutable raw sources → LLM-owned wiki → a schema file (e.g. <code>CLAUDE.md</code>).</td><td>A bundle root with concepts, sub-directories, optional <code>references/</code>.</td><td><code>raw/</code> and <code>wiki/</code> (the bundle) in a data root; <code>CLAUDE.md</code> + <code>schema/</code> in a separate engine repo; a config file joins them.</td></tr>
@@ -441,7 +441,7 @@ dl.spec dd ol { margin: 0; }
 <figcaption>Fig. 1 — Who writes where. You point at sources and drop notes; the agent fetches through connectors and writes what it read into <code>wiki/</code> as Source pages, keeping a verbatim copy in <code>raw/</code> only when you pin one or a metric feed needs it. You never hand-edit <code>wiki/</code> pages except through <code>/verify</code>. The schema is the one place both of you write, and it lives in its own tree (Fig. 2).</figcaption>
 </figure>
 <h3>Engine and data are separate trees</h3>
-<p>Karpathy's three layers are raw, wiki and schema. The first two are data: they are about your work, they contain company material, and they grow every day. The third is machinery: it says how the agent behaves, it contains nothing about your company, and it changes when you change your mind about the method. Commonplace keeps them in two trees. The <strong>engine</strong> is a git repository holding <code>CLAUDE.md</code>, the commands, the type registry and templates, the lint and metrics scripts, and its own <code>CHANGELOG.md</code>; you could publish it, or hand it to a colleague who would run it over their own data. The <strong>data root</strong> is a directory anywhere on the filesystem holding <code>raw/</code>, <code>wiki/</code> and the Obsidian vault files, as its own private repository in company-approved storage. A <strong>config file</strong>, one per installation and never committed, joins them: it names the data root, and it describes how each external source is reached and how far the agent may reach into it.</p>
+<p>Karpathy's three layers are raw, wiki and schema. The first two are data: they are about your work, they contain company material, and they grow every day. The third is machinery: it says how the agent behaves, it contains nothing about your company, and it changes when you change your mind about the method. TechLead OS keeps them in two trees. The <strong>engine</strong> is a git repository holding <code>CLAUDE.md</code>, the commands, the type registry and templates, the lint and metrics scripts, and its own <code>CHANGELOG.md</code>; you could publish it, or hand it to a colleague who would run it over their own data. The <strong>data root</strong> is a directory anywhere on the filesystem holding <code>raw/</code>, <code>wiki/</code> and the Obsidian vault files, as its own private repository in company-approved storage. A <strong>config file</strong>, one per installation and never committed, joins them: it names the data root, and it describes how each external source is reached and how far the agent may reach into it.</p>
 <figure>
 <svg aria-label="Two trees: the data root (raw, wiki with index and log, and engine-installed vault files) and the engine repository (CLAUDE.md, commands, schema, scripts, CHANGELOG). A config file at the bottom points at the data root, is read first by the engine, and holds the connector scopes and feeds." role="img" viewbox="0 0 760 310">
 <defs>
@@ -490,7 +490,7 @@ dl.spec dd ol { margin: 0; }
 </figure>
 <h3>The two directory trees</h3>
 <p>The OKF bundle root is <code>wiki/</code>, not the data root. That keeps <code>raw/</code> (notes, pins and metric snapshots without a <code>type</code> field) out of the conformance rule that every non-reserved markdown file must carry frontmatter, and it lets <code>team/playbooks/</code> or any other sub-directory be lifted out later as a bundle of its own. The five domain directories follow the five headings of the role description; <code>concepts/</code>, <code>sources/</code>, <code>syntheses/</code>, <code>radar/</code>, <code>questions/</code> and <code>reviews/</code> are shared. Obsidian opens the data root as its vault; Claude Code runs in the engine folder, where <code>CLAUDE.md</code> loads, and is granted the data root as an additional working directory.</p>
-<pre><div class="code-title">&lt;data.root&gt;/ — e.g. ~/work/commonplace-data — the Obsidian vault, a private git repo</div><code>&lt;data.root&gt;/
+<pre><div class="code-title">&lt;data.root&gt;/ — e.g. ~/work/tos-data — the Obsidian vault, a private git repo</div><code>&lt;data.root&gt;/
 ├── Home.md                    <span class="cm"># dashboard, installed by /init; engine-owned</span>
 ├── .obsidian/                 <span class="cm"># viewer settings, installed by /init; engine-owned</span>
 ├── raw/                       <span class="cm"># layer 1 — what the agent reads and never edits</span>
@@ -514,11 +514,11 @@ dl.spec dd ol { margin: 0; }
 │   ├── questions/             <span class="cm"># the ambiguity register</span>
 │   └── reviews/               <span class="cm"># 2026-W36.md, sprint-2026-18.md … with your inline answers</span>
 └── (no CLAUDE.md, no schema, no scripts — the engine lives elsewhere)</code></pre>
-<pre><div class="code-title">commonplace-engine/ — layer 3, a git repo you could publish</div><code>commonplace-engine/
+<pre><div class="code-title">tos-engine/ — layer 3, a git repo you could publish</div><code>tos-engine/
 ├── CLAUDE.md                  <span class="cm"># the schema; first instruction: read the config</span>
 ├── CHANGELOG.md               <span class="cm"># engine changes only — never the data log</span>
 ├── README.md                  <span class="cm"># this document, in markdown</span>
-├── config.example.yaml        <span class="cm"># copy to ~/.config/commonplace/config.yaml</span>
+├── config.example.yaml        <span class="cm"># copy to ~/.config/tos/config.yaml</span>
 ├── .claude/
 │   ├── commands/              <span class="cm"># the eleven commands (§5)</span>
 │   └── settings.json          <span class="cm"># grants data.root as an additional working directory</span>
@@ -531,10 +531,10 @@ dl.spec dd ol { margin: 0; }
     ├── init.py                <span class="cm"># creates the data root layout from the config</span>
     └── metrics/               <span class="cm"># executor, attester, one script per metric</span></code></pre>
 <h3>The config file</h3>
-<p>One file per installation, in YAML because the rest of the system already speaks YAML frontmatter (D13). It lives outside both repositories, at <code>~/.config/commonplace/config.yaml</code>, and <code>CLAUDE.md</code>'s first instruction is to read it. It names the data root; it says which provider serves each connector and how far the agent may reach into it; it lists the feeds allowed to run unattended; and it carries the review settings. It holds no credentials: connector authentication belongs to the MCP server configuration in Claude Code, and the one script that could ever need a token is told the <em>name</em> of an environment variable, never its value.</p>
-<pre><div class="code-title">~/.config/commonplace/config.yaml</div><code><span class="k">engine</span>: "0.4"                          <span class="cm"># engine version; lint warns on mismatch</span>
+<p>One file per installation, in YAML because the rest of the system already speaks YAML frontmatter (D13). It lives outside both repositories, at <code>~/.config/tos/config.yaml</code>, and <code>CLAUDE.md</code>'s first instruction is to read it. It names the data root; it says which provider serves each connector and how far the agent may reach into it; it lists the feeds allowed to run unattended; and it carries the review settings. It holds no credentials: connector authentication belongs to the MCP server configuration in Claude Code, and the one script that could ever need a token is told the <em>name</em> of an environment variable, never its value.</p>
+<pre><div class="code-title">~/.config/tos/config.yaml</div><code><span class="k">engine</span>: "0.4"                          <span class="cm"># engine version; lint warns on mismatch</span>
 <span class="k">data</span>:
-  root: ~/work/commonplace-data          <span class="cm"># raw/, wiki/, Home.md, .obsidian/ live here</span>
+  root: ~/work/tos-data          <span class="cm"># raw/, wiki/, Home.md, .obsidian/ live here</span>
   timezone: Australia/Melbourne
   actor: human:rafael                    <span class="cm"># the human actor in every verified entry</span>
 
@@ -629,7 +629,7 @@ dl.spec dd ol { margin: 0; }
 <section class="pb" id="contract">
 <p class="part">3 · The page contract</p>
 <h2>Every page says who wrote it, who checked it, and when it expires</h2>
-<p class="lead-in">OKF requires exactly one field, <code>type</code>. Commonplace requires the full v0.2 trust family on top of it, because the agent writes most pages and you need to filter by tier at a glance. A representative page, this time one the role makes central:</p>
+<p class="lead-in">OKF requires exactly one field, <code>type</code>. TechLead OS requires the full v0.2 trust family on top of it, because the agent writes most pages and you need to filter by tier at a glance. A representative page, this time one the role makes central:</p>
 <pre><div class="code-title">wiki/systems/asset-search.md</div><code>---
 <span class="k">type</span>: System                           <span class="cm"># OKF: required; from schema/types.md</span>
 <span class="k">title</span>: Asset search
@@ -702,7 +702,7 @@ dl.spec dd ol { margin: 0; }
 <li><strong>Status is explicit.</strong> OKF treats a missing <code>status</code> as <code>stable</code>. An agent-written page must therefore always write <code>status: draft</code> until it earns <code>stable</code> (see the gate per type in §4). <code>deprecated</code> replaces deletion: the page stays, says what superseded it, and drops out of answers unless asked for.</li>
 </ul>
 <h3>Numbers are attested, not remembered</h3>
-<p>The role asks you to reflect with the team on delivery metrics from Jira and on sprint reports. An LLM that "remembers" last sprint's completion rate is precisely what OKF's <code>Attested Computation</code> type was written to prevent. A page of that type binds a sanctioned computation to declared parameters, an executor that must return a receipt, and a deterministic attester that confirms the computation that ran is the one bound to the page. In OKF's words, the agent may only supply values for the declared parameters; it must not author or edit the computation. In Commonplace, a number appears in a sprint review or a brief with its receipt, or it does not appear.</p>
+<p>The role asks you to reflect with the team on delivery metrics from Jira and on sprint reports. An LLM that "remembers" last sprint's completion rate is precisely what OKF's <code>Attested Computation</code> type was written to prevent. A page of that type binds a sanctioned computation to declared parameters, an executor that must return a receipt, and a deterministic attester that confirms the computation that ran is the one bound to the page. In OKF's words, the agent may only supply values for the declared parameters; it must not author or edit the computation. In TechLead OS, a number appears in a sprint review or a brief with its receipt, or it does not appear.</p>
 <p>With connectors, the fetch and the computation are separated on purpose. The sprint-report feed fetches query results into an immutable snapshot under <code>raw/metrics/jira/</code>, the one kind of fetched content the data root keeps verbatim, because a number must be reproducible over the data it came from; the computation then runs deterministically over that file. The fetch itself is not attested and the receipt says so, but the number is: the receipt carries the hash of the snapshot and the hash of the computation, and the attester checks both.</p>
 <pre><div class="code-title">wiki/delivery/metrics/sprint-completion.md</div><code>---
 <span class="k">type</span>: Attested Computation
@@ -725,7 +725,7 @@ dl.spec dd ol { margin: 0; }
 ---</code></pre>
 <p>You author and verify these pages yourself; the agent runs them through <code>/measure</code> (§5). The attester compares the hash in the receipt with the computation the page binds, and a failing attestation is refused, not footnoted.</p>
 <h3>Freshness by type</h3>
-<p><code>stale_after</code> is an absolute date; OKF says a page is stale when today is on or past it. Commonplace computes it at write time from a per-type horizon, so a Signal about a vendor release expires in a month, a System's ownership review in a quarter, and a Concept lasts a year. Staleness is orthogonal to trust: a human-reviewed Project page still goes <span class="tier stale">stale</span> after thirty days of silence, which is the point, because a project page nobody has touched in a month is the thing you most want flagged. When a page expires, the weekly review asks for one of three answers: <em>refresh</em> (re-ingest, update), <em>extend</em> (bump the date, which also re-verifies), or <em>deprecate</em>.</p>
+<p><code>stale_after</code> is an absolute date; OKF says a page is stale when today is on or past it. TechLead OS computes it at write time from a per-type horizon, so a Signal about a vendor release expires in a month, a System's ownership review in a quarter, and a Concept lasts a year. Staleness is orthogonal to trust: a human-reviewed Project page still goes <span class="tier stale">stale</span> after thirty days of silence, which is the point, because a project page nobody has touched in a month is the thing you most want flagged. When a page expires, the weekly review asks for one of three answers: <em>refresh</em> (re-ingest, update), <em>extend</em> (bump the date, which also re-verifies), or <em>deprecate</em>.</p>
 <h3>Actors</h3>
 <p>OKF's three actor forms, used verbatim: <code>human:rafael</code> for you; <code>claude-code/&lt;model-id&gt;</code> for the agent, filling in the real model each run; <code>process:okf-lint</code>, <code>process:cross-check</code>, <code>process:weekly-review</code>, <code>process:sprint-review</code> for scripted passes. Timestamps are ISO-8601 with the Melbourne offset, so the log is unambiguous when you travel.</p>
 </section>
@@ -835,7 +835,7 @@ dl.spec dd ol { margin: 0; }
 <dl class="spec">
 <dt>Input</dt><dd>The config file.</dd>
 <dt>Steps</dt><dd>Read the config; create <code>data.root</code> with <code>raw/</code>, <code>wiki/</code> and every directory's <code>index.md</code>; install <code>Home.md</code> and <code>.obsidian/</code> from <code>schema/vault/</code>; write the bundle-root <code>index.md</code> with <code>okf_version: "0.2"</code>; write the first log entry; initialise the data repository. Re-running it on an existing data root only re-installs the vault files and reports drift between the engine version and <code>engine</code> in the config.</dd>
-<dt>Log line</dt><dd><code>* **Creation**: data root initialised by commonplace-engine 0.4.</code></dd>
+<dt>Log line</dt><dd><code>* **Creation**: data root initialised by tos-engine 0.4.</code></dd>
 </dl>
 <h3>/pull</h3>
 <dl class="spec">
@@ -1053,7 +1053,7 @@ WHERE status = "draft" AND generated.at &lt;= date(today) - dur(14 days)
 </ul>
 <h3>Claude Code</h3>
 <ul>
-<li><strong>Run it in the engine folder.</strong> Claude Code loads <code>CLAUDE.md</code> from the current directory, so the session starts in <code>commonplace-engine/</code>; <code>.claude/settings.json</code> grants <code>data.root</code> as an additional working directory, and every operation resolves paths from the config. <code>/init</code> is the only command that creates the data root.</li>
+<li><strong>Run it in the engine folder.</strong> Claude Code loads <code>CLAUDE.md</code> from the current directory, so the session starts in <code>tos-engine/</code>; <code>.claude/settings.json</code> grants <code>data.root</code> as an additional working directory, and every operation resolves paths from the config. <code>/init</code> is the only command that creates the data root.</li>
 <li><strong><code>CLAUDE.md</code></strong> is the schema, in Karpathy's sense, and it is loaded on every run. Sections: read the config first; the two trees and what may be written where; the pull rules; the page contract with the exact frontmatter; a pointer to <code>schema/types.md</code>; the ten operations as step lists; the guardrails in §9; the read-order rule (index → frontmatter → body); conventions for slugs, links, timestamps, actors; and the rule that engine proposals are applied in the engine repo and recorded in its <code>CHANGELOG.md</code>.</li>
 <li><strong><code>.claude/commands/</code></strong> holds one file per operation so <code>/init</code>, <code>/pull</code>, <code>/ingest</code>, <code>/query</code>, <code>/lint</code>, <code>/verify</code>, <code>/weekly</code>, <code>/sprint</code>, <code>/brief</code>, <code>/measure</code> and <code>/retro</code> are single words in the terminal.</li>
 <li><strong><code>schema/templates/</code></strong> gives the agent one file per type with the frontmatter and headings pre-filled, so a new page is a copy plus content rather than a re-derivation.</li>
@@ -1176,9 +1176,9 @@ WHERE status = "draft" AND generated.at &lt;= date(today) - dur(14 days)
 <span class="id">D8</span>
 <div>
 <h3>Name and horizons <span class="tier human">settled</span></h3>
-<p>"Commonplace" after the commonplace book, the original personal knowledge OS. The horizons in §4 are starting proposals; the new ones are System 90 d, Vision 180 d, Objective 90 d, RFC 30 d while in draft, Attested Computation 180 d.</p>
+<p>Originally "Commonplace", after the commonplace book; renamed <strong>TechLead OS</strong>, short form <code>tos</code>, on 29 August 2026, because "commonplace" reads as ordinary to anyone who does not know the lineage. The horizons in §4 are starting proposals; the new ones are System 90 d, Vision 180 d, Objective 90 d, RFC 30 d while in draft, Attested Computation 180 d.</p>
 <p class="rec"><b>Recommend</b> rename freely; keep the horizons for one quarter, then adjust from what the expiry list actually looks like.</p>
-<p class="decided"><b>Decided</b> As recommended.</p>
+<p class="decided"><b>Decided</b> TechLead OS (<code>tos</code>): config at <code>~/.config/tos/</code>, variable <code>TOS_CONFIG</code>, engine <code>tos-engine</code>. Horizons as recommended.</p>
 </div>
 </div>
 <div class="decision">
@@ -1221,8 +1221,8 @@ WHERE status = "draft" AND generated.at &lt;= date(today) - dur(14 days)
 <span class="id">D13</span>
 <div>
 <h3>Config format and location <span class="tier human">settled</span></h3>
-<p>YAML keeps one syntax across the whole system, since every page already carries YAML frontmatter; TOML is stricter about types and quoting, which suits a config file, at the cost of a second syntax. Location: <code>~/.config/commonplace/config.yaml</code> keeps it out of both repositories by construction; a git-ignored <code>config.local.yaml</code> inside the engine folder is easier to find but one mistake away from being committed.</p>
-<p class="rec"><b>Recommend</b> YAML, at <code>~/.config/commonplace/config.yaml</code>, with <code>config.example.yaml</code> tracked in the engine and an environment variable (<code>COMMONPLACE_CONFIG</code>) to point elsewhere. Say TOML if you prefer it; nothing else in the design moves.</p>
+<p>YAML keeps one syntax across the whole system, since every page already carries YAML frontmatter; TOML is stricter about types and quoting, which suits a config file, at the cost of a second syntax. Location: <code>~/.config/tos/config.yaml</code> keeps it out of both repositories by construction; a git-ignored <code>config.local.yaml</code> inside the engine folder is easier to find but one mistake away from being committed.</p>
+<p class="rec"><b>Recommend</b> YAML, at <code>~/.config/tos/config.yaml</code>, with <code>config.example.yaml</code> tracked in the engine and an environment variable (<code>TOS_CONFIG</code>) to point elsewhere. Say TOML if you prefer it; nothing else in the design moves.</p>
 <p class="decided"><b>Decided</b> As recommended.</p>
 </div>
 </div>

@@ -6,7 +6,7 @@ Follow CLAUDE.md §0 first: resolve and read the config. Then run
 
     python3 scripts/init.py $ARGUMENTS
 
-and show its output verbatim. If it reports that the config is missing or has no `data.root`, stop and tell the human what to do (copy `config.example.yaml` to `~/.config/commonplace/config.yaml`, or set `$COMMONPLACE_CONFIG`). Do not create the data root any other way, and do not write the config.
+and show its output verbatim. If it reports that the config is missing or has no `data.root`, stop and tell the human what to do (copy `config.example.yaml` to `~/.config/tos/config.yaml`, or set `$TOS_CONFIG`). Do not create the data root any other way, and do not write the config.
 
 After a first successful run, tell the human:
 1. to open `data.root` in Obsidian as a vault and install the Dataview community plugin;

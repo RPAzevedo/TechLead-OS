@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared helpers for the Commonplace engine scripts.
+"""Shared helpers for the TechLead OS engine scripts.
 
 - config loading (PyYAML if present, otherwise a small YAML-subset parser)
 - frontmatter parsing for OKF pages
@@ -15,7 +15,7 @@ import re
 import sys
 from pathlib import Path
 
-ENGINE_VERSION = "0.5.0"
+ENGINE_VERSION = "0.5.1"
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
 
 # ----------------------------------------------------------------------------- YAML subset
@@ -186,14 +186,14 @@ def load_yaml(text: str):
 
 # ----------------------------------------------------------------------------- config
 def config_path() -> Path:
-    env = os.environ.get("COMMONPLACE_CONFIG")
-    return Path(env).expanduser() if env else Path("~/.config/commonplace/config.yaml").expanduser()
+    env = os.environ.get("TOS_CONFIG")
+    return Path(env).expanduser() if env else Path("~/.config/tos/config.yaml").expanduser()
 
 
 def load_config(path: Path | None = None) -> dict:
     p = path or config_path()
     if not p.exists():
-        sys.exit(f"config not found: {p}\n  copy {ENGINE_ROOT / 'config.example.yaml'} there, or set $COMMONPLACE_CONFIG")
+        sys.exit(f"config not found: {p}\n  copy {ENGINE_ROOT / 'config.example.yaml'} there, or set $TOS_CONFIG")
     cfg = load_yaml(p.read_text(encoding="utf8"))
     if not isinstance(cfg, dict) or "data" not in cfg or not (cfg.get("data") or {}).get("root"):
         sys.exit(f"config at {p} has no data.root")
@@ -303,4 +303,4 @@ if __name__ == "__main__":
         print(f"phase:    {(cfg.get('rollout') or {}).get('phase', 1)}")
         print(f"yaml:     {'PyYAML' if _yaml else 'built-in subset parser'}")
     else:
-        print("usage: pos_common.py --show")
+        print("usage: tos_common.py --show")

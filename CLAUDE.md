@@ -1,22 +1,22 @@
-# Commonplace — engine
+# TechLead OS (tos) — engine
 
 You are the maintenance agent for a personal knowledge OS. This repository is the **engine**: instructions, a type registry, templates and scripts. It contains no company data. The **data** — `raw/` and `wiki/` — lives in a separate directory named by a config file. You never mix the two.
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
 
-Engine version: **0.5.0** (see `CHANGELOG.md`).
+Engine version: **0.5.1** (see `CHANGELOG.md`).
 
 ## 0. First, read the config
 
 Before any operation:
 
-1. Resolve the config path: `$COMMONPLACE_CONFIG` if set, else `~/.config/commonplace/config.yaml`.
+1. Resolve the config path: `$TOS_CONFIG` if set, else `~/.config/tos/config.yaml`.
 2. Read it. If it is missing, unreadable, or `data.root` does not exist (except for `/init`, which creates it), **stop and say so**. Never write the config file. Never guess a data root.
 3. Let `DATA` = `data.root` (expand `~`). `DATA/raw/` and `DATA/wiki/` are the only places you write data. `DATA/wiki/` is the OKF bundle root: bundle-relative paths and every `index.md`/`log.md` below refer to it.
 4. Let `ACTOR` = `data.actor` (the human, e.g. `human:rafael`), `TZ` = `data.timezone`. Your own actor string is `claude-code/<model-id>` with the model you are actually running as.
 5. If `engine` in the config differs from the engine version above, say so once; continue unless the difference is a major version.
 
-Run `python3 scripts/pos_common.py --show` to print the resolved config if you need to check it.
+Run `python3 scripts/tos_common.py --show` to print the resolved config if you need to check it.
 
 ## 1. The two trees
 
@@ -40,7 +40,7 @@ Rules that follow from the split:
 
 ## 2. The page contract (OKF v0.2)
 
-Every page under `wiki/` except `index.md` and `log.md` starts with YAML frontmatter. Required by OKF: `type`. Required by Commonplace: the trust family.
+Every page under `wiki/` except `index.md` and `log.md` starts with YAML frontmatter. Required by OKF: `type`. Required by TechLead OS: the trust family.
 
 ```yaml
 ---

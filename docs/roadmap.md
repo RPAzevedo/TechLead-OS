@@ -1,8 +1,8 @@
-# Roadmap — commonplace-engine
+# Roadmap — tos-engine
 
-Engine work only; data changes never appear here. Versions are intentions, not promises: the first fortnight of use (docs/onboarding.html §7) decides 0.5.1, and each later phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29; the engine is at 0.5.0.
+Engine work only; data changes never appear here. Versions are intentions, not promises: the first fortnight of use (docs/onboarding.html §7) decides 0.5.2, and each later phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29; the engine is at 0.5.1 (0.5.1 was the rename to TechLead OS).
 
-## 0.5.1 — what the fortnight teaches
+## 0.5.2 — what the fortnight teaches
 
 No planned scope. The *Engine proposals* sections of the first two Monday reviews become the changelog entries: a heading that keeps being needed, a type nobody used, a guardrail that got in the way, lint findings that were noise. Nothing larger is started until this has happened.
 

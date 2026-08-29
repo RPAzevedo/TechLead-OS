@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Commonplace Onboarding</title>
+<title>TechLead OS Onboarding</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
 <style>
@@ -398,10 +398,17 @@
   .chip { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); background: var(--surface); }
   .chip.phase1 { border-color: var(--accent); color: var(--accent-ink); }
   .chip.phase3 { border-color: var(--warn); color: var(--warn); }
+  .flow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px; margin: 0 0 20px; }
+  @media (max-width: 720px) { .flow { grid-template-columns: minmax(0, 1fr); } }
+  .step { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; font-size: 15px; line-height: 1.5; box-shadow: var(--shadow); }
+  .step p { margin: 0; }
+  .step .who { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
   .answer { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 0 0 20px; font-size: 15.5px; box-shadow: var(--shadow); }
   .answer p { margin: 0 0 10px; }
   .answer p:last-child { margin-bottom: 0; }
   .answer .from { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .answer ul.cites { list-style: none; padding: 0; margin: 8px 0 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 8px; }
+  .answer ul.cites li { margin: 0; overflow-wrap: anywhere; }
   .answer pre.inline { margin: 0; border: 0; box-shadow: none; background: transparent; }
   .answer pre.inline code { padding: 0; }
   pre.wrap code { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -417,8 +424,8 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.5.0 · Phase 1</p>
-    <h1>Commonplace Onboarding</h1>
+    <p class="eyebrow">Onboarding · engine 0.5.1 · Phase 1</p>
+    <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: six setup steps that take about an hour, a first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
     <p class="meta"><span><b>Engine</b> ~/Code/POS/engine</span><span><b>Data root</b> ~/Code/POS/data (yours to create)</span><span><b>Setup</b> about an hour</span><span><b>Acceptance</b> two weeks</span></p>
   </header>
@@ -499,9 +506,9 @@
       <p class="part">1 · The engine</p>
       <h2>It is already on your Mac</h2>
       <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/POS/engine</span></p>
-      <p>The engine repository was created under <code>~/Code/POS/engine</code> with two commits. It holds instructions, the type registry, templates, scripts and the docs, and no data. Confirm it is what you expect:</p>
+      <p>The engine repository was created under <code>~/Code/POS/engine</code>; its history starts at 0.5.0 and the rename to TechLead OS is 0.5.1. It holds instructions, the type registry, templates, scripts and the docs, and no data. Confirm it is what you expect:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/POS/engine
-git log --oneline          <span class="cm"># 2a37c85 docs: add Commonplace in Practice · 853aad6 commonplace-engine 0.5.0</span>
+git log --oneline          <span class="cm"># the newest commit is the rename to TechLead OS (0.5.1); the first is commonplace-engine 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
       <p>Read <code>CLAUDE.md</code> once, top to bottom; it is the operating manual the agent loads on every run, and the guardrails in its §5 are the ones you will be relying on. Everything else in the repo is referenced from it.</p>
@@ -511,23 +518,23 @@ python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
     <section id="config">
       <p class="part">2 · The config</p>
       <h2>One file, outside both repositories</h2>
-      <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">~/.config/commonplace/config.yaml</span></p>
-      <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/commonplace/config.yaml</code>, is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>mkdir -p ~/.config/commonplace
-cp ~/Code/POS/engine/config.example.yaml ~/.config/commonplace/config.yaml
-open -e ~/.config/commonplace/config.yaml</code></pre>
+      <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">~/.config/tos/config.yaml</span></p>
+      <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/tos/config.yaml</code>, is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>mkdir -p ~/.config/tos
+cp ~/Code/POS/engine/config.example.yaml ~/.config/tos/config.yaml
+open -e ~/.config/tos/config.yaml</code></pre>
       <p>Edit four things and leave the rest: <code>data.root</code> if you want the data somewhere other than <code>~/Code/POS/data</code> (the policy check may decide this); <code>data.actor</code>, the actor string that will appear in every verification you make; <code>data.timezone</code>; and the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then check what the engine resolved:</p>
-<pre><div class="code-title">terminal</div><code>cd ~/Code/POS/engine && python3 scripts/pos_common.py --show</code></pre>
+<pre><div class="code-title">terminal</div><code>cd ~/Code/POS/engine && python3 scripts/tos_common.py --show</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
-<pre class="inline"><code>config:   /Users/raf/.config/commonplace/config.yaml
-engine:   0.5.0 (config says 0.5)
+<pre class="inline"><code>config:   /Users/raf/.config/tos/config.yaml
+engine:   0.5.1 (config says 0.5)
 data:     /Users/raf/Code/POS/data  exists=False
 actor:    human:rafael
 phase:    1
 yaml:     PyYAML   <span class="cm"># or "built-in subset parser" — both are fine</span></code></pre>
       </div>
-      <p>If you ever want a second config (a team data root, later), point <code>$COMMONPLACE_CONFIG</code> at it; the engine reads that variable first.</p>
+      <p>If you ever want a second config (a team data root, later), point <code>$TOS_CONFIG</code> at it; the engine reads that variable first.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -581,7 +588,7 @@ git: repository initialised and first commit made</code></pre>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; what is the data root, which phase are we in, and which connectors may you use?</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
-        <p>The data root is <code>/Users/raf/Code/POS/data</code> (from <code>~/.config/commonplace/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
+        <p>The data root is <code>/Users/raf/Code/POS/data</code> (from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
       </div>
       <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
@@ -680,11 +687,11 @@ EOF</code></pre>
         <table>
           <thead><tr><th>You see</th><th>Cause</th><th>Do</th></tr></thead>
           <tbody>
-            <tr><td><code>config not found: …</code></td><td>No config at the default path and <code>$COMMONPLACE_CONFIG</code> unset.</td><td>Step 2. The message names the file to copy.</td></tr>
+            <tr><td><code>config not found: …</code></td><td>No config at the default path and <code>$TOS_CONFIG</code> unset.</td><td>Step 2. The message names the file to copy.</td></tr>
             <tr><td><code>config at … has no data.root</code></td><td>The YAML is malformed or <code>data:</code> was removed.</td><td>Compare with <code>config.example.yaml</code>; indentation is two spaces.</td></tr>
-            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>python3 scripts/pos_common.py --show</code>, then <code>/init</code>.</td></tr>
+            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>python3 scripts/tos_common.py --show</code>, then <code>/init</code>.</td></tr>
             <tr><td><code>yaml: built-in subset parser</code></td><td>PyYAML is not installed.</td><td>Nothing; the fallback handles the config and every template. <code>pip3 install pyyaml</code> if you prefer.</td></tr>
-            <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>commonplace-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
+            <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>tos-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
             <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
             <tr><td>"<code>/pull</code> refused: … not in scope"</td><td>Working as designed: the pointer is outside <code>connectors.&lt;name&gt;.scope</code>.</td><td>Add the space, folder or repo to the scope in the config if it should be in.</td></tr>
             <tr><td>"<code>/sprint</code> is not enabled until phase 2"</td><td>Working as designed.</td><td>§9. Build the phase before raising <code>rollout.phase</code>.</td></tr>
@@ -704,7 +711,7 @@ EOF</code></pre>
       <h2>Print this half-page</h2>
       <ul class="checklist">
         <li>Policy check done: summaries and excerpts of company material may live in the data root, at the path I chose.</li>
-        <li><code>~/.config/commonplace/config.yaml</code> exists; <code>pos_common.py --show</code> resolves the data root, actor and phase 1.</li>
+        <li><code>~/.config/tos/config.yaml</code> exists; <code>tos_common.py --show</code> resolves the data root, actor and phase 1.</li>
         <li><code>init.py --with-examples</code> ran; <code>okf_lint.py</code> reports 0 conformance errors and the one intended finding.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
         <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
@@ -715,7 +722,7 @@ EOF</code></pre>
         <li>Monday: <code>/weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.0, <code>~/Code/POS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.1, <code>~/Code/POS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
     </section>
   </main>
 </div>

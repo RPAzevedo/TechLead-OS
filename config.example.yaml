@@ -1,5 +1,5 @@
-# Commonplace — per-installation config.
-# Copy to ~/.config/commonplace/config.yaml (or point $COMMONPLACE_CONFIG at it).
+# TechLead OS (tos) — per-installation config.
+# Copy to ~/.config/tos/config.yaml (or point $TOS_CONFIG at it).
 # Never commit it. It holds no secrets: connector auth lives in Claude Code's MCP
 # configuration; the one script that could ever need a token is given the NAME of
 # an environment variable, never a value.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Commonplace in Practice</title>
+<title>TechLead OS in Practice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
 <style>
@@ -393,7 +393,7 @@
 
   .footer-note { font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px; }
 
-  /* ---------- scenarios ---------- */
+  /* ---------- scenarios / onboarding ---------- */
   .scen-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
   .chip { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); background: var(--surface); }
   .chip.phase1 { border-color: var(--accent); color: var(--accent-ink); }
@@ -405,11 +405,18 @@
   .step .who { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
   .answer { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 0 0 20px; font-size: 15.5px; box-shadow: var(--shadow); }
   .answer p { margin: 0 0 10px; }
+  .answer p:last-child { margin-bottom: 0; }
   .answer .from { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
   .answer ul.cites { list-style: none; padding: 0; margin: 8px 0 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 8px; }
   .answer ul.cites li { margin: 0; overflow-wrap: anywhere; }
-  pre b { font-weight: 600; color: var(--accent-ink); }
+  .answer pre.inline { margin: 0; border: 0; box-shadow: none; background: transparent; }
+  .answer pre.inline code { padding: 0; }
   pre.wrap code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  pre b { font-weight: 600; color: var(--accent-ink); }
+  ul.checklist { list-style: none; padding: 0; margin: 0 0 20px; }
+  ul.checklist li { position: relative; padding: 8px 0 8px 34px; border-top: 1px solid var(--rule); font-size: 15.5px; }
+  ul.checklist li:last-child { border-bottom: 1px solid var(--rule); }
+  ul.checklist li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 16px; height: 16px; border: 1.5px solid var(--ink-2); border-radius: 3px; background: var(--surface); }
 </style>
 </head>
 <body>
@@ -417,8 +424,8 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Scenarios · companion to the design (v0.5) and engine 0.5.0</p>
-    <h1>Commonplace in Practice</h1>
+    <p class="eyebrow">Scenarios · companion to the design (v0.5) and engine 0.5.1</p>
+    <h1>TechLead OS in Practice</h1>
     <p class="lede">Eight situations from a lead engineer's week, and what the system does in each: what you type, what the agent reads and writes, what comes back, and why you can trust it. Every scenario marked Phase 1 works with the engine as installed; the two that need a connector you don't have yet say so, and show the version that works today.</p>
     <p class="meta"><span><b>For</b> Rafael</span><span><b>Pages used</b> the ten examples <code>/init --with-examples</code> installs</span><span><b>Times</b> what you spend, not the agent</span></p>
   </header>
@@ -460,7 +467,7 @@
         <div class="step"><p class="who">Agent</p><p>Checks the Doc is inside the <code>gdocs</code> scope; fetches it read-only. Writes a <code>Source</code> page with a summary, the load-bearing lines as excerpts, and the Doc's modified time. Creates <code>design/rfcs/media-pipeline-v2.md</code> as the entry point: <code>resource</code> → the Doc, options, your notes under <em>Review notes</em>, a <em>Standards check</em>, outcome pending. Links it from <code>systems/asset-search.md</code>. Files a <code>Question</code> if ownership of reconciliation is unclear. Indexes, logs, commits.</p></div>
         <div class="step"><p class="who">You get</p><p>An RFC page you can annotate, a query you can ask, and a line on Monday's review under <em>Design — awaiting your decision</em> with the due date.</p></div>
       </div>
-<pre class="wrap"><div class="code-title">terminal — after /pull</div><code>/query what does media pipeline v2 change for the systems we own, and what does it not address?</code></pre>
+<pre><div class="code-title">terminal — after /pull</div><code>/query what does media pipeline v2 change for the systems we own, and what does it not address?</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p>Media pipeline v2 replaces the nightly batch rebuild with event-driven writes into the search index. Asset search consumes that index directly, so two things become your concern: how partial events are reconciled before the index is queried, and how a bad batch of events is rolled back. The RFC addresses data retention but not observability or rollback, and it does not say who owns reconciliation.</p>
@@ -486,7 +493,7 @@
         <div class="step"><p class="who">Agent</p><p>Reads yesterday's and today's entries in <code>log.md</code> and the pages they touched; then every Project and Initiative page's <em>Status</em>, <em>Next</em> and <code>next_checkpoint</code>; System <em>KTLO</em> sections; open Question pages. Composes four short lists and cites each line.</p></div>
         <div class="step"><p class="who">You get</p><p>A stand-up card: changed, blocked, decisions needed, checkpoints this week. Thirty seconds to read.</p></div>
       </div>
-<pre class="wrap"><div class="code-title">terminal</div><code>/query stand-up: what changed since yesterday on our projects and systems, what is blocked, what needs a decision from me, which checkpoints fall this week?</code></pre>
+<pre><div class="code-title">terminal</div><code>/query stand-up: what changed since yesterday on our projects and systems, what is blocked, what needs a decision from me, which checkpoints fall this week?</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p><strong>Changed.</strong> The media pipeline v2 RFC was ingested with your review notes; asset search gained a KTLO item for the noisy latency alert. <strong>Blocked.</strong> Extending the review-bot pilot waits on the vendor evaluation decision, which is still a proposal. <strong>Needs you.</strong> Two: the vendor-evaluation decision (draft since Tuesday), and the RFC review (due Friday). <strong>Checkpoints this week.</strong> Review-bot pilot, Thursday.</p>
@@ -512,7 +519,7 @@
         <div class="step"><p class="who">Agent</p><p>Before: reads the Project page, its linked Decision, the Initiative's <em>Timeline</em> and <em>Stakeholders</em>, open Questions, and the Source pages behind them for the actual words. Flags which of these are unverified. After: updates <em>Status</em> and <em>Next</em>, records the decision's outcome, moves the checkpoint, files the new question, logs, commits.</p></div>
         <div class="step"><p class="who">You get</p><p>A one-page brief with a "verify before you quote" line; after the meeting, pages that already say what was agreed.</p></div>
       </div>
-<pre class="wrap"><div class="code-title">terminal — 13:30</div><code>/query brief me for the review-bot pilot meeting: status, decisions pending, risks, open questions, and what each stakeholder has said, with quotes where we have them</code></pre>
+<pre><div class="code-title">terminal — 13:30</div><code>/query brief me for the review-bot pilot meeting: status, decisions pending, risks, open questions, and what each stakeholder has said, with quotes where we have them</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p><strong>Status.</strong> Pilot running in one team; extension to two more is gated on a proposed decision to evaluate vendor X first. <strong>Pending.</strong> That decision, proposed Tuesday, not yet accepted. <strong>Risks.</strong> A vendor product makes the in-house bot redundant. <strong>Open.</strong> Who owns the evaluation harness — nobody could say. <strong>Stakeholders.</strong> Security: "wants the data-handling brief before the pilot extends" (leadership notes, 28 Aug). Product Trio: no recorded position.</p>
@@ -575,7 +582,7 @@
         <div class="step"><p class="who">Agent</p><p>Source page with the report's key lines. On <code>systems/asset-search.md</code>: unticks the alert-budget item under <em>Operational standards</em> with a footnote, adds the KTLO item, a timeline line, and the incident to <em>Runbooks &amp; links</em>. Updates the <em>Alert budget</em> concept. Files a Question if the cause is unresolved. Lint now reports one unticked standard; Monday's <em>Systems</em> section carries it as an escalation prompt.</p></div>
         <div class="step"><p class="who">You get</p><p>A System page that is current, an escalation you cannot forget, and a quarter's worth of incident history on demand.</p></div>
       </div>
-<pre class="wrap"><div class="code-title">terminal — Friday</div><code>/query what do we know about latency incidents on asset search this quarter, and what changed after each?</code></pre>
+<pre><div class="code-title">terminal — Friday</div><code>/query what do we know about latency incidents on asset search this quarter, and what changed after each?</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p>Two incidents. 30 July: p95 latency exceeded the SLO for 40 minutes after a bad index rebuild; the rebuild job gained a validation step. 2 September: the latency alert fired repeatedly for three days and breached the alert budget; the on-call attributes it to thresholds set before the index migration, not a regression, and asked for a KTLO item to retune the alert, which is filed but not yet scheduled. One open question: whether the p95 SLO itself should change.</p>
@@ -588,7 +595,7 @@
       </div>
 <pre><div class="code-title">wiki/reviews/2026-W37.md — Monday</div><code># Systems
 - asset-search: alert budget breached 2026-09-02 · 1 standard unticked · KTLO item unscheduled → <span class="hl">escalate to EM; KTLO into sprint 18</span>
-- payments-ledger: ownership review due 2026-09-11 → <span class="hl">schedule</span></code></pre>
+- payments-ledger: ownership review due 2026-09-11                                              → <span class="hl">schedule</span></code></pre>
       <h3>Why you can trust it</h3>
       <p>The escalation is your own report's words, excerpted and footnoted, on a page that lint marks "changed since verified" until you look at it, which puts it at the top of Monday's queue. The unticked standard is a deterministic finding, not a judgement, and it stays in every lint report until the box is ticked with a footnote of its own. Nothing about the incident lives only in chat memory.</p>
     </section>
@@ -629,24 +636,24 @@
         <div class="step"><p class="who">You get</p><p>Ten to fifteen decisions, none of which you had to assemble, and a wiki that is still trustworthy next Monday.</p></div>
       </div>
 <pre><div class="code-title">wiki/reviews/2026-W37.md — answered inline</div><code># Verify queue (5 of 9 unverified, ranked by inbound links and domain)
-- [x] systems/asset-search.md — changed since your review on 2026-08-26 → <span class="hl">verified</span>
+- [x] systems/asset-search.md — changed since your review on 2026-08-26            → <span class="hl">verified</span>
 - [x] design/decisions/evaluate-vendor-before-extending-pilot.md — accepted 09-02  → <span class="hl">verified · stable</span>
-- [ ] design/rfcs/media-pipeline-v2.md — review sent Friday, outcome pending → <span class="hl">skip until the authors reply</span>
-- [x] questions/should-the-p95-slo-change.md → <span class="hl">verified</span>
-- [ ] sources/2026-09-03-team-search-digest.md → <span class="hl">skip</span>
+- [ ] design/rfcs/media-pipeline-v2.md — review sent Friday, outcome pending        → <span class="hl">skip until the authors reply</span>
+- [x] questions/should-the-p95-slo-change.md                                       → <span class="hl">verified</span>
+- [ ] sources/2026-09-03-team-search-digest.md                                      → <span class="hl">skip</span>
 
 # Re-pull queue (source drift)
-- design/rfcs/media-pipeline-v2.md — the Doc has 3 revisions since it was read → <span class="hl">re-pull</span>
+- design/rfcs/media-pipeline-v2.md — the Doc has 3 revisions since it was read     → <span class="hl">re-pull</span>
 
 # Expiring (refresh / extend / deprecate)
-- delivery/projects/eval-harness.md — stale since 2026-09-05 → <span class="hl">deprecate: folded into the pilot</span>
+- delivery/projects/eval-harness.md — stale since 2026-09-05                        → <span class="hl">deprecate: folded into the pilot</span>
 
 # Checkpoints passed
-- delivery/projects/review-bot-pilot.md — 2026-09-04 → <span class="hl">move to 2026-09-16</span>
+- delivery/projects/review-bot-pilot.md — 2026-09-04                                → <span class="hl">move to 2026-09-16</span>
 
 # Engine proposals (applied in the engine repo; CHANGELOG, not this log)
 - Incident reports keep yielding "alert thresholds" facts with no home.
-  Add a Thresholds heading to System? → <span class="hl">yes</span></code></pre>
+  Add a Thresholds heading to System?                                               → <span class="hl">yes</span></code></pre>
       <h3>Why you can trust it</h3>
       <p>The queue is capped and ranked, so verification stays a habit rather than a backlog. Expiry forces a choice, refresh, extend or deprecate, so nothing persists silently. And the review is itself a page in the wiki, with a log line for every action it took, so the record of how the wiki was maintained is in the wiki.</p>
     </section>
@@ -691,7 +698,7 @@
       <p class="part">10 · The four habits</p>
       <h2>What these scenarios rest on</h2>
       <p>Every scenario above is a return on one of four small habits, and none works without them. <strong>End of day, five minutes:</strong> notes into <code>raw/inbox/</code>, <code>/ingest</code>; the stand-up card is only as good as this. <strong>Pointers as you meet them:</strong> an RFC, a report, a page, into <code>pull.md</code> the moment you see it, not when you need it. <strong>Verify what you will quote:</strong> <code>/verify --queue</code> before a meeting, five on Monday; the tiers do the rest. <strong>Monday, thirty minutes:</strong> the review page, answered inline, applied. Skip the first and the wiki goes quiet; skip the third and it fills with the agent's guesses wearing the look of records; skip the fourth and expiry stops meaning anything. The design's promise, Karpathy's, is that the bookkeeping is no longer yours; these four are what remains.</p>
-      <p class="footer-note">Scenarios reuse the example pages installed by <code>/init --with-examples</code>; names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.5.0) and the design page (v0.5).</p>
+      <p class="footer-note">Scenarios reuse the example pages installed by <code>/init --with-examples</code>; names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.5.1) and the design page (v0.5).</p>
     </section>
   </main>
 </div>

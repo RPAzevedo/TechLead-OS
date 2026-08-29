@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""/lint, deterministic half — OKF v0.2 conformance and Commonplace trust checks.
+"""/lint, deterministic half — OKF v0.2 conformance and TechLead OS trust checks.
 
     python3 scripts/okf_lint.py [--json] [--today YYYY-MM-DD]
 
@@ -19,7 +19,7 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import pos_common as pc  # noqa: E402
+import tos_common as pc  # noqa: E402
 
 RESERVED = {"index.md", "log.md"}
 STATUSES = {"draft", "stable", "deprecated"}

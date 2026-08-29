@@ -1,8 +1,9 @@
-<!-- Generated from the design page (commonplace-os-design.html, v0.5). Figures are in docs/design.html / design.pdf. -->
+<!-- Generated from the design page (v0.5, renamed TechLead OS). Figures are in docs/design.html / design.pdf. -->
+
 
 Design proposal · v0.5 (draft — awaiting human:rafael)
 
-# Commonplace OS
+# TechLead OS
 
 A personal operating system for a lead engineer: Karpathy's LLM Wiki loop, running on Google's Open Knowledge Format v0.2 page contract, weighted by the Level 5 role. An engine of instructions, a data root of markdown, one config file joining them. Obsidian to read it, Claude Code to maintain it, git underneath.
 
@@ -32,9 +33,9 @@ v0.1 weighted four domains equally, with the AI-transformation radar first. The 
 
 Every page in the wiki, including this document, opens with the same header. Here is this document's:
 
-    commonplace-os-design.md — its own OKF frontmatter---
+    techlead-os-design.md — its own OKF frontmatter---
     type: Design
-    title: Commonplace OS
+    title: TechLead OS
     description: A lead engineer's personal OS — the LLM Wiki loop on the OKF v0.2 contract.
     tags: [personal-os, llm-wiki, okf, obsidian, claude-code, lead-engineer]
     sources:
@@ -72,7 +73,7 @@ Read the header and you already know how much to trust the body: an agent wrote 
 
 The two documents were written for different worlds, a personal Obsidian vault and an enterprise data catalog, yet they converge on the same physical form: a directory of markdown files with YAML frontmatter, an `index.md` the agent reads first, and a `log.md` that records every change. That convergence is what makes the merge cheap. What each adds is different.
 
-| Concern                | Karpathy's LLM Wiki                                                                                                                     | Google OKF v0.2                                                                                                                                      | In Commonplace                                                                                                               |
+| Concern                | Karpathy's LLM Wiki                                                                                                                     | Google OKF v0.2                                                                                                                                      | In TechLead OS                                                                                                               |
 |------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | **Division of labour** | Human curates and asks; LLM summarises, cross-references, files, maintains.                                                             | Producers and consumers; agents emit and filter trust signals.                                                                                       | Karpathy's roles, with OKF's actor names (`human:rafael`, `claude-code/…`).                                                  |
 | **Layers**             | Immutable raw sources → LLM-owned wiki → a schema file (e.g. `CLAUDE.md`).                                                              | A bundle root with concepts, sub-directories, optional `references/`.                                                                                | `raw/` and `wiki/` (the bundle) in a data root; `CLAUDE.md` + `schema/` in a separate engine repo; a config file joins them. |
@@ -100,7 +101,7 @@ Two more inputs shape v0.2 and v0.3, and neither is a framework. The Level 5 (Le
 
 ### Engine and data are separate trees
 
-Karpathy's three layers are raw, wiki and schema. The first two are data: they are about your work, they contain company material, and they grow every day. The third is machinery: it says how the agent behaves, it contains nothing about your company, and it changes when you change your mind about the method. Commonplace keeps them in two trees. The **engine** is a git repository holding `CLAUDE.md`, the commands, the type registry and templates, the lint and metrics scripts, and its own `CHANGELOG.md`; you could publish it, or hand it to a colleague who would run it over their own data. The **data root** is a directory anywhere on the filesystem holding `raw/`, `wiki/` and the Obsidian vault files, as its own private repository in company-approved storage. A **config file**, one per installation and never committed, joins them: it names the data root, and it describes how each external source is reached and how far the agent may reach into it.
+Karpathy's three layers are raw, wiki and schema. The first two are data: they are about your work, they contain company material, and they grow every day. The third is machinery: it says how the agent behaves, it contains nothing about your company, and it changes when you change your mind about the method. TechLead OS keeps them in two trees. The **engine** is a git repository holding `CLAUDE.md`, the commands, the type registry and templates, the lint and metrics scripts, and its own `CHANGELOG.md`; you could publish it, or hand it to a colleague who would run it over their own data. The **data root** is a directory anywhere on the filesystem holding `raw/`, `wiki/` and the Obsidian vault files, as its own private repository in company-approved storage. A **config file**, one per installation and never committed, joins them: it names the data root, and it describes how each external source is reached and how far the agent may reach into it.
 
 <figure>
 <p><em>[figure — see docs/design.html]</em></p>
@@ -111,7 +112,7 @@ Karpathy's three layers are raw, wiki and schema. The first two are data: they a
 
 The OKF bundle root is `wiki/`, not the data root. That keeps `raw/` (notes, pins and metric snapshots without a `type` field) out of the conformance rule that every non-reserved markdown file must carry frontmatter, and it lets `team/playbooks/` or any other sub-directory be lifted out later as a bundle of its own. The five domain directories follow the five headings of the role description; `concepts/`, `sources/`, `syntheses/`, `radar/`, `questions/` and `reviews/` are shared. Obsidian opens the data root as its vault; Claude Code runs in the engine folder, where `CLAUDE.md` loads, and is granted the data root as an additional working directory.
 
-    <data.root>/ — e.g. ~/work/commonplace-data — the Obsidian vault, a private git repo<data.root>/
+    <data.root>/ — e.g. ~/work/tos-data — the Obsidian vault, a private git repo<data.root>/
     ├── Home.md                    # Obsidian dashboard, installed by /init from schema/vault/; engine-owned
     ├── .obsidian/                 # viewer settings, installed by /init; engine-owned
     ├── raw/                       # layer 1 — what the agent reads and never edits
@@ -136,11 +137,11 @@ The OKF bundle root is `wiki/`, not the data root. That keeps `raw/` (notes, pin
     │   └── reviews/               # 2026-W36.md, sprint-2026-18.md … with your inline answers
     └── (no CLAUDE.md, no schema, no scripts — the engine lives elsewhere)
 
-    commonplace-engine/ — layer 3, a git repo you could publishcommonplace-engine/
+    tos-engine/ — layer 3, a git repo you could publishtos-engine/
     ├── CLAUDE.md                  # the schema; its first instruction: read the config, resolve data.root
     ├── CHANGELOG.md               # engine changes only — never the data log
     ├── README.md                  # this document, in markdown
-    ├── config.example.yaml        # copy to ~/.config/commonplace/config.yaml and fill in
+    ├── config.example.yaml        # copy to ~/.config/tos/config.yaml and fill in
     ├── .claude/
     │   ├── commands/              # /init /pull /ingest /query /lint /verify /weekly /sprint /brief /measure /retro
     │   └── settings.json          # grants data.root as an additional working directory
@@ -155,11 +156,11 @@ The OKF bundle root is `wiki/`, not the data root. That keeps `raw/` (notes, pin
 
 ### The config file
 
-One file per installation, in YAML because the rest of the system already speaks YAML frontmatter (D13). It lives outside both repositories, at `~/.config/commonplace/config.yaml`, and `CLAUDE.md`'s first instruction is to read it. It names the data root; it says which provider serves each connector and how far the agent may reach into it; it lists the feeds allowed to run unattended; and it carries the review settings. It holds no credentials: connector authentication belongs to the MCP server configuration in Claude Code, and the one script that could ever need a token is told the *name* of an environment variable, never its value.
+One file per installation, in YAML because the rest of the system already speaks YAML frontmatter (D13). It lives outside both repositories, at `~/.config/tos/config.yaml`, and `CLAUDE.md`'s first instruction is to read it. It names the data root; it says which provider serves each connector and how far the agent may reach into it; it lists the feeds allowed to run unattended; and it carries the review settings. It holds no credentials: connector authentication belongs to the MCP server configuration in Claude Code, and the one script that could ever need a token is told the *name* of an environment variable, never its value.
 
-    ~/.config/commonplace/config.yamlengine: "0.4"                          # the engine version this config was written for; lint warns on mismatch
+    ~/.config/tos/config.yamlengine: "0.4"                          # the engine version this config was written for; lint warns on mismatch
     data:
-      root: ~/work/commonplace-data          # raw/, wiki/, Home.md, .obsidian/ live here
+      root: ~/work/tos-data          # raw/, wiki/, Home.md, .obsidian/ live here
       timezone: Australia/Melbourne
       actor: human:rafael                    # the human actor in every verified entry
 
@@ -259,7 +260,7 @@ Every directory under `wiki/` carries its own `index.md` in OKF's list form. The
 
 ## Every page says who wrote it, who checked it, and when it expires
 
-OKF requires exactly one field, `type`. Commonplace requires the full v0.2 trust family on top of it, because the agent writes most pages and you need to filter by tier at a glance. A representative page, this time one the role makes central:
+OKF requires exactly one field, `type`. TechLead OS requires the full v0.2 trust family on top of it, because the agent writes most pages and you need to filter by tier at a glance. A representative page, this time one the role makes central:
 
     wiki/systems/asset-search.md---
     type: System                           # OKF: required; from schema/types.md
@@ -305,7 +306,7 @@ Three rules make the ladder mean something:
 
 ### Numbers are attested, not remembered
 
-The role asks you to reflect with the team on delivery metrics from Jira and on sprint reports. An LLM that "remembers" last sprint's completion rate is precisely what OKF's `Attested Computation` type was written to prevent. A page of that type binds a sanctioned computation to declared parameters, an executor that must return a receipt, and a deterministic attester that confirms the computation that ran is the one bound to the page. In OKF's words, the agent may only supply values for the declared parameters; it must not author or edit the computation. In Commonplace, a number appears in a sprint review or a brief with its receipt, or it does not appear.
+The role asks you to reflect with the team on delivery metrics from Jira and on sprint reports. An LLM that "remembers" last sprint's completion rate is precisely what OKF's `Attested Computation` type was written to prevent. A page of that type binds a sanctioned computation to declared parameters, an executor that must return a receipt, and a deterministic attester that confirms the computation that ran is the one bound to the page. In OKF's words, the agent may only supply values for the declared parameters; it must not author or edit the computation. In TechLead OS, a number appears in a sprint review or a brief with its receipt, or it does not appear.
 
 With connectors, the fetch and the computation are separated on purpose. The sprint-report feed fetches query results into an immutable snapshot under `raw/metrics/jira/`, the one kind of fetched content the data root keeps verbatim, because a number must be reproducible over the data it came from; the computation then runs deterministically over that file. The fetch itself is not attested and the receipt says so, but the number is: the receipt carries the hash of the snapshot and the hash of the computation, and the attester checks both.
 
@@ -333,7 +334,7 @@ You author and verify these pages yourself; the agent runs them through `/measur
 
 ### Freshness by type
 
-`stale_after` is an absolute date; OKF says a page is stale when today is on or past it. Commonplace computes it at write time from a per-type horizon, so a Signal about a vendor release expires in a month, a System's ownership review in a quarter, and a Concept lasts a year. Staleness is orthogonal to trust: a human-reviewed Project page still goes <span class="tier stale">stale</span> after thirty days of silence, which is the point, because a project page nobody has touched in a month is the thing you most want flagged. When a page expires, the weekly review asks for one of three answers: *refresh* (re-ingest, update), *extend* (bump the date, which also re-verifies), or *deprecate*.
+`stale_after` is an absolute date; OKF says a page is stale when today is on or past it. TechLead OS computes it at write time from a per-type horizon, so a Signal about a vendor release expires in a month, a System's ownership review in a quarter, and a Concept lasts a year. Staleness is orthogonal to trust: a human-reviewed Project page still goes <span class="tier stale">stale</span> after thirty days of silence, which is the point, because a project page nobody has touched in a month is the thing you most want flagged. When a page expires, the weekly review asks for one of three answers: *refresh* (re-ingest, update), *extend* (bump the date, which also re-verifies), or *deprecate*.
 
 ### Actors
 
@@ -390,7 +391,7 @@ Steps
 Read the config; create `data.root` with `raw/`, `wiki/` and every directory's `index.md`; install `Home.md` and `.obsidian/` from `schema/vault/`; write the bundle-root `index.md` with `okf_version: "0.2"`; write the first log entry; initialise the data repository. Re-running it on an existing data root only re-installs the vault files and reports drift between the engine version and `engine` in the config.
 
 Log line  
-`* **Creation**: data root initialised by commonplace-engine 0.4.`
+`* **Creation**: data root initialised by tos-engine 0.4.`
 
 ### /pull
 
@@ -650,7 +651,7 @@ The other three: pages stale or expiring within a week; projects and initiatives
 
 ### Claude Code
 
-- **Run it in the engine folder.** Claude Code loads `CLAUDE.md` from the current directory, so the session starts in `commonplace-engine/`; `.claude/settings.json` grants `data.root` as an additional working directory, and every operation resolves paths from the config. `/init` is the only command that creates the data root.
+- **Run it in the engine folder.** Claude Code loads `CLAUDE.md` from the current directory, so the session starts in `tos-engine/`; `.claude/settings.json` grants `data.root` as an additional working directory, and every operation resolves paths from the config. `/init` is the only command that creates the data root.
 - **`CLAUDE.md`** is the schema, in Karpathy's sense, and it is loaded on every run. Sections: read the config first; the two trees and what may be written where; the pull rules; the page contract with the exact frontmatter; a pointer to `schema/types.md`; the ten operations as step lists; the guardrails in §9; the read-order rule (index → frontmatter → body); conventions for slugs, links, timestamps, actors; and the rule that engine proposals are applied in the engine repo and recorded in its `CHANGELOG.md`.
 - **`.claude/commands/`** holds one file per operation so `/init`, `/pull`, `/ingest`, `/query`, `/lint`, `/verify`, `/weekly`, `/sprint`, `/brief`, `/measure` and `/retro` are single words in the terminal.
 - **`schema/templates/`** gives the agent one file per type with the frontmatter and headings pre-filled, so a new page is a copy plus content rather than a re-derivation.
@@ -801,11 +802,11 @@ Machine-confirmed needs a second pass. With attested computations carrying the n
 
 ### Name and horizons <span class="tier human">settled</span>
 
-"Commonplace" after the commonplace book, the original personal knowledge OS. The horizons in §4 are starting proposals; the new ones are System 90 d, Vision 180 d, Objective 90 d, RFC 30 d while in draft, Attested Computation 180 d.
+Originally "Commonplace", after the commonplace book; renamed **TechLead OS**, short form `tos`, on 29 August 2026, because "commonplace" reads as ordinary to anyone who does not know the lineage. The horizons in §4 are starting proposals; the new ones are System 90 d, Vision 180 d, Objective 90 d, RFC 30 d while in draft, Attested Computation 180 d.
 
 **Recommend** rename freely; keep the horizons for one quarter, then adjust from what the expiry list actually looks like.
 
-**Decided** As recommended.
+**Decided** TechLead OS (`tos`): config at `~/.config/tos/`, variable `TOS_CONFIG`, engine `tos-engine`. Horizons as recommended.
 
 <span class="id">D9</span>
 
@@ -851,9 +852,9 @@ Trello could be the Trio's discovery board, a team board that duplicates Jira, o
 
 ### Config format and location <span class="tier human">settled</span>
 
-YAML keeps one syntax across the whole system, since every page already carries YAML frontmatter; TOML is stricter about types and quoting, which suits a config file, at the cost of a second syntax. Location: `~/.config/commonplace/config.yaml` keeps it out of both repositories by construction; a git-ignored `config.local.yaml` inside the engine folder is easier to find but one mistake away from being committed.
+YAML keeps one syntax across the whole system, since every page already carries YAML frontmatter; TOML is stricter about types and quoting, which suits a config file, at the cost of a second syntax. Location: `~/.config/tos/config.yaml` keeps it out of both repositories by construction; a git-ignored `config.local.yaml` inside the engine folder is easier to find but one mistake away from being committed.
 
-**Recommend** YAML, at `~/.config/commonplace/config.yaml`, with `config.example.yaml` tracked in the engine and an environment variable (`COMMONPLACE_CONFIG`) to point elsewhere. Say TOML if you prefer it; nothing else in the design moves.
+**Recommend** YAML, at `~/.config/tos/config.yaml`, with `config.example.yaml` tracked in the engine and an environment variable (`TOS_CONFIG`) to point elsewhere. Say TOML if you prefer it; nothing else in the design moves.
 
 **Decided** As recommended.
 

@@ -20,11 +20,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import pos_common as pc  # noqa: E402
+import tos_common as pc  # noqa: E402
 
 WIKI_DIRS = {
     # path: (title, description)
-    "": ("Commonplace", "the OKF bundle root — start here"),
+    "": ("TechLead OS", "the OKF bundle root — start here"),
     "delivery": ("Delivery", "initiatives, projects, objectives, delivery metrics"),
     "delivery/initiatives": ("Initiatives", "cross-functional efforts and company moving parts"),
     "delivery/projects": ("Projects", "what the team delivers"),
@@ -187,7 +187,7 @@ def git(root: Path, *args, check=False):
     cmd = ["git"]
     ident = subprocess.run(["git", "config", "user.email"], cwd=root, capture_output=True, text=True)
     if not ident.stdout.strip():  # no identity configured: commit as the engine without touching global config
-        cmd += ["-c", "user.name=commonplace-engine", "-c", "user.email=commonplace@localhost"]
+        cmd += ["-c", "user.name=tos-engine", "-c", "user.email=tos@localhost"]
     return subprocess.run([*cmd, *args], cwd=root, capture_output=True, text=True, check=check)
 
 
@@ -221,7 +221,7 @@ def main(argv):
             d.mkdir(parents=True, exist_ok=True)
         ensure(d / "index.md", index_body(rel, title, desc, root), dry, created)
     ensure(root / "wiki" / "log.md",
-           f"# Data update log\n\n## {now.date().isoformat()}\n* **Creation**: data root initialised by commonplace-engine {pc.ENGINE_VERSION} (config engine \"{cfg.get('engine')}\").\n",
+           f"# Data update log\n\n## {now.date().isoformat()}\n* **Creation**: data root initialised by tos-engine {pc.ENGINE_VERSION} (config engine \"{cfg.get('engine')}\").\n",
            dry, created)
     ensure(root / ".gitignore", ".obsidian/workspace.json\n.obsidian/workspace-mobile.json\n.DS_Store\n", dry, created)
     install_vault(root, dry, log)
@@ -233,7 +233,7 @@ def main(argv):
         r = git(root, "init", "-q")
         if r.returncode == 0:
             git(root, "add", "-A")
-            git(root, "commit", "-q", "-m", f"Creation: data root initialised by commonplace-engine {pc.ENGINE_VERSION}")
+            git(root, "commit", "-q", "-m", f"Creation: data root initialised by tos-engine {pc.ENGINE_VERSION}")
             log.append("git: repository initialised and first commit made")
         else:
             log.append("git: not available — initialise the repository yourself")
