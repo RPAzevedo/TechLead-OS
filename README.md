@@ -63,9 +63,15 @@ it somewhere else.
 4. **First loop.** Drop a note into `raw/inbox/`, run `/ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/pull`; ask `/query <question>`; run `/lint`; on Monday, `/weekly`, answer inline, `/weekly --apply`.
 5. **Examples.** The ten pages tagged `example` are there so the first `/query` has something to find. Remove them with `uv run tos-init --remove-examples`.
 
-## Phases
+## Development Phases
 
-`rollout.phase` in the config gates connectors and commands: 1 documents (Confluence, web, markdown, Docs); 2 Jira, `/sprint`, `/measure`; 3 Slack, the team domain, `/brief`; 4 Trello (personal), visions, learning, radar, `/retro`. Phases 2–4 are designed (docs/design.html §10) but not yet built; the gated commands say so.
+`rollout.phase` in the config gates connectors and commands:
+1. documents (Confluence, web, markdown, Docs);
+2. Jira, `/sprint`, `/measure`;
+3. Slack, the team domain, `/brief`;
+4. Trello (personal), visions, learning, radar, `/retro`.
+
+Phases 2–4 are designed ([docs/design.html §10](docs/design.html)) but not yet built; the gated commands say so.
 
 ## Development
 
