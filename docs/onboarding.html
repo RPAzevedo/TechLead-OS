@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commonplace Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F7;
+    --surface: #FFFFFF;
+    --surface-2: #EEF2F4;
+    --ink: #1B2530;
+    --ink-2: #3C4A56;
+    --muted: #5F6E7A;
+    --rule: #D5DCE1;
+    --accent: #1F7A76;
+    --accent-ink: #145F5C;
+    --accent-soft: #E1F0EF;
+    --warn: #8F6212;
+    --warn-soft: #FBF1DA;
+    --stale: #A63A3A;
+    --stale-soft: #F9E4E4;
+    --good: #2F7D4F;
+    --good-soft: #E2F2E8;
+    --shadow: 0 1px 2px rgba(27, 37, 48, 0.06);
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Literata", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #12181E;
+      --surface: #1A222A;
+      --surface-2: #202A33;
+      --ink: #E6EBEF;
+      --ink-2: #C3CDD5;
+      --muted: #97A5B0;
+      --rule: #2C3741;
+      --accent: #52B8B2;
+      --accent-ink: #7ED0CA;
+      --accent-soft: #173634;
+      --warn: #D9A441;
+      --warn-soft: #3A2E14;
+      --stale: #E07A7A;
+      --stale-soft: #3B1E1E;
+      --good: #6CC08C;
+      --good-soft: #1B3324;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #12181E;
+    --surface: #1A222A;
+    --surface-2: #202A33;
+    --ink: #E6EBEF;
+    --ink-2: #C3CDD5;
+    --muted: #97A5B0;
+    --rule: #2C3741;
+    --accent: #52B8B2;
+    --accent-ink: #7ED0CA;
+    --accent-soft: #173634;
+    --warn: #D9A441;
+    --warn-soft: #3A2E14;
+    --stale: #E07A7A;
+    --stale-soft: #3B1E1E;
+    --good: #6CC08C;
+    --good-soft: #1B3324;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    font-optical-sizing: auto;
+  }
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 48px;
+  }
+  @media (min-width: 980px) {
+    .page { grid-template-columns: 208px minmax(0, 46rem); }
+  }
+
+  /* ---------- table of contents ---------- */
+  .toc { display: none; }
+  @media (min-width: 980px) {
+    .toc {
+      display: block;
+      position: sticky;
+      top: 28px;
+      align-self: start;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+  .toc .toc-label {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 12px;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .toc li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+  .toc .n { color: var(--muted); }
+  .toc a { color: var(--ink-2); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  /* ---------- header ---------- */
+  header.doc { grid-column: 1 / -1; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  @media (min-width: 980px) { header.doc { grid-column: 2; } }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  .eyebrow .status {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 56px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 20px;
+    text-wrap: pretty;
+  }
+  .meta {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin: 0;
+  }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- sections ---------- */
+  main { grid-column: 1 / -1; min-width: 0; }
+  @media (min-width: 980px) { main { grid-column: 2; } }
+  section { margin: 0 0 56px; scroll-margin-top: 24px; }
+  .part {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+  h2 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: 21px;
+    line-height: 1.25;
+    margin: 32px 0 10px;
+    text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 24px 0 8px;
+  }
+  p { margin: 0 0 16px; text-wrap: pretty; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin: 0 0 6px; }
+  li::marker { color: var(--muted); }
+  strong { font-weight: 600; }
+  code {
+    overflow-wrap: anywhere;
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+    color: var(--ink);
+  }
+  pre {
+    margin: 0 0 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; display: block; padding: 16px 18px; }
+  .code-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    padding: 8px 18px 0;
+    letter-spacing: 0.02em;
+  }
+  .cm { color: var(--muted); }
+  .k { color: var(--accent-ink); }
+  .hl { background: var(--accent-soft); border-radius: 3px; }
+
+  blockquote.quote {
+    margin: 0 0 20px;
+    padding: 4px 0 4px 20px;
+    border-left: 2px solid var(--accent);
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  blockquote.quote p { margin: 0 0 6px; }
+  blockquote.quote cite {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 0 0 20px;
+    box-shadow: var(--shadow);
+  }
+  .callout .label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+  .callout.warn { border-color: var(--warn); }
+  .callout.warn .label { color: var(--warn); }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 0 0 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.45; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+  th {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.mono, .mono { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .table-wrap.wide table { min-width: 1060px; }
+  .table-wrap.wide col.c-type { width: 110px; }
+  .table-wrap.wide col.c-dir { width: 140px; }
+  .table-wrap.wide col.c-what { width: 380px; }
+  .table-wrap.wide col.c-hor { width: 100px; }
+  .table-wrap.wide col.c-gate { width: 150px; }
+  .table-wrap.wide col.c-head { width: 180px; }
+
+  /* ---------- tier chips ---------- */
+  .tier {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    padding: 1px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .tier.machine { border-color: var(--accent); color: var(--accent-ink); }
+  .tier.human { border-color: var(--accent); background: var(--accent); color: #FFFFFF; }
+  :root[data-theme="dark"] .tier.human { color: #0F1A1A; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tier.human { color: #0F1A1A; } }
+  .tier.stale { border-color: var(--stale); color: var(--stale); background: var(--stale-soft); }
+  .tier.draft { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+
+  /* ---------- figures ---------- */
+  figure { margin: 8px 0 28px; }
+  figure svg { display: block; max-width: 100%; height: auto; color: var(--ink); font-family: var(--mono); }
+  figure .box { fill: var(--surface); stroke: currentColor; stroke-width: 1.2; }
+  figure .box-soft { fill: var(--surface-2); stroke: currentColor; stroke-width: 1.2; }
+  figure .box-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; }
+  figure .box-dash { fill: none; stroke: var(--muted); stroke-width: 1.1; stroke-dasharray: 5 4; }
+  figure .ln { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  figure .ln-acc { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+  figure .ln-dash { fill: none; stroke: currentColor; stroke-width: 1.1; stroke-dasharray: 4 4; }
+  figure .ln-stale { fill: none; stroke: var(--stale); stroke-width: 1.2; stroke-dasharray: 4 4; }
+  figure .mk { fill: currentColor; }
+  figure .mk-acc { fill: var(--accent); }
+  figure .mk-stale { fill: var(--stale); }
+  figure text { fill: currentColor; font-size: 12px; }
+  figure text.t { font-family: var(--display); font-weight: 500; font-size: 14px; }
+  figure text.s { fill: var(--muted); font-size: 11px; }
+  figure text.l { font-size: 11px; }
+  figure text.acc { fill: var(--accent-ink); }
+  figure text.stale { fill: var(--stale); }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  /* ---------- decision list ---------- */
+  .decision {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 0 14px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .decision:last-child { border-bottom: 1px solid var(--rule); }
+  .decision .id {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--accent);
+    padding-top: 4px;
+  }
+  .decision h3 { margin: 0 0 6px; font-size: 19px; }
+  .decision p { margin: 0 0 8px; font-size: 16px; }
+  .decision .rec { color: var(--ink-2); }
+  .decision .rec b { font-weight: 600; color: var(--ink); }
+  .decision .decided { border-left: 3px solid var(--accent); padding-left: 12px; margin-top: 10px; color: var(--ink); }
+  .decision .decided b { font-weight: 600; color: var(--accent-ink); }
+
+  /* ---------- key/value spec ---------- */
+  dl.spec { display: grid; grid-template-columns: 110px 1fr; gap: 6px 16px; margin: 0 0 20px; font-size: 15.5px; }
+  dl.spec dt { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+  dl.spec dd { margin: 0; }
+  dl.spec dd p { margin: 0 0 6px; }
+  dl.spec dd ol { margin: 0; }
+
+  .phases { display: grid; gap: 12px; margin: 0 0 20px; }
+  .phase { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
+  .phase .when { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 3px; }
+  .phase p { margin: 0; font-size: 15.5px; }
+  .phase p b { font-weight: 600; }
+
+  .sources-list { padding-left: 0; list-style: none; }
+  .sources-list li { padding: 8px 0; border-top: 1px solid var(--rule); font-size: 15px; }
+  .sources-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .sources-list .who { font-family: var(--mono); font-size: 12px; color: var(--muted); display: block; }
+
+  .footer-note { font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px; }
+
+  /* ---------- scenarios / onboarding ---------- */
+  .scen-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .chip { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); background: var(--surface); }
+  .chip.phase1 { border-color: var(--accent); color: var(--accent-ink); }
+  .chip.phase3 { border-color: var(--warn); color: var(--warn); }
+  .answer { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 0 0 20px; font-size: 15.5px; box-shadow: var(--shadow); }
+  .answer p { margin: 0 0 10px; }
+  .answer p:last-child { margin-bottom: 0; }
+  .answer .from { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .answer pre.inline { margin: 0; border: 0; box-shadow: none; background: transparent; }
+  .answer pre.inline code { padding: 0; }
+  pre.wrap code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  pre b { font-weight: 600; color: var(--accent-ink); }
+  ul.checklist { list-style: none; padding: 0; margin: 0 0 20px; }
+  ul.checklist li { position: relative; padding: 8px 0 8px 34px; border-top: 1px solid var(--rule); font-size: 15.5px; }
+  ul.checklist li:last-child { border-bottom: 1px solid var(--rule); }
+  ul.checklist li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 16px; height: 16px; border: 1.5px solid var(--ink-2); border-radius: 3px; background: var(--surface); }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+  <header class="doc">
+    <p class="eyebrow">Onboarding · engine 0.5.0 · Phase 1</p>
+    <h1>Commonplace Onboarding</h1>
+    <p class="lede">From the engine folder on your Mac to a wiki you trust: six setup steps that take about an hour, a first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
+    <p class="meta"><span><b>Engine</b> ~/Code/POS/engine</span><span><b>Data root</b> ~/Code/POS/data (yours to create)</span><span><b>Setup</b> about an hour</span><span><b>Acceptance</b> two weeks</span></p>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-label">Contents</p>
+    <ol>
+      <li><span class="n">0</span><a href="#before">Before you start</a></li>
+      <li><span class="n">1</span><a href="#engine">The engine</a></li>
+      <li><span class="n">2</span><a href="#config">The config</a></li>
+      <li><span class="n">3</span><a href="#data">The data root</a></li>
+      <li><span class="n">4</span><a href="#obsidian">Obsidian</a></li>
+      <li><span class="n">5</span><a href="#claude">Claude Code and connectors</a></li>
+      <li><span class="n">6</span><a href="#loop">The first loop</a></li>
+      <li><span class="n">7</span><a href="#fortnight">The first fortnight</a></li>
+      <li><span class="n">8</span><a href="#working">What working looks like</a></li>
+      <li><span class="n">9</span><a href="#phases">Later phases</a></li>
+      <li><span class="n">10</span><a href="#trouble">Troubleshooting</a></li>
+      <li><span class="n">11</span><a href="#checklist">Checklist</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <!-- ================================================================ -->
+    <section id="before">
+      <p class="part">0 · Before you start</p>
+      <h2>What you need, and the one thing to check first</h2>
+      <p>On the Mac: Python 3.9 or later (the scripts are standard library only; PyYAML is used if present and not required), git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian, Google Drive and web fetch. Phase 1 uses only those three; Slack, Jira and Trello wait for their phases. Nothing else is installed by the engine.</p>
+      <div class="callout warn">
+        <p class="label">The policy check — decision D5</p>
+        <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
+      </div>
+      <p>Two things are already decided so you do not have to: the data root defaults to <code>~/Code/POS/data</code> next to the engine, and <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built.</p>
+
+      <figure>
+        <svg viewBox="0 0 760 150" role="img" aria-label="Six setup steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about an hour in total, then a fortnight of use.">
+          <defs>
+            <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+          </defs>
+          <rect x="10" y="40" width="105" height="56" rx="4" class="box-soft"/>
+          <text x="62" y="63" text-anchor="middle" class="t">1 engine</text>
+          <text x="62" y="81" text-anchor="middle" class="s">already there</text>
+          <line x1="115" y1="68" x2="133" y2="68" class="ln" marker-end="url(#ar5)"/>
+
+          <rect x="135" y="40" width="105" height="56" rx="4" class="box"/>
+          <text x="187" y="63" text-anchor="middle" class="t">2 config</text>
+          <text x="187" y="81" text-anchor="middle" class="s">5 min</text>
+          <line x1="240" y1="68" x2="258" y2="68" class="ln" marker-end="url(#ar5)"/>
+
+          <rect x="260" y="40" width="105" height="56" rx="4" class="box"/>
+          <text x="312" y="63" text-anchor="middle" class="t">3 data root</text>
+          <text x="312" y="81" text-anchor="middle" class="s">2 min</text>
+          <line x1="365" y1="68" x2="383" y2="68" class="ln" marker-end="url(#ar5)"/>
+
+          <rect x="385" y="40" width="105" height="56" rx="4" class="box"/>
+          <text x="437" y="63" text-anchor="middle" class="t">4 Obsidian</text>
+          <text x="437" y="81" text-anchor="middle" class="s">5 min</text>
+          <line x1="490" y1="68" x2="508" y2="68" class="ln" marker-end="url(#ar5)"/>
+
+          <rect x="510" y="40" width="105" height="56" rx="4" class="box"/>
+          <text x="562" y="63" text-anchor="middle" class="t">5 Claude Code</text>
+          <text x="562" y="81" text-anchor="middle" class="s">15 min</text>
+          <line x1="615" y1="68" x2="633" y2="68" class="ln" marker-end="url(#ar5)"/>
+
+          <rect x="635" y="40" width="115" height="56" rx="4" class="box-acc"/>
+          <text x="692" y="63" text-anchor="middle" class="t">6 first loop</text>
+          <text x="692" y="81" text-anchor="middle" class="s">45 min</text>
+
+          <line x1="10" y1="118" x2="750" y2="118" class="ln-dash"/>
+          <text x="10" y="138" class="s">then: the first fortnight — daily ingest, ten queries, two Mondays, one verdict</text>
+        </svg>
+        <figcaption>Fig. 1 — The order matters only in one place: the config must exist before the data root, because <code>/init</code> reads it.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="engine">
+      <p class="part">1 · The engine</p>
+      <h2>It is already on your Mac</h2>
+      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/POS/engine</span></p>
+      <p>The engine repository was created under <code>~/Code/POS/engine</code> with two commits. It holds instructions, the type registry, templates, scripts and the docs, and no data. Confirm it is what you expect:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/POS/engine
+git log --oneline          <span class="cm"># 2a37c85 docs: add Commonplace in Practice · 853aad6 commonplace-engine 0.5.0</span>
+git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
+python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
+      <p>Read <code>CLAUDE.md</code> once, top to bottom; it is the operating manual the agent loads on every run, and the guardrails in its §5 are the ones you will be relying on. Everything else in the repo is referenced from it.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="config">
+      <p class="part">2 · The config</p>
+      <h2>One file, outside both repositories</h2>
+      <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">~/.config/commonplace/config.yaml</span></p>
+      <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/commonplace/config.yaml</code>, is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>mkdir -p ~/.config/commonplace
+cp ~/Code/POS/engine/config.example.yaml ~/.config/commonplace/config.yaml
+open -e ~/.config/commonplace/config.yaml</code></pre>
+      <p>Edit four things and leave the rest: <code>data.root</code> if you want the data somewhere other than <code>~/Code/POS/data</code> (the policy check may decide this); <code>data.actor</code>, the actor string that will appear in every verification you make; <code>data.timezone</code>; and the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then check what the engine resolved:</p>
+<pre><div class="code-title">terminal</div><code>cd ~/Code/POS/engine && python3 scripts/pos_common.py --show</code></pre>
+      <div class="answer">
+        <p class="from">expected output</p>
+<pre class="inline"><code>config:   /Users/raf/.config/commonplace/config.yaml
+engine:   0.5.0 (config says 0.5)
+data:     /Users/raf/Code/POS/data  exists=False
+actor:    human:rafael
+phase:    1
+yaml:     PyYAML   <span class="cm"># or "built-in subset parser" — both are fine</span></code></pre>
+      </div>
+      <p>If you ever want a second config (a team data root, later), point <code>$COMMONPLACE_CONFIG</code> at it; the engine reads that variable first.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="data">
+      <p class="part">3 · The data root</p>
+      <h2>Created by <code>/init</code>, never by hand</h2>
+      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates ~/Code/POS/data</span></p>
+      <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, ten example pages plus one example note, and a git repository with a first commit.</p>
+<pre><div class="code-title">terminal</div><code>python3 scripts/init.py --with-examples</code></pre>
+      <div class="answer">
+        <p class="from">expected output (abridged)</p>
+<pre class="inline"><code>data root: /Users/raf/Code/POS/data (created)
+created: raw/inbox … raw/notes … raw/pinned … raw/metrics … raw/assets
+created: raw/inbox/pull.md
+created: wiki/index.md … (26 index files) … wiki/log.md
+vault: Home.md · .obsidian/app.json · .obsidian/community-plugins.json
+example: raw/notes/example-leadership-meeting-notes.md
+example: wiki/systems/example-asset-search.md … (10 pages)
+git: repository initialised and first commit made</code></pre>
+      </div>
+      <p>Then run the deterministic lint once, before any real content, so you know what a clean report looks like:</p>
+<pre><div class="code-title">terminal</div><code>python3 scripts/okf_lint.py</code></pre>
+      <div class="answer">
+        <p class="from">expected output</p>
+<pre class="inline"><code># Lint — 2026-08-31
+10 pages · tiers {'unverified': 10, …} · conformance errors: 0
+## systems (1)
+- `systems/example-asset-search.md` — 1 operational standard(s) unticked</code></pre>
+      </div>
+      <p>The one finding is intended: the example System page has an unticked standard, so you can see what lint says about one. Ten pages, all unverified: nothing is trusted until you say so.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="obsidian">
+      <p class="part">4 · Obsidian</p>
+      <h2>Open the data root as the vault</h2>
+      <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">plugin: Dataview</span></p>
+      <p>Obsidian → <em>Open folder as vault</em> → <code>~/Code/POS/data</code>. Not the engine: the vault is the data. The settings <code>/init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
+      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Its eight queries should show the example pages: ten unverified pages in the first table, the System page under <em>Systems due for review</em> with its date ninety days out, the example RFC nowhere yet (it is not two weeks old), the example Question under <em>Open questions</em>. If the tables are empty, Dataview is not enabled; if they show errors, see §10.</p>
+      <p>Open <code>wiki/index.md</code> and follow a link or two. That top-down path, root index → directory index → page, is the one the agent takes for every query.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="claude">
+      <p class="part">5 · Claude Code and connectors</p>
+      <h2>Start it in the engine, grant it the data</h2>
+      <p class="scen-meta"><span class="chip phase1">15 minutes</span><span class="chip">connectors: atlassian · google-drive · fetch</span></p>
+      <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told: <code>.claude/settings.local.json</code> already grants <code>/Users/raf/Code/POS/data</code> as an additional working directory. If your data root is elsewhere, edit that file, or start with <code>claude --add-dir &lt;data.root&gt;</code>.</p>
+<pre><div class="code-title">terminal</div><code>cd ~/Code/POS/engine && claude</code></pre>
+      <p>Two checks inside the session. First, that the manual loaded and the config resolved:</p>
+<pre class="wrap"><div class="code-title">claude</div><code>&gt; what is the data root, which phase are we in, and which connectors may you use?</code></pre>
+      <div class="answer">
+        <p class="from">expected answer, in substance</p>
+        <p>The data root is <code>/Users/raf/Code/POS/data</code> (from <code>~/.config/commonplace/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
+      </div>
+      <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
+      <p>If your servers have different names, change the config's <code>provider</code> values to match rather than renaming the servers. Then confirm the scope check works by pointing at something outside it:</p>
+<pre class="wrap"><div class="code-title">claude</div><code>&gt; /pull https://example.atlassian.net/wiki/spaces/NOTINSCOPE/pages/1/Test</code></pre>
+      <div class="answer">
+        <p class="from">expected answer, in substance</p>
+        <p>A refusal that names the setting: the space is not in <code>connectors.confluence.scope.spaces</code>, so nothing was fetched, and which line in the config would allow it. That refusal is guardrail 12 working; you want to have seen it once.</p>
+      </div>
+      <p>Finally, <code>/init</code> from inside the session does nothing new on an existing data root; it re-installs the vault files and reports any drift between the engine version and the config. Run it once so you know what the no-op looks like.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="loop">
+      <p class="part">6 · The first loop</p>
+      <h2>Five sources, three questions, one lint, the same afternoon</h2>
+      <p class="scen-meta"><span class="chip phase1">45 minutes</span><span class="chip">the afternoon of Phase 0</span></p>
+      <p>The design's Phase 0 ends with five sources you already know you need, so the first <code>/query</code> has something real to find. Pick these five, or the nearest equivalents you have:</p>
+      <ol>
+        <li>The Lead Engineer role description — a markdown file; drop it into <code>raw/inbox/</code>.</li>
+        <li>The System Owner expectations page — Confluence; a pointer.</li>
+        <li>The PDLC page — Confluence; a pointer.</li>
+        <li>One RFC you are currently reviewing — a Doc or Confluence page; a pointer, plus a note with your review comments.</li>
+        <li>One runbook for a system you own — Confluence; a pointer.</li>
+      </ol>
+<pre class="wrap"><div class="code-title">terminal — put the pointers in place</div><code>cp ~/Downloads/leadengineer.md ~/Code/POS/data/raw/inbox/2026-08-31-lead-engineer-role.md
+cat &gt;&gt; ~/Code/POS/data/raw/inbox/pull.md &lt;&lt;'EOF'
+https://&lt;your-site&gt;.atlassian.net/wiki/spaces/ENG/pages/…/System+Owner+expectations
+https://&lt;your-site&gt;.atlassian.net/wiki/spaces/PDLC/pages/…/Product+Development+Lifecycle
+https://docs.google.com/document/d/…/edit
+https://&lt;your-site&gt;.atlassian.net/wiki/spaces/ENG/pages/…/Asset+search+runbook
+EOF</code></pre>
+<pre class="wrap"><div class="code-title">claude — in this order</div><code>&gt; /ingest                 <span class="cm"># the role description becomes a Source page and, probably, a few Concept pages</span>
+&gt; /pull                   <span class="cm"># the four pointers; a Source page each; the runbook creates or updates a System page; the RFC gets its entry point</span>
+&gt; /query which systems do I own, and what do the System Owner expectations require of each?
+&gt; /query what does the RFC I am reviewing change for the systems we own, and what does it not address?
+&gt; /query what does the PDLC say a lead engineer is responsible for at each stage?
+&gt; /lint
+&gt; /verify --queue         <span class="cm"># verify what you would quote; skip the rest</span></code></pre>
+      <p>What to look for in the answers: every page cited with a tier and a date; the RFC page unverified and your review notes marked as yours; the System page's <em>Operational standards</em> ticked or unticked with footnotes; nothing stated without a source. If an answer states something with no citation, that is an engine bug; note it for the weekly review's <em>Engine proposals</em>. What to look for in the data root afterwards: the four pointer lines gone from <code>pull.md</code>, your note moved to <code>raw/notes/</code> untouched, five new lines under today's date in <code>wiki/log.md</code>, one commit per operation in <code>git log</code>, and nothing at all under <code>raw/pinned/</code>, because you did not ask for a pin.</p>
+      <p>Then remove the examples, so the wiki is yours: <code>python3 scripts/init.py --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="fortnight">
+      <p class="part">7 · The first fortnight</p>
+      <h2>The acceptance test</h2>
+      <p>The design's advice, Karpathy's advice, is to let use change the schema rather than another review. Two weeks with a small, deliberate test is enough to know whether the loop holds and what the engine's first changelog entries should be.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>When</th><th>You do</th><th>You should see</th></tr></thead>
+          <tbody>
+            <tr><td>Day 1</td><td>Steps 1–6.</td><td>Five Source pages, three cited answers, a clean lint apart from what you left unticked.</td></tr>
+            <tr><td>Days 2–5, end of day</td><td>Notes into <code>raw/inbox/</code>, pointers into <code>pull.md</code>; <code>/ingest</code> then <code>/pull</code>. Two <code>/query</code> during the day, whenever you would have searched.</td><td>Each day's log entries; pages accumulating under the domains you actually work in; answers that name their tiers.</td></tr>
+            <tr><td>Monday (day 8)</td><td><code>/weekly</code>; answer the page inline in Obsidian; <code>/weekly --apply</code>.</td><td>A verify queue of five, a re-pull queue if any Doc changed, expiring pages with a choice each, RFCs awaiting you, systems due, questions; one log line per action after apply.</td></tr>
+            <tr><td>Days 9–12</td><td>Same daily rhythm. Before any meeting about a project, the S3 brief from the scenarios page, then <code>/verify --queue</code>.</td><td>The first time a brief flags something unverified that you would otherwise have quoted.</td></tr>
+            <tr><td>Monday (day 15)</td><td>Second <code>/weekly</code>. Then the verdict: read the two review pages and the <em>Engine proposals</em> sections.</td><td>At least two or three proposals worth applying — a heading that keeps being needed, a type that was never used, a guardrail that got in the way. Those become the engine's 0.5.1.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Ten queries, one lint per week, two Monday reviews, at most ten verifications. Do not add Slack, Jira or the sprint tick during the fortnight, however tempting; they are Phases 2 and 3, and the point of the test is to judge the loop on documents alone.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="working">
+      <p class="part">8 · What working looks like</p>
+      <h2>Five signs, after two weeks</h2>
+      <p>The design's eight-week criteria, scaled to Phase 1. If four of the five hold, the loop holds. If fewer do, the fix is usually one of the four habits (scenarios page, §10), not the engine.</p>
+      <ul>
+        <li><strong>Monday came off the page.</strong> Most of what you did on the second Monday was answer the review page, not assemble it.</li>
+        <li><strong>Every owned system has a page you have verified,</strong> with its standards ticked or unticked on evidence.</li>
+        <li><strong>The verify queue never exceeded five,</strong> and you never quoted an unverified page outward without knowing it.</li>
+        <li><strong>The RFC you reviewed has an entry point</strong> whose <em>Outcome</em> matches what happened, and the drift check noticed when the Doc changed.</li>
+        <li><strong>The engine has changelog entries,</strong> because an engine that never changed is one nobody used.</li>
+      </ul>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="phases">
+      <p class="part">9 · Later phases</p>
+      <h2>Enabling what is designed but not yet built</h2>
+      <p>The commands for later phases exist and refuse to run until <code>rollout.phase</code> reaches them, so nothing is improvised. Each phase is two weeks in the design, and each needs engine work before the config changes:</p>
+      <div class="phases">
+        <div class="phase"><span class="when">Phase 2<br>Jira · sprint tick</span><p>Build first: <code>scripts/metrics/</code> (executor, attester, a sprint-completion script), the <code>/sprint</code> and <code>/measure</code> procedures, the sprint-report feed. Then: Jira scope in the config, the feed uncommented, <code>rollout.phase: 2</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
+        <div class="phase"><span class="when">Phase 3<br>team · Slack · /brief</span><p>Build first: the <code>/brief</code> procedure, the Slack pull procedure (named channels, digests, "awaiting you"), the comms-due and 1:1 sections of the weekly. Then: Slack channels in scope, the people policy re-read, <code>rollout.phase: 3</code>. Goal: 1:1 prep in two minutes; the first brief sent from the wiki.</p></div>
+        <div class="phase"><span class="when">Phase 4<br>vision · learning · radar</span><p>Build first: the <code>/retro</code> procedure, the radar overview synthesis, Learning Path and Drill handling in the weekly. Then: Trello (personal) if wanted, <code>rollout.phase: 4</code>. Goal: a vision you can socialise, with the signals it watches attached.</p></div>
+      </div>
+      <p>Each phase's build is a change to the engine, recorded in <code>CHANGELOG.md</code>; enabling it is a change to your config; neither touches <code>wiki/log.md</code> unless a migration of existing pages follows, and then it is logged as one.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="trouble">
+      <p class="part">10 · Troubleshooting</p>
+      <h2>When a step does not look like its expected output</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>You see</th><th>Cause</th><th>Do</th></tr></thead>
+          <tbody>
+            <tr><td><code>config not found: …</code></td><td>No config at the default path and <code>$COMMONPLACE_CONFIG</code> unset.</td><td>Step 2. The message names the file to copy.</td></tr>
+            <tr><td><code>config at … has no data.root</code></td><td>The YAML is malformed or <code>data:</code> was removed.</td><td>Compare with <code>config.example.yaml</code>; indentation is two spaces.</td></tr>
+            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>python3 scripts/pos_common.py --show</code>, then <code>/init</code>.</td></tr>
+            <tr><td><code>yaml: built-in subset parser</code></td><td>PyYAML is not installed.</td><td>Nothing; the fallback handles the config and every template. <code>pip3 install pyyaml</code> if you prefer.</td></tr>
+            <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>commonplace-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
+            <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
+            <tr><td>"<code>/pull</code> refused: … not in scope"</td><td>Working as designed: the pointer is outside <code>connectors.&lt;name&gt;.scope</code>.</td><td>Add the space, folder or repo to the scope in the config if it should be in.</td></tr>
+            <tr><td>"<code>/sprint</code> is not enabled until phase 2"</td><td>Working as designed.</td><td>§9. Build the phase before raising <code>rollout.phase</code>.</td></tr>
+            <tr><td>The agent could not find a connector named in the config</td><td><code>provider: mcp:&lt;name&gt;</code> does not match <code>claude mcp list</code>.</td><td>Change the config's provider to the listed name.</td></tr>
+            <tr><td>Dataview tables empty or erroring in <code>Home.md</code></td><td>Plugin not enabled, or a query line edited.</td><td>Enable Dataview; re-run <code>/init</code> to reinstall <code>Home.md</code> (it is engine-owned).</td></tr>
+            <tr><td>Lint: <code>… is not listed in its index.md</code></td><td>A page was written without its index entry, usually by hand.</td><td><code>/lint --fix</code> adds the entry; guardrail 8 says the agent must do it in the same operation.</td></tr>
+            <tr><td>Lint: <code>changed-since-verified</code> on a page you just verified</td><td>The agent edited it after your verification, which demotes it by design.</td><td>Read the diff with <code>/verify &lt;page&gt;</code>; verify again or fix.</td></tr>
+            <tr><td>A verification appeared that you did not make</td><td>Guardrail 2 broken.</td><td>Stop, remove the entry, and file it under <em>Engine proposals</em> with the log line that produced it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="checklist">
+      <p class="part">11 · Checklist</p>
+      <h2>Print this half-page</h2>
+      <ul class="checklist">
+        <li>Policy check done: summaries and excerpts of company material may live in the data root, at the path I chose.</li>
+        <li><code>~/.config/commonplace/config.yaml</code> exists; <code>pos_common.py --show</code> resolves the data root, actor and phase 1.</li>
+        <li><code>init.py --with-examples</code> ran; <code>okf_lint.py</code> reports 0 conformance errors and the one intended finding.</li>
+        <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
+        <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
+        <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
+        <li>Five sources in: one note ingested, four pointers pulled; three queries answered with tiers; one lint; the pages I would quote verified.</li>
+        <li>Examples removed once I no longer need them as reference.</li>
+        <li>Daily: notes and pointers in, <code>/ingest</code> and <code>/pull</code>, two queries.</li>
+        <li>Monday: <code>/weekly</code>, answered inline, <code>--apply</code>.</li>
+        <li>Day 15: verdict written as the engine's first changelog entries.</li>
+      </ul>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.0, <code>~/Code/POS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>
