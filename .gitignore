@@ -1,0 +1,8 @@
+# per-machine Claude Code settings (the tracked settings.json holds nothing machine-specific)
+.claude/settings.local.json
+# never commit a real config
+config.yaml
+config.local.yaml
+__pycache__/
+*.pyc
+.DS_Store

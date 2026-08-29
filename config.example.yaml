@@ -1,0 +1,59 @@
+# Commonplace — per-installation config.
+# Copy to ~/.config/commonplace/config.yaml (or point $COMMONPLACE_CONFIG at it).
+# Never commit it. It holds no secrets: connector auth lives in Claude Code's MCP
+# configuration; the one script that could ever need a token is given the NAME of
+# an environment variable, never a value.
+
+engine: "0.5"                          # the engine version this config was written for
+
+data:
+  root: ~/Code/POS/data                # raw/, wiki/, Home.md, .obsidian/ live here (created by /init)
+  timezone: Australia/Melbourne
+  actor: human:rafael                  # the human actor in every verified entry
+
+rollout:
+  phase: 1                             # 1: documents; 2: Jira + sprint tick; 3: team, Slack, /brief; 4: vision, learning, radar
+
+connectors:
+  confluence:
+    provider: mcp:atlassian            # the MCP server name as configured in Claude Code
+    scope: { spaces: ["ENG", "PDLC"] }
+  web:
+    provider: mcp:fetch
+  md:
+    provider: filesystem
+    scope: { repos: ["~/code/asset-search"] }
+  gdocs:                               # enabled from phase 1 once you add folders
+    provider: mcp:google-drive
+    scope: { folders: [] }
+  jira:                                # phase 2
+    provider: mcp:atlassian
+    scope: { projects: [], boards: [] }
+  slack:                               # phase 3
+    provider: mcp:slack
+    scope: { channels: [], dms: false }
+  trello:                              # phase 4, personal board (D12)
+    provider: mcp:trello
+    scope: { boards: [] }
+
+feeds:                                 # the only pulls that run without a pointer from you (D11); none in phase 1
+  # sprint-report:
+  #   connector: jira
+  #   pointer: "board 42 sprint report"
+  #   when: sprint_boundary
+  #   actor: process:pull-sprint-report
+  # team-channel-digest:
+  #   connector: slack
+  #   pointer: "#team-search, last 7 days"
+  #   when: weekly
+  #   actor: process:pull-team-channel-digest
+
+review:
+  weekly_day: monday
+  sprint_length_days: 14
+  verify_queue: 5
+  draft_age_days: 14                   # lint flags drafts older than this
+  expiring_days: 7                     # lint flags pages expiring within this window
+
+metrics:
+  jira_token_env: JIRA_TOKEN           # fallback executor only; a variable NAME, never a value
