@@ -2,7 +2,7 @@
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
-The design, with its decisions, is in `docs/design.html` (also `design.pdf`, `design.md`); eight usage scenarios are in `docs/scenarios.html`; the step-by-step setup and first-fortnight guide is `docs/onboarding.html`. This README is the short version of that guide.
+The design, with its decisions, is in `docs/design.html` (also `design.pdf`, `design.md`); eight usage scenarios are in `docs/scenarios.html`; the step-by-step setup and first-fortnight guide is `docs/onboarding.html`; what comes next for the engine is `docs/roadmap.md`. This README is the short version of the onboarding guide.
 
 ## Layout
 

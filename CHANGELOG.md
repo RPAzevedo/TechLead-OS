@@ -15,4 +15,4 @@ Initial engine, the Phase 0/1 thin slice of the v0.5 design (docs/design.html):
 - `scripts/pos_common.py` (config, frontmatter, dates; PyYAML optional), `scripts/init.py`, `scripts/okf_lint.py`.
 - `docs/` — the design page (HTML, PDF, markdown).
 
-Not yet built (later phases): `scripts/metrics/` executor and attester, the sprint tick, briefs, the quarterly retro, Slack/Jira/Trello pull procedures.
+Not yet built (later phases): `scripts/metrics/` executor and attester, the sprint tick, briefs, the quarterly retro, Slack/Jira/Trello pull procedures. The order is in `docs/roadmap.md`.
