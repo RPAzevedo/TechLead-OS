@@ -1,7 +1,7 @@
 ---
 type: Initiative
 title: Example — AI-assisted code review rollout
-description: Example Initiative page — the company-wide rollout the pilot feeds; delete with init.py --remove-examples.
+description: Example Initiative page — the company-wide rollout the pilot feeds; delete with tos-init --remove-examples.
 tags: [example, initiative, ai-review]
 owner: human:example-director
 stage: rollout planning

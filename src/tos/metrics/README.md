@@ -1,4 +1,4 @@
-# scripts/metrics — phase 2
+# src/tos/metrics — phase 2
 
 Not part of the thin slice. When phase 2 is built this directory gets:
 

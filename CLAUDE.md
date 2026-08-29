@@ -4,7 +4,7 @@ You are the maintenance agent for a personal knowledge OS. This repository is th
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
 
-Engine version: **0.5.1** (see `CHANGELOG.md`).
+Engine version: **0.5.2** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
 
 ## 0. First, read the config
 
@@ -16,18 +16,18 @@ Before any operation:
 4. Let `ACTOR` = `data.actor` (the human, e.g. `human:rafael`), `TZ` = `data.timezone`. Your own actor string is `claude-code/<model-id>` with the model you are actually running as.
 5. If `engine` in the config differs from the engine version above, say so once; continue unless the difference is a major version.
 
-Run `python3 scripts/tos_common.py --show` to print the resolved config if you need to check it.
+Run `uv run tos-config` to print the resolved config if you need to check it.
 
 ## 1. The two trees
 
 ```
 ENGINE (this repo)                  DATA (data.root, from the config)
 CLAUDE.md, CHANGELOG.md             raw/inbox/     drop zone; pull.md lists pointers
-.claude/commands/*.md               raw/notes/     the human's notes, moved here after ingest — immutable
-schema/types.md, templates/, vault/ raw/pinned/    verbatim copies made only on request (--pin) — immutable
-scripts/                            raw/metrics/   query snapshots kept by metric feeds — immutable
-docs/                               raw/assets/    images
-                                    wiki/          the OKF v0.2 bundle: index.md, log.md, domain dirs
+pyproject.toml, uv.lock             raw/notes/     the human's notes, moved here after ingest — immutable
+.claude/commands/*.md               raw/pinned/    verbatim copies made only on request (--pin) — immutable
+schema/types.md, templates/, vault/ raw/metrics/   query snapshots kept by metric feeds — immutable
+src/tos/ (common, init, lint)       raw/assets/    images
+tests/, docs/                       wiki/          the OKF v0.2 bundle: index.md, log.md, domain dirs
                                     Home.md, .obsidian/   installed by /init; engine-owned, never logged
 ```
 
@@ -84,7 +84,7 @@ Conventions:
 Each has a command file in `.claude/commands/` with the full procedure. Summary and invariants:
 
 ### 4.1 `/init` — create the data root from the config
-Creates `DATA` with the layout in §1, every directory's `index.md`, the bundle-root `index.md` with `okf_version: "0.2"`, `log.md` with a `Creation` entry, installs `Home.md` and `.obsidian/` from `schema/vault/`, optionally the example pages from `schema/examples/`, and initialises a git repository in `DATA`. Re-running only re-installs vault files and reports engine/config drift. Implemented by `scripts/init.py`; the command runs it.
+Creates `DATA` with the layout in §1, every directory's `index.md`, the bundle-root `index.md` with `okf_version: "0.2"`, `log.md` with a `Creation` entry, installs `Home.md` and `.obsidian/` from `schema/vault/`, optionally the example pages from `schema/examples/`, and initialises a git repository in `DATA`. Re-running only re-installs vault files and reports engine/config drift. Implemented by `src/tos/init.py`; the command runs `uv run tos-init`.
 
 ### 4.2 `/pull <pointer> [--pin]` — read a source through a connector
 A pointer is a URL, a Slack permalink, a Confluence page, a Google Doc, a JQL query, a repository path, or a feed name from the config. You:
@@ -106,7 +106,7 @@ For what `/pull` just read, or every file in `raw/inbox/` (not `pull.md`), or on
 Read `wiki/index.md` → the relevant directory indexes → candidate frontmatter → bodies. Never walk the whole bundle. Answer with links to the pages used and, per page, its tier and date ("human-reviewed 2026-08-26", "unverified, written by the agent 2026-08-25", "stale since 2026-08-01"). Exclude `deprecated` pages unless asked. If the answer is reusable, file it as a `Synthesis` (draft) and log `* **Query**: "…" → [Synthesis](syntheses/….md)`.
 
 ### 4.5 `/lint` — health check
-Run `python3 scripts/okf_lint.py` (deterministic: conformance, trust fields, stale and expiring, changed-since-verified, old drafts, RFCs stuck in draft, unticked System standards, broken links, orphans, index coverage, log format). Then the agent pass: contradictions, claims without a source, missing cross-references, gaps worth a `Question`, the people/stakeholder content policy (§5), and **source drift** — for each Source page whose `sources[].resource` is a connector URL in scope, compare the recorded `last_modified` with the live one and list "changed since read". Output goes into the next Review page; fix only mechanical things (index entries, link repairs) and log `* **Lint**: …`. Lint adds no `verified` entries.
+Run `uv run tos-lint` (deterministic: conformance, trust fields, stale and expiring, changed-since-verified, old drafts, RFCs stuck in draft, unticked System standards, broken links, orphans, index coverage, log format). Then the agent pass: contradictions, claims without a source, missing cross-references, gaps worth a `Question`, the people/stakeholder content policy (§5), and **source drift** — for each Source page whose `sources[].resource` is a connector URL in scope, compare the recorded `last_modified` with the live one and list "changed since read". Output goes into the next Review page; fix only mechanical things (index entries, link repairs) and log `* **Lint**: …`. Lint adds no `verified` entries.
 
 ### 4.6 `/verify <page> | --queue` — the human promotes a page
 Show the diff since the last verification (git). On the human's explicit "yes": append `{ by: <ACTOR>, at: now }` to `verified`, flip `draft → stable` if the type's gate allows, log `* **Verify**: …`, commit. On "no": fix what they say is wrong; the page stays draft. **Never run this on your own initiative, and never write a `human:` verification any other way.**

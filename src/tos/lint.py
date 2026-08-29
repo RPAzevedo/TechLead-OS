@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 """/lint, deterministic half — OKF v0.2 conformance and TechLead OS trust checks.
 
-    python3 scripts/okf_lint.py [--json] [--today YYYY-MM-DD]
+    uv run tos-lint [--json] [--today YYYY-MM-DD]
 
 No LLM, no network. Reads the config for data.root and the review settings,
 walks wiki/, and prints a markdown report (or JSON). Exit code 1 when a
@@ -11,19 +10,18 @@ is described in CLAUDE.md §4.5 and is not this script's job.
 """
 from __future__ import annotations
 
-import datetime as dt
 import json
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import tos_common as pc  # noqa: E402
+from tos import common as pc
 
 RESERVED = {"index.md", "log.md"}
 STATUSES = {"draft", "stable", "deprecated"}
-LOG_LABELS = {"Creation", "Pull", "Ingest", "Query", "Brief", "Measure", "Lint", "Verify", "Review", "Deprecate", "Migration"}
+LOG_LABELS = {"Creation", "Pull", "Ingest", "Query", "Brief", "Measure",
+              "Lint", "Verify", "Review", "Deprecate", "Migration"}
 LINK_RE = re.compile(r"(?<!!)\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:", re.M)
 
@@ -31,7 +29,7 @@ FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:", re.M)
 def load_registry() -> dict:
     """Parse schema/types.md into {type: {dir, horizon, gate}} from the markdown table."""
     reg = {}
-    text = (pc.ENGINE_ROOT / "schema" / "types.md").read_text(encoding="utf8")
+    text = pc.engine_path("schema", "types.md").read_text(encoding="utf8")
     for line in text.splitlines():
         if not line.startswith("| ") or line.startswith("| Type") or line.startswith("|---"):
             continue
@@ -42,8 +40,6 @@ def load_registry() -> dict:
         if name in ("Field",) or not name:
             continue
         reg[name] = {"phase": phase, "dir": lives.strip("`"), "horizon": horizon, "gate": gate}
-        if name == "Person":  # the extension-field table follows the main one
-            pass
     # the extension table starts after "## Extension fields"; stop parsing there
     cut = {}
     seen_ext = False
@@ -86,17 +82,23 @@ def main(argv):
     rep = Report()
 
     pages = {}  # rel path -> (fm, body)
+    yaml_errors = {}  # rel path -> parser message
     for p in sorted(wiki.rglob("*.md")):
         if p.name in RESERVED:
             continue
-        fm, body, _ = pc.read_page(p)
+        fm, body, _, err = pc.read_page(p)
         pages[rel(p, wiki)] = (fm, body)
+        if err:
+            yaml_errors[rel(p, wiki)] = err
 
     inbound = defaultdict(set)
     counts = defaultdict(int)
 
     # ---- per-page checks
     for path, (fm, body) in pages.items():
+        if path in yaml_errors:
+            rep.add("conformance", f"`{path}` frontmatter is not valid YAML: {yaml_errors[path]}", error=True)
+            continue
         if fm is None:
             rep.add("conformance", f"`{path}` has no YAML frontmatter", error=True)
             continue
@@ -154,7 +156,8 @@ def main(argv):
         for fid in FOOTNOTE_DEF_RE.findall(body):
             if ids and fid not in ids:
                 rep.add("provenance", f"`{path}` — footnote `[^{fid}]` does not match any `sources[].id`")
-        if str(t) in ("Concept", "Synthesis", "Decision", "RFC", "Initiative", "System") and not srcs and status != "deprecated":
+        sourced_types = ("Concept", "Synthesis", "Decision", "RFC", "Initiative", "System")
+        if str(t) in sourced_types and not srcs and status != "deprecated":
             rep.add("provenance", f"`{path}` — a `{t}` page with no `sources`")
         # links
         page_dir = (wiki / path).parent
@@ -189,8 +192,10 @@ def main(argv):
             rep.add("index", f"`{drel or '.'}/` has no index.md")
             continue
         text = idx.read_text(encoding="utf8")
-        fm, body = pc.split_frontmatter(text)
-        if d == wiki:
+        fm, body, err = pc.split_frontmatter(text)
+        if err:
+            rep.add("conformance", f"`{drel or '.'}/index.md` frontmatter is not valid YAML: {err}", error=True)
+        elif d == wiki:
             if not fm or str(fm.get("okf_version")) != "0.2":
                 rep.add("index", "bundle-root index.md should declare `okf_version: \"0.2\"`")
         elif fm:
@@ -260,5 +265,9 @@ def main(argv):
     return 1 if rep.errors else 0
 
 
-if __name__ == "__main__":
+def cli() -> None:
     sys.exit(main(sys.argv[1:]))
+
+
+if __name__ == "__main__":
+    cli()

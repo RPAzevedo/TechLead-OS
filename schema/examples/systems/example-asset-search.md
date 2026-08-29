@@ -1,7 +1,7 @@
 ---
 type: System
 title: Example — Asset search
-description: Example System page — the search service behind marketplace browse; delete with init.py --remove-examples.
+description: Example System page — the search service behind marketplace browse; delete with tos-init --remove-examples.
 tags: [example, system, search]
 resource: https://github.com/example-org/asset-search
 owner: human:rafael

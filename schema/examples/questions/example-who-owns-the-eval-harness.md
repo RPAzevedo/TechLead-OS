@@ -1,7 +1,7 @@
 ---
 type: Question
 title: Example — Who owns the evaluation harness?
-description: Example Question page — an ambiguity surfaced by ingest; delete with init.py --remove-examples.
+description: Example Question page — an ambiguity surfaced by ingest; delete with tos-init --remove-examples.
 tags: [example, question]
 sources:
   - id: leadership-notes

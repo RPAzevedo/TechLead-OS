@@ -1,7 +1,7 @@
 ---
 type: Project
 title: Example — Review-bot pilot
-description: Example Project page — an AI code-review bot piloted in one team; delete with init.py --remove-examples.
+description: Example Project page — an AI code-review bot piloted in one team; delete with tos-init --remove-examples.
 tags: [example, project, ai-review]
 resource: https://github.com/example-org/review-bot
 owner: human:rafael

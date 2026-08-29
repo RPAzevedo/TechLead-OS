@@ -1,7 +1,7 @@
 ---
 type: Source
 title: "Example — #team-search thread: alert budget breach"
-description: Example Source page — a summarised chat thread about a breached alert budget; delete with init.py --remove-examples.
+description: Example Source page — a summarised chat thread about a breached alert budget; delete with tos-init --remove-examples.
 tags: [example, slack, systems]
 pinned: false
 sources:

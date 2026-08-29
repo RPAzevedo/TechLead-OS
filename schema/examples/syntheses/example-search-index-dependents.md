@@ -1,7 +1,7 @@
 ---
 type: Synthesis
 title: Example — What depends on the search index
-description: Example Synthesis page — a query answer filed back; delete with init.py --remove-examples.
+description: Example Synthesis page — a query answer filed back; delete with tos-init --remove-examples.
 tags: [example, synthesis, search]
 audience: ~
 sources:

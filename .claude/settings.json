@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 scripts/*)",
+      "Bash(uv run:*)",
+      "Bash(uv sync:*)",
       "Bash(git -C *)",
       "Bash(git log *)",
       "Bash(git diff *)"

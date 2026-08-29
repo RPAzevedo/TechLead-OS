@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 """/init — create (or refresh) the data root described by the config.
 
-    python3 scripts/init.py [--with-examples] [--remove-examples] [--dry-run]
+    uv run tos-init [--with-examples] [--remove-examples] [--dry-run]
 
 Creates data.root with raw/ and wiki/ (every directory with its index.md), the
 bundle-root index.md carrying okf_version "0.2", log.md with a Creation entry,
@@ -13,14 +12,12 @@ reports engine/config drift.
 from __future__ import annotations
 
 import datetime as dt
-import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import tos_common as pc  # noqa: E402
+from tos import common as pc
 
 WIKI_DIRS = {
     # path: (title, description)
@@ -88,7 +85,7 @@ def ensure(path: Path, content: str, dry: bool, created: list):
 
 
 def install_vault(root: Path, dry: bool, log: list):
-    src = pc.ENGINE_ROOT / "schema" / "vault"
+    src = pc.engine_path("schema", "vault")
     for p in src.rglob("*"):
         if p.is_file():
             dest = root / p.relative_to(src)
@@ -148,7 +145,9 @@ def install_examples(root: Path, now: dt.datetime, dry: bool, log: list):
         if dest.exists():
             continue
         text = fill_placeholders(p.read_text(encoding="utf8"), now)
-        fm, _ = pc.split_frontmatter(text)
+        fm, _, err = pc.split_frontmatter(text)
+        if err:
+            sys.exit(f"engine example {p} has unparseable frontmatter: {err}")
         log.append(f"example: wiki/{rel}")
         if not dry:
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -171,7 +170,10 @@ def remove_examples(root: Path, dry: bool, log: list):
         dest = root / "wiki" / rel
         if not dest.exists():
             continue
-        fm, _ = pc.read_page(dest)[:2]
+        fm, _, _, err = pc.read_page(dest)
+        if err:
+            log.append(f"skipped (unreadable frontmatter): wiki/{rel} — {err}")
+            continue
         if "example" not in (fm or {}).get("tags", []):
             continue
         log.append(f"remove example: wiki/{rel}")
@@ -179,8 +181,8 @@ def remove_examples(root: Path, dry: bool, log: list):
             dest.unlink()
             idx = dest.parent / "index.md"
             if idx.exists():
-                lines = [l for l in idx.read_text(encoding="utf8").splitlines() if f"]({rel.name})" not in l]
-                idx.write_text("\n".join(lines) + "\n", encoding="utf8")
+                kept = [ln for ln in idx.read_text(encoding="utf8").splitlines() if f"]({rel.name})" not in ln]
+                idx.write_text("\n".join(kept) + "\n", encoding="utf8")
 
 
 def git(root: Path, *args, check=False):
@@ -200,8 +202,8 @@ def main(argv):
 
     if "--remove-examples" in argv:
         remove_examples(root, dry, log)
-        for l in log:
-            print(l)
+        for line in log:
+            print(line)
         return 0
 
     existed = root.exists()
@@ -220,8 +222,10 @@ def main(argv):
         if not dry:
             d.mkdir(parents=True, exist_ok=True)
         ensure(d / "index.md", index_body(rel, title, desc, root), dry, created)
+    creation = (f"* **Creation**: data root initialised by tos-engine {pc.ENGINE_VERSION} "
+                f"(config engine \"{cfg.get('engine')}\").\n")
     ensure(root / "wiki" / "log.md",
-           f"# Data update log\n\n## {now.date().isoformat()}\n* **Creation**: data root initialised by tos-engine {pc.ENGINE_VERSION} (config engine \"{cfg.get('engine')}\").\n",
+           f"# Data update log\n\n## {now.date().isoformat()}\n{creation}",
            dry, created)
     ensure(root / ".gitignore", ".obsidian/workspace.json\n.obsidian/workspace-mobile.json\n.DS_Store\n", dry, created)
     install_vault(root, dry, log)
@@ -243,12 +247,16 @@ def main(argv):
         print(f"note: config engine \"{cfg.get('engine')}\" ≠ engine {pc.ENGINE_VERSION}")
     for p in created:
         print(f"created: {p.relative_to(root)}")
-    for l in log:
-        print(l)
+    for line in log:
+        print(line)
     if dry:
         print("(dry run — nothing written)")
     return 0
 
 
-if __name__ == "__main__":
+def cli() -> None:
     sys.exit(main(sys.argv[1:]))
+
+
+if __name__ == "__main__":
+    cli()

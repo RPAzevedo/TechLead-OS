@@ -1,7 +1,7 @@
 ---
 type: Decision
 title: Example — Evaluate vendor X before extending the review-bot pilot
-description: Example Decision (proposed) — gate the pilot extension on a vendor evaluation; delete with init.py --remove-examples.
+description: Example Decision (proposed) — gate the pilot extension on a vendor evaluation; delete with tos-init --remove-examples.
 tags: [example, decision, ai-review]
 superseded_by: ~
 sources:

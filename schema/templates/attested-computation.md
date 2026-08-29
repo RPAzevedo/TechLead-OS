@@ -8,10 +8,10 @@ parameters:
   - { name: snapshot, type: path, required: true }
 computation: <relative path to the script>
 executor:
-  resource: <relative path to scripts/metrics/run.py>
+  resource: <relative path to src/tos/metrics/run.py>
   receipt: [computation_sha256, snapshot_sha256, parameters, rows, fetched_at]
 attester:
-  resource: <relative path to scripts/metrics/attest.py>
+  resource: <relative path to src/tos/metrics/attest.py>
 sources:
   - id: <source-id>
     resource: <URL, permalink, or raw/notes/… path>

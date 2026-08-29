@@ -472,7 +472,7 @@ dl.spec dd ol { margin: 0; }
 <rect class="box" height="66" rx="4" width="317" x="409" y="70"></rect>
 <text class="t" text-anchor="middle" x="567" y="93">CLAUDE.md · .claude/commands/</text>
 <text class="s" text-anchor="middle" x="567" y="111">schema/ — types, templates, vault defaults</text>
-<text class="s" text-anchor="middle" x="567" y="126">scripts/ — okf_lint, init, metrics</text>
+<text class="s" text-anchor="middle" x="567" y="126">src/tos/ — lint, init, metrics</text>
 <rect class="box" height="60" rx="4" width="317" x="409" y="150"></rect>
 <text class="t" text-anchor="middle" x="567" y="173">CHANGELOG.md</text>
 <text class="s" text-anchor="middle" x="567" y="191">engine changes only · git history</text>
@@ -526,9 +526,10 @@ dl.spec dd ol { margin: 0; }
 │   ├── types.md               <span class="cm"># the type registry (table in §4)</span>
 │   ├── templates/             <span class="cm"># one file per type</span>
 │   └── vault/                 <span class="cm"># Home.md and .obsidian/ defaults for /init</span>
-└── scripts/
-    ├── okf_lint.py            <span class="cm"># deterministic checks; no LLM</span>
-    ├── init.py                <span class="cm"># creates the data root layout from the config</span>
+└── src/tos/
+    ├── common.py              <span class="cm"># config, strict YAML, frontmatter, dates</span>
+    ├── lint.py                <span class="cm"># deterministic checks; no LLM → tos-lint</span>
+    ├── init.py                <span class="cm"># creates the data root layout → tos-init</span>
     └── metrics/               <span class="cm"># executor, attester, one script per metric</span></code></pre>
 <h3>The config file</h3>
 <p>One file per installation, in YAML because the rest of the system already speaks YAML frontmatter (D13). It lives outside both repositories, at <code>~/.config/tos/config.yaml</code>, and <code>CLAUDE.md</code>'s first instruction is to read it. It names the data root; it says which provider serves each connector and how far the agent may reach into it; it lists the feeds allowed to run unattended; and it carries the review settings. It holds no credentials: connector authentication belongs to the MCP server configuration in Claude Code, and the one script that could ever need a token is told the <em>name</em> of an environment variable, never its value.</p>
@@ -712,12 +713,12 @@ dl.spec dd ol { margin: 0; }
 <span class="k">parameters</span>:
   - { name: snapshot, type: path,    required: true }    <span class="cm"># under raw/metrics/jira/</span>
   - { name: sprints,  type: integer, required: false }
-<span class="k">computation</span>: ../../../scripts/metrics/sprint_completion.py
+<span class="k">computation</span>: ../../../src/tos/metrics/sprint_completion.py
 <span class="k">executor</span>:
-  resource: ../../../scripts/metrics/run.py
+  resource: ../../../src/tos/metrics/run.py
   receipt: [computation_sha256, snapshot_sha256, parameters, rows, fetched_at]
 <span class="k">attester</span>:
-  resource: ../../../scripts/metrics/attest.py   <span class="cm"># deterministic, no LLM</span>
+  resource: ../../../src/tos/metrics/attest.py   <span class="cm"># deterministic, no LLM</span>
 <span class="k">generated</span>: { by: human:rafael, at: 2026-09-15T10:00:00+10:00 }
 <span class="k">verified</span>: { by: human:rafael, at: 2026-09-15T10:00:00+10:00 }
 <span class="k">status</span>: stable
@@ -882,7 +883,7 @@ dl.spec dd ol { margin: 0; }
 </dl>
 <h3>/lint</h3>
 <dl class="spec">
-<dt>Script pass</dt><dd><p><code>scripts/okf_lint.py</code>, deterministic, no LLM: frontmatter parses and <code>type</code> is non-empty (OKF conformance); <code>generated</code>, <code>status</code> and <code>stale_after</code> present and well-formed; pages stale or expiring within seven days; pages changed since their last verification; drafts older than fourteen days; RFCs in draft with no review note in fourteen days; System pages whose standards checklist has unticked items; <strong>source drift</strong>, which touches the network: for every page whose <code>sources[]</code> point at a Doc, a Confluence page, a Jira query or a repository file, compare the recorded <code>last_modified</code> with the live one through the connector and report "source changed since this page was written", which becomes a re-pull queue on Monday; broken links (OKF tolerates them, you still want to know) and orphans with no inbound link; every page listed in its directory index and every index entry resolving; log entries well-formed. Output is a report. It adds no <code>verified</code> entries by default; whether a clean structural pass should count as machine confirmation is decision D7.</p></dd>
+<dt>Script pass</dt><dd><p><code>src/tos/lint.py</code>, deterministic, no LLM: frontmatter parses and <code>type</code> is non-empty (OKF conformance); <code>generated</code>, <code>status</code> and <code>stale_after</code> present and well-formed; pages stale or expiring within seven days; pages changed since their last verification; drafts older than fourteen days; RFCs in draft with no review note in fourteen days; System pages whose standards checklist has unticked items; <strong>source drift</strong>, which touches the network: for every page whose <code>sources[]</code> point at a Doc, a Confluence page, a Jira query or a repository file, compare the recorded <code>last_modified</code> with the live one through the connector and report "source changed since this page was written", which becomes a re-pull queue on Monday; broken links (OKF tolerates them, you still want to know) and orphans with no inbound link; every page listed in its directory index and every index entry resolving; log entries well-formed. Output is a report. It adds no <code>verified</code> entries by default; whether a clean structural pass should count as machine confirmation is decision D7.</p></dd>
 <dt>Agent pass</dt><dd>Karpathy's list, which no script can do: contradictions between pages, claims without a source, missing cross-references, data gaps worth a <code>Question</code> page, and a policy check on <code>team/people/</code> and <code>team/stakeholders/</code> (§9).</dd>
 <dt>Output</dt><dd>A section in the next <code>Review</code> page; fixes only where they are mechanical (index entries, link repairs). Anything judgement-shaped is a proposal for you.</dd>
 </dl>
@@ -1057,8 +1058,8 @@ WHERE status = "draft" AND generated.at &lt;= date(today) - dur(14 days)
 <li><strong><code>CLAUDE.md</code></strong> is the schema, in Karpathy's sense, and it is loaded on every run. Sections: read the config first; the two trees and what may be written where; the pull rules; the page contract with the exact frontmatter; a pointer to <code>schema/types.md</code>; the ten operations as step lists; the guardrails in §9; the read-order rule (index → frontmatter → body); conventions for slugs, links, timestamps, actors; and the rule that engine proposals are applied in the engine repo and recorded in its <code>CHANGELOG.md</code>.</li>
 <li><strong><code>.claude/commands/</code></strong> holds one file per operation so <code>/init</code>, <code>/pull</code>, <code>/ingest</code>, <code>/query</code>, <code>/lint</code>, <code>/verify</code>, <code>/weekly</code>, <code>/sprint</code>, <code>/brief</code>, <code>/measure</code> and <code>/retro</code> are single words in the terminal.</li>
 <li><strong><code>schema/templates/</code></strong> gives the agent one file per type with the frontmatter and headings pre-filled, so a new page is a copy plus content rather than a re-derivation.</li>
-<li><strong><code>scripts/okf_lint.py</code></strong> is the deterministic half of lint (§5) and also the conformance check you can run before sharing any sub-bundle.</li>
-<li><strong><code>scripts/metrics/</code></strong> holds the executor, the attester and one script per metric. They read snapshots under <code>raw/metrics/jira/</code> and never call Jira themselves, so they need no credentials (decision D9).</li>
+<li><strong><code>src/tos/lint.py</code></strong> is the deterministic half of lint (§5) and also the conformance check you can run before sharing any sub-bundle.</li>
+<li><strong><code>src/tos/metrics/</code></strong> holds the executor, the attester and one script per metric. They read snapshots under <code>raw/metrics/jira/</code> and never call Jira themselves, so they need no credentials (decision D9).</li>
 <li><strong>git, twice:</strong> the data root is a private repository with one commit per operation, the commit message being the log line; the engine is a second repository whose commits are its changelog. Neither ever contains the other.</li>
 </ul>
 </section>
@@ -1097,7 +1098,7 @@ WHERE status = "draft" AND generated.at &lt;= date(today) - dur(14 days)
 <div class="phases">
 <div class="phase"><span class="when">Phase 0<br/>one afternoon</span><p><b>Scaffold.</b> The engine repo (<code>CLAUDE.md</code>, templates, lint script, the eleven commands), the config file filled in, <code>/init</code> creating the data root, and the connectors wired read-only. Pull five sources you already know you need, the role description, the System Owner expectations page, the PDLC page, one RFC and one runbook, so the first <code>/query</code> has something to answer.</p></div>
 <div class="phase"><span class="when">Phase 1<br/>weeks 1–2</span><p><b>Delivery, design and systems, from documents.</b> Source, Concept, Decision, RFC, Project, Initiative, System, Question, Synthesis, Review, fed by Confluence, Google Docs, markdown docs and the web. Daily <code>/pull</code> and <code>/ingest</code>, <code>/query</code> whenever you would have searched, first <code>/lint</code> with the drift check, first short <code>/weekly</code>. Goal: trust the loop, and see the RFC queue and the owned systems on one page.</p></div>
-<div class="phase"><span class="when">Phase 2<br/>weeks 3–4</span><p><b>Jira and the sprint tick.</b> The Jira connector, the sprint-report feed, Objective pages for the quarter, two <code>Attested Computation</code> pages over Jira snapshots, <code>scripts/metrics/</code>, the first <code>/sprint</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
+<div class="phase"><span class="when">Phase 2<br/>weeks 3–4</span><p><b>Jira and the sprint tick.</b> The Jira connector, the sprint-report feed, Objective pages for the quarter, two <code>Attested Computation</code> pages over Jira snapshots, <code>src/tos/metrics/</code>, the first <code>/sprint</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
 <div class="phase"><span class="when">Phase 3<br/>weeks 5–6</span><p><b>Team and stakeholders, then Slack and Trello.</b> Person (with the policy), Stakeholder, Playbook; <code>/brief</code> and the comms-due section; the Slack connector with its named channels, and Trello if D12 says so. Goal: Monday 1:1 prep in two minutes, and the first brief sent from the wiki.</p></div>
 <div class="phase"><span class="when">Phase 4<br/>weeks 7–8</span><p><b>Vision, learning, radar.</b> Vision pages per area of influence, Learning Paths (yours and a mentoring plan), Drills, Signals and the radar overview, first <code>/retro</code> at the quarter's end. Goal: a vision you can socialise from <code>/brief</code>, with the signals it watches attached.</p></div>
 <div class="phase"><span class="when">Later</span><p><b>Extensions.</b> A shared bundle from <code>team/playbooks/</code>; attested computations for system health (alert budgets, SLOs); local search with <code>qmd</code> when a directory index passes roughly 150 entries or a query pass keeps reading more than twenty bodies.</p></div>
@@ -1236,7 +1237,7 @@ WHERE status = "draft" AND generated.at &lt;= date(today) - dur(14 days)
 </div>
 </div>
 <h3>What the scaffold will contain, once you sign off</h3>
-<p>Two repositories. The engine: <code>CLAUDE.md</code> with the read-config-first rule, the two-tree rule and the pull rules; <code>CHANGELOG.md</code>; <code>config.example.yaml</code>; <code>schema/types.md</code> and twenty templates, plus the vault defaults; the eleven command files; <code>scripts/okf_lint.py</code> with the checks in §5, including the drift check; <code>scripts/metrics/</code> with the executor, the attester and a sprint-completion example over a Jira snapshot; <code>schema/vault/</code> with <code>Home.md</code> and its six Dataview queries, the Obsidian settings and a Web Clipper template; and a <code>README.md</code> that is this document in markdown. The data root, created by <code>/init</code> from your config: <code>wiki/</code> with root <code>index.md</code>, <code>log.md</code> and every directory's index; <code>raw/</code> with <code>inbox/</code>, <code>notes/</code>, <code>pinned/</code>, <code>metrics/</code> and an empty <code>pull.md</code>; and one worked example page per Phase 1 type so the first <code>/query</code> has something to find.</p>
+<p>Two repositories. The engine: <code>CLAUDE.md</code> with the read-config-first rule, the two-tree rule and the pull rules; <code>CHANGELOG.md</code>; <code>config.example.yaml</code>; <code>schema/types.md</code> and twenty templates, plus the vault defaults; the eleven command files; <code>src/tos/lint.py</code> with the checks in §5, including the drift check; <code>src/tos/metrics/</code> with the executor, the attester and a sprint-completion example over a Jira snapshot; <code>schema/vault/</code> with <code>Home.md</code> and its six Dataview queries, the Obsidian settings and a Web Clipper template; and a <code>README.md</code> that is this document in markdown. The data root, created by <code>/init</code> from your config: <code>wiki/</code> with root <code>index.md</code>, <code>log.md</code> and every directory's index; <code>raw/</code> with <code>inbox/</code>, <code>notes/</code>, <code>pinned/</code>, <code>metrics/</code> and an empty <code>pull.md</code>; and one worked example page per Phase 1 type so the first <code>/query</code> has something to find.</p>
 </section>
 <!-- ================================================================ -->
 <section id="sources">

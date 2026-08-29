@@ -1,7 +1,7 @@
 ---
 type: Review
 title: Example — Weekly review
-description: Example Review page — what /weekly produces; delete with init.py --remove-examples.
+description: Example Review page — what /weekly produces; delete with tos-init --remove-examples.
 tags: [example, review]
 generated: { by: process:init-examples, at: {{GENERATED_AT}} }
 status: draft
@@ -37,7 +37,7 @@ stale_after: ~
 - [Who owns the evaluation harness?](../questions/example-who-owns-the-eval-harness.md)
 
 # Lint
-- run `python3 scripts/okf_lint.py`
+- run `uv run tos-lint`
 
 # Engine proposals (applied in the engine repo; CHANGELOG, not this log)
 - none

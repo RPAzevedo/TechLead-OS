@@ -1,10 +1,10 @@
 ---
-description: Create or refresh the data root described by the config (runs scripts/init.py)
+description: Create or refresh the data root described by the config (runs tos-init)
 argument-hint: [--with-examples | --remove-examples | --dry-run]
 ---
 Follow CLAUDE.md §0 first: resolve and read the config. Then run
 
-    python3 scripts/init.py $ARGUMENTS
+    uv run tos-init $ARGUMENTS
 
 and show its output verbatim. If it reports that the config is missing or has no `data.root`, stop and tell the human what to do (copy `config.example.yaml` to `~/.config/tos/config.yaml`, or set `$TOS_CONFIG`). Do not create the data root any other way, and do not write the config.
 
