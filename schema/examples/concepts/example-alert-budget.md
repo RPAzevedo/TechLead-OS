@@ -1,7 +1,7 @@
 ---
 type: Concept
 title: Example — Alert budget
-description: Example Concept page — an alert budget as the error-budget idea applied to paging; delete with init.py --remove-examples.
+description: Example Concept page — an alert budget as the error-budget idea applied to paging; delete with tos-init --remove-examples.
 tags: [example, operations, slo]
 sources:
   - id: sre-book

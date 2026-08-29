@@ -424,7 +424,7 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.5.1 · Phase 1</p>
+    <p class="eyebrow">Onboarding · engine 0.5.2 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: six setup steps that take about an hour, a first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
     <p class="meta"><span><b>Engine</b> ~/Code/TechLead_OS/engine</span><span><b>Data root</b> ~/Code/TechLead_OS/data (yours to create)</span><span><b>Setup</b> about an hour</span><span><b>Acceptance</b> two weeks</span></p>
@@ -453,7 +453,7 @@
     <section id="before">
       <p class="part">0 · Before you start</p>
       <h2>What you need, and the one thing to check first</h2>
-      <p>On the Mac: Python 3.9 or later (the scripts are standard library only; PyYAML is used if present and not required), git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian, Google Drive and web fetch. Phase 1 uses only those three; Slack, Jira and Trello wait for their phases. Nothing else is installed by the engine.</p>
+      <p>On the Mac: <a href="https://docs.astral.sh/uv/">uv</a> (<code>brew install uv</code>) — it fetches the Python the engine asks for and installs its one dependency, PyYAML — plus git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian, Google Drive and web fetch. Phase 1 uses only those three; Slack, Jira and Trello wait for their phases. Nothing else is installed by the engine.</p>
       <div class="callout warn">
         <p class="label">The policy check — decision D5</p>
         <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
@@ -506,11 +506,13 @@
       <p class="part">1 · The engine</p>
       <h2>It is already on your Mac</h2>
       <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/TechLead_OS/engine</span></p>
-      <p>The engine repository was created under <code>~/Code/TechLead_OS/engine</code>; its history starts at 0.5.0 and the rename to TechLead OS is 0.5.1. It holds instructions, the type registry, templates, scripts and the docs, and no data. Confirm it is what you expect:</p>
+      <p>The engine repository was created under <code>~/Code/TechLead_OS/engine</code>; its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, and 0.5.2 turned it into an installable package. It holds instructions, the type registry, templates, the code and the docs, and no data. Confirm it is what you expect, then install it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine
-git log --oneline          <span class="cm"># the newest commit is the rename to TechLead OS (0.5.1); the first is commonplace-engine 0.5.0</span>
+git log --oneline          <span class="cm"># newest first: 0.5.2 packaging, 0.5.1 rename, 0.5.0 initial engine</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
-python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
+uv --version               <span class="cm"># brew install uv if this is missing</span>
+uv sync                    <span class="cm"># creates .venv, installs PyYAML and the tos-* commands</span></code></pre>
+      <p>That last step is the whole installation. It puts three commands behind <code>uv run</code>: <code>tos-config</code> (print the resolved config), <code>tos-init</code> (create the data root) and <code>tos-lint</code> (the deterministic half of <code>/lint</code>). Run them from the engine directory.</p>
       <p>Read <code>CLAUDE.md</code> once, top to bottom; it is the operating manual the agent loads on every run, and the guardrails in its §5 are the ones you will be relying on. Everything else in the repo is referenced from it.</p>
     </section>
 
@@ -524,15 +526,16 @@ python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
 cp ~/Code/TechLead_OS/engine/config.example.yaml ~/.config/tos/config.yaml
 open -e ~/.config/tos/config.yaml</code></pre>
       <p>Edit four things and leave the rest: <code>data.root</code> if you want the data somewhere other than <code>~/Code/TechLead_OS/data</code> (the policy check may decide this); <code>data.actor</code>, the actor string that will appear in every verification you make; <code>data.timezone</code>; and the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then check what the engine resolved:</p>
-<pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && python3 scripts/tos_common.py --show</code></pre>
+<pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && uv run tos-config</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code>config:   /Users/raf/.config/tos/config.yaml
-engine:   0.5.1 (config says 0.5)
+engine:   0.5.2 (config says 0.5)
+engine root: /Users/raf/Code/TechLead_OS/engine
 data:     /Users/raf/Code/TechLead_OS/data  exists=False
 actor:    human:rafael
 phase:    1
-yaml:     PyYAML   <span class="cm"># or "built-in subset parser" — both are fine</span></code></pre>
+yaml:     PyYAML</code></pre>
       </div>
       <p>If you ever want a second config (a team data root, later), point <code>$TOS_CONFIG</code> at it; the engine reads that variable first.</p>
     </section>
@@ -543,7 +546,7 @@ yaml:     PyYAML   <span class="cm"># or "built-in subset parser" — both are f
       <h2>Created by <code>/init</code>, never by hand</h2>
       <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates ~/Code/TechLead_OS/data</span></p>
       <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, ten example pages plus one example note, and a git repository with a first commit.</p>
-<pre><div class="code-title">terminal</div><code>python3 scripts/init.py --with-examples</code></pre>
+<pre><div class="code-title">terminal</div><code>uv run tos-init --with-examples</code></pre>
       <div class="answer">
         <p class="from">expected output (abridged)</p>
 <pre class="inline"><code>data root: /Users/raf/Code/TechLead_OS/data (created)
@@ -556,11 +559,12 @@ example: wiki/systems/example-asset-search.md … (10 pages)
 git: repository initialised and first commit made</code></pre>
       </div>
       <p>Then run the deterministic lint once, before any real content, so you know what a clean report looks like:</p>
-<pre><div class="code-title">terminal</div><code>python3 scripts/okf_lint.py</code></pre>
+<pre><div class="code-title">terminal</div><code>uv run tos-lint</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code># Lint — 2026-08-31
 10 pages · tiers {'unverified': 10, …} · conformance errors: 0
+parsed with PyYAML
 ## systems (1)
 - `systems/example-asset-search.md` — 1 operational standard(s) unticked</code></pre>
       </div>
@@ -629,7 +633,7 @@ EOF</code></pre>
 &gt; /lint
 &gt; /verify --queue         <span class="cm"># verify what you would quote; skip the rest</span></code></pre>
       <p>What to look for in the answers: every page cited with a tier and a date; the RFC page unverified and your review notes marked as yours; the System page's <em>Operational standards</em> ticked or unticked with footnotes; nothing stated without a source. If an answer states something with no citation, that is an engine bug; note it for the weekly review's <em>Engine proposals</em>. What to look for in the data root afterwards: the four pointer lines gone from <code>pull.md</code>, your note moved to <code>raw/notes/</code> untouched, five new lines under today's date in <code>wiki/log.md</code>, one commit per operation in <code>git log</code>, and nothing at all under <code>raw/pinned/</code>, because you did not ask for a pin.</p>
-      <p>Then remove the examples, so the wiki is yours: <code>python3 scripts/init.py --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
+      <p>Then remove the examples, so the wiki is yours: <code>uv run tos-init --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -645,7 +649,7 @@ EOF</code></pre>
             <tr><td>Days 2–5, end of day</td><td>Notes into <code>raw/inbox/</code>, pointers into <code>pull.md</code>; <code>/ingest</code> then <code>/pull</code>. Two <code>/query</code> during the day, whenever you would have searched.</td><td>Each day's log entries; pages accumulating under the domains you actually work in; answers that name their tiers.</td></tr>
             <tr><td>Monday (day 8)</td><td><code>/weekly</code>; answer the page inline in Obsidian; <code>/weekly --apply</code>.</td><td>A verify queue of five, a re-pull queue if any Doc changed, expiring pages with a choice each, RFCs awaiting you, systems due, questions; one log line per action after apply.</td></tr>
             <tr><td>Days 9–12</td><td>Same daily rhythm. Before any meeting about a project, the S3 brief from the scenarios page, then <code>/verify --queue</code>.</td><td>The first time a brief flags something unverified that you would otherwise have quoted.</td></tr>
-            <tr><td>Monday (day 15)</td><td>Second <code>/weekly</code>. Then the verdict: read the two review pages and the <em>Engine proposals</em> sections.</td><td>At least two or three proposals worth applying — a heading that keeps being needed, a type that was never used, a guardrail that got in the way. Those become the engine's 0.5.1.</td></tr>
+            <tr><td>Monday (day 15)</td><td>Second <code>/weekly</code>. Then the verdict: read the two review pages and the <em>Engine proposals</em> sections.</td><td>At least two or three proposals worth applying — a heading that keeps being needed, a type that was never used, a guardrail that got in the way. Those become the engine's next release.</td></tr>
           </tbody>
         </table>
       </div>
@@ -672,7 +676,7 @@ EOF</code></pre>
       <h2>Enabling what is designed but not yet built</h2>
       <p>The commands for later phases exist and refuse to run until <code>rollout.phase</code> reaches them, so nothing is improvised. Each phase is two weeks in the design, and each needs engine work before the config changes:</p>
       <div class="phases">
-        <div class="phase"><span class="when">Phase 2<br>Jira · sprint tick</span><p>Build first: <code>scripts/metrics/</code> (executor, attester, a sprint-completion script), the <code>/sprint</code> and <code>/measure</code> procedures, the sprint-report feed. Then: Jira scope in the config, the feed uncommented, <code>rollout.phase: 2</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
+        <div class="phase"><span class="when">Phase 2<br>Jira · sprint tick</span><p>Build first: <code>src/tos/metrics/</code> (executor, attester, a sprint-completion script), the <code>/sprint</code> and <code>/measure</code> procedures, the sprint-report feed. Then: Jira scope in the config, the feed uncommented, <code>rollout.phase: 2</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
         <div class="phase"><span class="when">Phase 3<br>team · Slack · /brief</span><p>Build first: the <code>/brief</code> procedure, the Slack pull procedure (named channels, digests, "awaiting you"), the comms-due and 1:1 sections of the weekly. Then: Slack channels in scope, the people policy re-read, <code>rollout.phase: 3</code>. Goal: 1:1 prep in two minutes; the first brief sent from the wiki.</p></div>
         <div class="phase"><span class="when">Phase 4<br>vision · learning · radar</span><p>Build first: the <code>/retro</code> procedure, the radar overview synthesis, Learning Path and Drill handling in the weekly. Then: Trello (personal) if wanted, <code>rollout.phase: 4</code>. Goal: a vision you can socialise, with the signals it watches attached.</p></div>
       </div>
@@ -689,8 +693,9 @@ EOF</code></pre>
           <tbody>
             <tr><td><code>config not found: …</code></td><td>No config at the default path and <code>$TOS_CONFIG</code> unset.</td><td>Step 2. The message names the file to copy.</td></tr>
             <tr><td><code>config at … has no data.root</code></td><td>The YAML is malformed or <code>data:</code> was removed.</td><td>Compare with <code>config.example.yaml</code>; indentation is two spaces.</td></tr>
-            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>python3 scripts/tos_common.py --show</code>, then <code>/init</code>.</td></tr>
-            <tr><td><code>yaml: built-in subset parser</code></td><td>PyYAML is not installed.</td><td>Nothing; the fallback handles the config and every template. <code>pip3 install pyyaml</code> if you prefer.</td></tr>
+            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>uv run tos-config</code>, then <code>/init</code>.</td></tr>
+            <tr><td><code>command not found: tos-lint</code></td><td>The engine is not installed, or you are outside its directory.</td><td><code>cd ~/Code/TechLead_OS/engine &amp;&amp; uv sync</code>, and invoke through <code>uv run</code>.</td></tr>
+            <tr><td><code>frontmatter is not valid YAML</code> in a lint report</td><td>A page's frontmatter really is malformed — an unclosed <code>[</code>, an unquoted value containing <code>: </code>, a stray line.</td><td>Open the page at the line named and fix it. Lint exits 1 until it parses; OKF requires it.</td></tr>
             <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>tos-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
             <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
             <tr><td>"<code>/pull</code> refused: … not in scope"</td><td>Working as designed: the pointer is outside <code>connectors.&lt;name&gt;.scope</code>.</td><td>Add the space, folder or repo to the scope in the config if it should be in.</td></tr>
@@ -711,8 +716,8 @@ EOF</code></pre>
       <h2>Print this half-page</h2>
       <ul class="checklist">
         <li>Policy check done: summaries and excerpts of company material may live in the data root, at the path I chose.</li>
-        <li><code>~/.config/tos/config.yaml</code> exists; <code>tos_common.py --show</code> resolves the data root, actor and phase 1.</li>
-        <li><code>init.py --with-examples</code> ran; <code>okf_lint.py</code> reports 0 conformance errors and the one intended finding.</li>
+        <li><code>uv sync</code> ran in the engine; <code>~/.config/tos/config.yaml</code> exists; <code>uv run tos-config</code> resolves the data root, actor and phase 1.</li>
+        <li><code>uv run tos-init --with-examples</code> ran; <code>uv run tos-lint</code> reports 0 conformance errors and the one intended finding.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
         <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
         <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
@@ -722,7 +727,7 @@ EOF</code></pre>
         <li>Monday: <code>/weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.1, <code>~/Code/TechLead_OS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.2, <code>~/Code/TechLead_OS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
     </section>
   </main>
 </div>

@@ -1,7 +1,7 @@
 ---
 type: RFC
-title: Example — RFC: Media pipeline v2
-description: Example RFC page — entry point to a neighbouring team's proposal with review notes; delete with init.py --remove-examples.
+title: "Example — RFC: Media pipeline v2"
+description: Example RFC page — entry point to a neighbouring team's proposal with review notes; delete with tos-init --remove-examples.
 tags: [example, rfc, media]
 resource: https://docs.google.com/document/d/EXAMPLE/edit
 superseded_by: ~

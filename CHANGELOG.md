@@ -2,6 +2,28 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.5.2 — 2026-08-29
+
+**Malformed YAML is now a conformance error, and the engine installs as a package.**
+
+- Frontmatter is parsed with PyYAML, now a required dependency; the permissive built-in fallback
+  parser is gone. `load_yaml()` raises `YamlError` on anything malformed — no line is ever silently
+  dropped, so a page with `tags: [a, b` no longer passes lint.
+- `split_frontmatter()` distinguishes absent, empty and unparseable frontmatter; non-mapping
+  frontmatter and an unclosed `---` fence are errors too. `tos-lint` reports unparseable pages and
+  indexes under `conformance` and exits 1; a malformed config stops instead of half-parsing.
+- Packaging (**breaking**): `pyproject.toml` + `uv.lock`; `scripts/*.py` → `src/tos/` (`common.py`,
+  `init.py`, `lint.py`). Install with `uv sync`; run `uv run tos-config`, `uv run tos-init`,
+  `uv run tos-lint` from this checkout — the old `python3 scripts/…` invocations are gone.
+  `schema/` stays at the repository root, found by walking up from the package;
+  `$TOS_ENGINE_ROOT` overrides it.
+- Tests (`uv run pytest`): the malformed-frontmatter regression, the frontmatter contract, every
+  shipped schema page, and init → lint end to end. `uv run ruff check` for style.
+- `schema/examples/design/rfcs/example-media-pipeline-v2.md` had an unquoted `: ` in its title —
+  invalid frontmatter the old parser had been hiding. Quoted.
+- Docs, command files and settings follow the new paths; `docs/design.pdf` is a generated artifact
+  and was not regenerated.
+
 ## 0.5.1 — 2026-08-29
 
 Renamed from Commonplace to **TechLead OS**, short form `tos`. No behaviour change.

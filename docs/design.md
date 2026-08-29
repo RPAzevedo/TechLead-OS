@@ -149,9 +149,10 @@ The OKF bundle root is `wiki/`, not the data root. That keeps `raw/` (notes, pin
     │   ├── types.md               # the type registry (table in §4)
     │   ├── templates/             # one file per type
     │   └── vault/                 # Home.md and .obsidian/ defaults that /init installs into data.root
-    └── scripts/
-        ├── okf_lint.py            # deterministic checks; no LLM
-        ├── init.py                # creates the data root layout from the config
+    └── src/tos/
+        ├── common.py              # config, strict YAML, frontmatter, dates
+        ├── lint.py                # deterministic checks; no LLM        → tos-lint
+        ├── init.py                # creates the data root layout        → tos-init
         └── metrics/               # run.py (executor), attest.py (attester), one script per metric
 
 ### The config file
@@ -318,12 +319,12 @@ With connectors, the fetch and the computation are separated on purpose. The spr
     parameters:
       - { name: snapshot, type: path,    required: true }    # a file under raw/metrics/jira/
       - { name: sprints,  type: integer, required: false }   # how many recent sprints
-    computation: ../../../scripts/metrics/sprint_completion.py
+    computation: ../../../src/tos/metrics/sprint_completion.py
     executor:
-      resource: ../../../scripts/metrics/run.py
+      resource: ../../../src/tos/metrics/run.py
       receipt: [computation_sha256, snapshot_sha256, parameters, rows, fetched_at]
     attester:
-      resource: ../../../scripts/metrics/attest.py           # deterministic code, no LLM
+      resource: ../../../src/tos/metrics/attest.py           # deterministic code, no LLM
     generated: { by: human:rafael, at: 2026-09-15T10:00:00+10:00 }
     verified: { by: human:rafael, at: 2026-09-15T10:00:00+10:00 }
     status: stable
@@ -453,7 +454,7 @@ Log line
 ### /lint
 
 Script pass  
-`scripts/okf_lint.py`, deterministic, no LLM: frontmatter parses and `type` is non-empty (OKF conformance); `generated`, `status` and `stale_after` present and well-formed; pages stale or expiring within seven days; pages changed since their last verification; drafts older than fourteen days; RFCs in draft with no review note in fourteen days; System pages whose standards checklist has unticked items; **source drift**, which touches the network: for every page whose `sources[]` point at a Doc, a Confluence page, a Jira query or a repository file, compare the recorded `last_modified` with the live one through the connector and report "source changed since this page was written", which becomes a re-pull queue on Monday; broken links (OKF tolerates them, you still want to know) and orphans with no inbound link; every page listed in its directory index and every index entry resolving; log entries well-formed. Output is a report. It adds no `verified` entries by default; whether a clean structural pass should count as machine confirmation is decision D7.
+`src/tos/lint.py`, deterministic, no LLM: frontmatter parses and `type` is non-empty (OKF conformance); `generated`, `status` and `stale_after` present and well-formed; pages stale or expiring within seven days; pages changed since their last verification; drafts older than fourteen days; RFCs in draft with no review note in fourteen days; System pages whose standards checklist has unticked items; **source drift**, which touches the network: for every page whose `sources[]` point at a Doc, a Confluence page, a Jira query or a repository file, compare the recorded `last_modified` with the live one through the connector and report "source changed since this page was written", which becomes a re-pull queue on Monday; broken links (OKF tolerates them, you still want to know) and orphans with no inbound link; every page listed in its directory index and every index entry resolving; log entries well-formed. Output is a report. It adds no `verified` entries by default; whether a clean structural pass should count as machine confirmation is decision D7.
 
 Agent pass  
 Karpathy's list, which no script can do: contradictions between pages, claims without a source, missing cross-references, data gaps worth a `Question` page, and a policy check on `team/people/` and `team/stakeholders/` (§9).
@@ -655,8 +656,8 @@ The other three: pages stale or expiring within a week; projects and initiatives
 - **`CLAUDE.md`** is the schema, in Karpathy's sense, and it is loaded on every run. Sections: read the config first; the two trees and what may be written where; the pull rules; the page contract with the exact frontmatter; a pointer to `schema/types.md`; the ten operations as step lists; the guardrails in §9; the read-order rule (index → frontmatter → body); conventions for slugs, links, timestamps, actors; and the rule that engine proposals are applied in the engine repo and recorded in its `CHANGELOG.md`.
 - **`.claude/commands/`** holds one file per operation so `/init`, `/pull`, `/ingest`, `/query`, `/lint`, `/verify`, `/weekly`, `/sprint`, `/brief`, `/measure` and `/retro` are single words in the terminal.
 - **`schema/templates/`** gives the agent one file per type with the frontmatter and headings pre-filled, so a new page is a copy plus content rather than a re-derivation.
-- **`scripts/okf_lint.py`** is the deterministic half of lint (§5) and also the conformance check you can run before sharing any sub-bundle.
-- **`scripts/metrics/`** holds the executor, the attester and one script per metric. They read snapshots under `raw/metrics/jira/` and never call Jira themselves, so they need no credentials (decision D9).
+- **`src/tos/lint.py`** is the deterministic half of lint (§5) and also the conformance check you can run before sharing any sub-bundle.
+- **`src/tos/metrics/`** holds the executor, the attester and one script per metric. They read snapshots under `raw/metrics/jira/` and never call Jira themselves, so they need no credentials (decision D9).
 - **git, twice:** the data root is a private repository with one commit per operation, the commit message being the log line; the engine is a second repository whose commits are its changelog. Neither ever contains the other.
 
 9 · Guardrails
@@ -704,7 +705,7 @@ weeks 1–2</span>
 <span class="when">Phase 2  
 weeks 3–4</span>
 
-**Jira and the sprint tick.** The Jira connector, the sprint-report feed, Objective pages for the quarter, two `Attested Computation` pages over Jira snapshots, `scripts/metrics/`, the first `/sprint`. Goal: a sprint review whose numbers carry receipts.
+**Jira and the sprint tick.** The Jira connector, the sprint-report feed, Objective pages for the quarter, two `Attested Computation` pages over Jira snapshots, `src/tos/metrics/`, the first `/sprint`. Goal: a sprint review whose numbers carry receipts.
 
 <span class="when">Phase 3  
 weeks 5–6</span>
@@ -870,7 +871,7 @@ The split makes a second data root cheap: the same engine could run over a team 
 
 ### What the scaffold will contain, once you sign off
 
-Two repositories. The engine: `CLAUDE.md` with the read-config-first rule, the two-tree rule and the pull rules; `CHANGELOG.md`; `config.example.yaml`; `schema/types.md` and twenty templates, plus the vault defaults; the eleven command files; `scripts/okf_lint.py` with the checks in §5, including the drift check; `scripts/metrics/` with the executor, the attester and a sprint-completion example over a Jira snapshot; `schema/vault/` with `Home.md` and its six Dataview queries, the Obsidian settings and a Web Clipper template; and a `README.md` that is this document in markdown. The data root, created by `/init` from your config: `wiki/` with root `index.md`, `log.md` and every directory's index; `raw/` with `inbox/`, `notes/`, `pinned/`, `metrics/` and an empty `pull.md`; and one worked example page per Phase 1 type so the first `/query` has something to find.
+Two repositories. The engine: `CLAUDE.md` with the read-config-first rule, the two-tree rule and the pull rules; `CHANGELOG.md`; `config.example.yaml`; `schema/types.md` and twenty templates, plus the vault defaults; the eleven command files; `src/tos/lint.py` with the checks in §5, including the drift check; `src/tos/metrics/` with the executor, the attester and a sprint-completion example over a Jira snapshot; `schema/vault/` with `Home.md` and its six Dataview queries, the Obsidian settings and a Web Clipper template; and a `README.md` that is this document in markdown. The data root, created by `/init` from your config: `wiki/` with root `index.md`, `log.md` and every directory's index; `raw/` with `inbox/`, `notes/`, `pinned/`, `metrics/` and an empty `pull.md`; and one worked example page per Phase 1 type so the first `/query` has something to find.
 
 12 · Sources
 
