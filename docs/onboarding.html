@@ -427,7 +427,7 @@
     <p class="eyebrow">Onboarding · engine 0.5.1 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: six setup steps that take about an hour, a first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
-    <p class="meta"><span><b>Engine</b> ~/Code/POS/engine</span><span><b>Data root</b> ~/Code/POS/data (yours to create)</span><span><b>Setup</b> about an hour</span><span><b>Acceptance</b> two weeks</span></p>
+    <p class="meta"><span><b>Engine</b> ~/Code/TechLead_OS/engine</span><span><b>Data root</b> ~/Code/TechLead_OS/data (yours to create)</span><span><b>Setup</b> about an hour</span><span><b>Acceptance</b> two weeks</span></p>
   </header>
 
   <nav class="toc" aria-label="Contents">
@@ -458,7 +458,7 @@
         <p class="label">The policy check — decision D5</p>
         <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
       </div>
-      <p>Two things are already decided so you do not have to: the data root defaults to <code>~/Code/POS/data</code> next to the engine, and <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built.</p>
+      <p>Two things are already decided so you do not have to: the data root defaults to <code>~/Code/TechLead_OS/data</code> next to the engine, and <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built.</p>
 
       <figure>
         <svg viewBox="0 0 760 150" role="img" aria-label="Six setup steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about an hour in total, then a fortnight of use.">
@@ -505,9 +505,9 @@
     <section id="engine">
       <p class="part">1 · The engine</p>
       <h2>It is already on your Mac</h2>
-      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/POS/engine</span></p>
-      <p>The engine repository was created under <code>~/Code/POS/engine</code>; its history starts at 0.5.0 and the rename to TechLead OS is 0.5.1. It holds instructions, the type registry, templates, scripts and the docs, and no data. Confirm it is what you expect:</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/POS/engine
+      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/TechLead_OS/engine</span></p>
+      <p>The engine repository was created under <code>~/Code/TechLead_OS/engine</code>; its history starts at 0.5.0 and the rename to TechLead OS is 0.5.1. It holds instructions, the type registry, templates, scripts and the docs, and no data. Confirm it is what you expect:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine
 git log --oneline          <span class="cm"># the newest commit is the rename to TechLead OS (0.5.1); the first is commonplace-engine 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
@@ -521,15 +521,15 @@ python3 --version          <span class="cm"># 3.9 or later</span></code></pre>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">~/.config/tos/config.yaml</span></p>
       <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/tos/config.yaml</code>, is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>mkdir -p ~/.config/tos
-cp ~/Code/POS/engine/config.example.yaml ~/.config/tos/config.yaml
+cp ~/Code/TechLead_OS/engine/config.example.yaml ~/.config/tos/config.yaml
 open -e ~/.config/tos/config.yaml</code></pre>
-      <p>Edit four things and leave the rest: <code>data.root</code> if you want the data somewhere other than <code>~/Code/POS/data</code> (the policy check may decide this); <code>data.actor</code>, the actor string that will appear in every verification you make; <code>data.timezone</code>; and the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then check what the engine resolved:</p>
-<pre><div class="code-title">terminal</div><code>cd ~/Code/POS/engine && python3 scripts/tos_common.py --show</code></pre>
+      <p>Edit four things and leave the rest: <code>data.root</code> if you want the data somewhere other than <code>~/Code/TechLead_OS/data</code> (the policy check may decide this); <code>data.actor</code>, the actor string that will appear in every verification you make; <code>data.timezone</code>; and the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then check what the engine resolved:</p>
+<pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && python3 scripts/tos_common.py --show</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code>config:   /Users/raf/.config/tos/config.yaml
 engine:   0.5.1 (config says 0.5)
-data:     /Users/raf/Code/POS/data  exists=False
+data:     /Users/raf/Code/TechLead_OS/data  exists=False
 actor:    human:rafael
 phase:    1
 yaml:     PyYAML   <span class="cm"># or "built-in subset parser" — both are fine</span></code></pre>
@@ -541,12 +541,12 @@ yaml:     PyYAML   <span class="cm"># or "built-in subset parser" — both are f
     <section id="data">
       <p class="part">3 · The data root</p>
       <h2>Created by <code>/init</code>, never by hand</h2>
-      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates ~/Code/POS/data</span></p>
+      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates ~/Code/TechLead_OS/data</span></p>
       <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, ten example pages plus one example note, and a git repository with a first commit.</p>
 <pre><div class="code-title">terminal</div><code>python3 scripts/init.py --with-examples</code></pre>
       <div class="answer">
         <p class="from">expected output (abridged)</p>
-<pre class="inline"><code>data root: /Users/raf/Code/POS/data (created)
+<pre class="inline"><code>data root: /Users/raf/Code/TechLead_OS/data (created)
 created: raw/inbox … raw/notes … raw/pinned … raw/metrics … raw/assets
 created: raw/inbox/pull.md
 created: wiki/index.md … (26 index files) … wiki/log.md
@@ -572,7 +572,7 @@ git: repository initialised and first commit made</code></pre>
       <p class="part">4 · Obsidian</p>
       <h2>Open the data root as the vault</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">plugin: Dataview</span></p>
-      <p>Obsidian → <em>Open folder as vault</em> → <code>~/Code/POS/data</code>. Not the engine: the vault is the data. The settings <code>/init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
+      <p>Obsidian → <em>Open folder as vault</em> → <code>~/Code/TechLead_OS/data</code>. Not the engine: the vault is the data. The settings <code>/init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
       <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Its eight queries should show the example pages: ten unverified pages in the first table, the System page under <em>Systems due for review</em> with its date ninety days out, the example RFC nowhere yet (it is not two weeks old), the example Question under <em>Open questions</em>. If the tables are empty, Dataview is not enabled; if they show errors, see §10.</p>
       <p>Open <code>wiki/index.md</code> and follow a link or two. That top-down path, root index → directory index → page, is the one the agent takes for every query.</p>
     </section>
@@ -582,13 +582,13 @@ git: repository initialised and first commit made</code></pre>
       <p class="part">5 · Claude Code and connectors</p>
       <h2>Start it in the engine, grant it the data</h2>
       <p class="scen-meta"><span class="chip phase1">15 minutes</span><span class="chip">connectors: atlassian · google-drive · fetch</span></p>
-      <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told: <code>.claude/settings.local.json</code> already grants <code>/Users/raf/Code/POS/data</code> as an additional working directory. If your data root is elsewhere, edit that file, or start with <code>claude --add-dir &lt;data.root&gt;</code>.</p>
-<pre><div class="code-title">terminal</div><code>cd ~/Code/POS/engine && claude</code></pre>
+      <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told: <code>.claude/settings.local.json</code> already grants <code>/Users/raf/Code/TechLead_OS/data</code> as an additional working directory. If your data root is elsewhere, edit that file, or start with <code>claude --add-dir &lt;data.root&gt;</code>.</p>
+<pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && claude</code></pre>
       <p>Two checks inside the session. First, that the manual loaded and the config resolved:</p>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; what is the data root, which phase are we in, and which connectors may you use?</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
-        <p>The data root is <code>/Users/raf/Code/POS/data</code> (from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
+        <p>The data root is <code>/Users/raf/Code/TechLead_OS/data</code> (from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
       </div>
       <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
@@ -614,8 +614,8 @@ git: repository initialised and first commit made</code></pre>
         <li>One RFC you are currently reviewing — a Doc or Confluence page; a pointer, plus a note with your review comments.</li>
         <li>One runbook for a system you own — Confluence; a pointer.</li>
       </ol>
-<pre class="wrap"><div class="code-title">terminal — put the pointers in place</div><code>cp ~/Downloads/leadengineer.md ~/Code/POS/data/raw/inbox/2026-08-31-lead-engineer-role.md
-cat &gt;&gt; ~/Code/POS/data/raw/inbox/pull.md &lt;&lt;'EOF'
+<pre class="wrap"><div class="code-title">terminal — put the pointers in place</div><code>cp ~/Downloads/leadengineer.md ~/Code/TechLead_OS/data/raw/inbox/2026-08-31-lead-engineer-role.md
+cat &gt;&gt; ~/Code/TechLead_OS/data/raw/inbox/pull.md &lt;&lt;'EOF'
 https://&lt;your-site&gt;.atlassian.net/wiki/spaces/ENG/pages/…/System+Owner+expectations
 https://&lt;your-site&gt;.atlassian.net/wiki/spaces/PDLC/pages/…/Product+Development+Lifecycle
 https://docs.google.com/document/d/…/edit
@@ -722,7 +722,7 @@ EOF</code></pre>
         <li>Monday: <code>/weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.1, <code>~/Code/POS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.1, <code>~/Code/TechLead_OS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
     </section>
   </main>
 </div>

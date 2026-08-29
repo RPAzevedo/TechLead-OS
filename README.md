@@ -22,7 +22,7 @@ engine/                      this repo
 ├── scripts/okf_lint.py      deterministic lint
 └── docs/                    the design
 
-<data.root>/                 e.g. ~/Code/POS/data — created by /init; the Obsidian vault; its own private git repo
+<data.root>/                 e.g. ~/Code/TechLead_OS/data — created by /init; the Obsidian vault; its own private git repo
 ├── raw/inbox/               drop zone for notes; pull.md lists pointers to read
 ├── raw/notes/               your notes after ingest (immutable)
 ├── raw/pinned/              verbatim copies you asked for with --pin (immutable)
