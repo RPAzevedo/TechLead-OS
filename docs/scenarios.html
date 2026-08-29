@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commonplace in Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F7;
+    --surface: #FFFFFF;
+    --surface-2: #EEF2F4;
+    --ink: #1B2530;
+    --ink-2: #3C4A56;
+    --muted: #5F6E7A;
+    --rule: #D5DCE1;
+    --accent: #1F7A76;
+    --accent-ink: #145F5C;
+    --accent-soft: #E1F0EF;
+    --warn: #8F6212;
+    --warn-soft: #FBF1DA;
+    --stale: #A63A3A;
+    --stale-soft: #F9E4E4;
+    --good: #2F7D4F;
+    --good-soft: #E2F2E8;
+    --shadow: 0 1px 2px rgba(27, 37, 48, 0.06);
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Literata", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #12181E;
+      --surface: #1A222A;
+      --surface-2: #202A33;
+      --ink: #E6EBEF;
+      --ink-2: #C3CDD5;
+      --muted: #97A5B0;
+      --rule: #2C3741;
+      --accent: #52B8B2;
+      --accent-ink: #7ED0CA;
+      --accent-soft: #173634;
+      --warn: #D9A441;
+      --warn-soft: #3A2E14;
+      --stale: #E07A7A;
+      --stale-soft: #3B1E1E;
+      --good: #6CC08C;
+      --good-soft: #1B3324;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #12181E;
+    --surface: #1A222A;
+    --surface-2: #202A33;
+    --ink: #E6EBEF;
+    --ink-2: #C3CDD5;
+    --muted: #97A5B0;
+    --rule: #2C3741;
+    --accent: #52B8B2;
+    --accent-ink: #7ED0CA;
+    --accent-soft: #173634;
+    --warn: #D9A441;
+    --warn-soft: #3A2E14;
+    --stale: #E07A7A;
+    --stale-soft: #3B1E1E;
+    --good: #6CC08C;
+    --good-soft: #1B3324;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    font-optical-sizing: auto;
+  }
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 48px;
+  }
+  @media (min-width: 980px) {
+    .page { grid-template-columns: 208px minmax(0, 46rem); }
+  }
+
+  /* ---------- table of contents ---------- */
+  .toc { display: none; }
+  @media (min-width: 980px) {
+    .toc {
+      display: block;
+      position: sticky;
+      top: 28px;
+      align-self: start;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+  .toc .toc-label {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 12px;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .toc li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+  .toc .n { color: var(--muted); }
+  .toc a { color: var(--ink-2); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  /* ---------- header ---------- */
+  header.doc { grid-column: 1 / -1; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  @media (min-width: 980px) { header.doc { grid-column: 2; } }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  .eyebrow .status {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 56px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 20px;
+    text-wrap: pretty;
+  }
+  .meta {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin: 0;
+  }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- sections ---------- */
+  main { grid-column: 1 / -1; min-width: 0; }
+  @media (min-width: 980px) { main { grid-column: 2; } }
+  section { margin: 0 0 56px; scroll-margin-top: 24px; }
+  .part {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+  h2 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: 21px;
+    line-height: 1.25;
+    margin: 32px 0 10px;
+    text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 24px 0 8px;
+  }
+  p { margin: 0 0 16px; text-wrap: pretty; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin: 0 0 6px; }
+  li::marker { color: var(--muted); }
+  strong { font-weight: 600; }
+  code {
+    overflow-wrap: anywhere;
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+    color: var(--ink);
+  }
+  pre {
+    margin: 0 0 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; display: block; padding: 16px 18px; }
+  .code-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    padding: 8px 18px 0;
+    letter-spacing: 0.02em;
+  }
+  .cm { color: var(--muted); }
+  .k { color: var(--accent-ink); }
+  .hl { background: var(--accent-soft); border-radius: 3px; }
+
+  blockquote.quote {
+    margin: 0 0 20px;
+    padding: 4px 0 4px 20px;
+    border-left: 2px solid var(--accent);
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  blockquote.quote p { margin: 0 0 6px; }
+  blockquote.quote cite {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 0 0 20px;
+    box-shadow: var(--shadow);
+  }
+  .callout .label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+  .callout.warn { border-color: var(--warn); }
+  .callout.warn .label { color: var(--warn); }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 0 0 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.45; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+  th {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.mono, .mono { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .table-wrap.wide table { min-width: 1060px; }
+  .table-wrap.wide col.c-type { width: 110px; }
+  .table-wrap.wide col.c-dir { width: 140px; }
+  .table-wrap.wide col.c-what { width: 380px; }
+  .table-wrap.wide col.c-hor { width: 100px; }
+  .table-wrap.wide col.c-gate { width: 150px; }
+  .table-wrap.wide col.c-head { width: 180px; }
+
+  /* ---------- tier chips ---------- */
+  .tier {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    padding: 1px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .tier.machine { border-color: var(--accent); color: var(--accent-ink); }
+  .tier.human { border-color: var(--accent); background: var(--accent); color: #FFFFFF; }
+  :root[data-theme="dark"] .tier.human { color: #0F1A1A; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tier.human { color: #0F1A1A; } }
+  .tier.stale { border-color: var(--stale); color: var(--stale); background: var(--stale-soft); }
+  .tier.draft { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+
+  /* ---------- figures ---------- */
+  figure { margin: 8px 0 28px; }
+  figure svg { display: block; max-width: 100%; height: auto; color: var(--ink); font-family: var(--mono); }
+  figure .box { fill: var(--surface); stroke: currentColor; stroke-width: 1.2; }
+  figure .box-soft { fill: var(--surface-2); stroke: currentColor; stroke-width: 1.2; }
+  figure .box-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; }
+  figure .box-dash { fill: none; stroke: var(--muted); stroke-width: 1.1; stroke-dasharray: 5 4; }
+  figure .ln { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  figure .ln-acc { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+  figure .ln-dash { fill: none; stroke: currentColor; stroke-width: 1.1; stroke-dasharray: 4 4; }
+  figure .ln-stale { fill: none; stroke: var(--stale); stroke-width: 1.2; stroke-dasharray: 4 4; }
+  figure .mk { fill: currentColor; }
+  figure .mk-acc { fill: var(--accent); }
+  figure .mk-stale { fill: var(--stale); }
+  figure text { fill: currentColor; font-size: 12px; }
+  figure text.t { font-family: var(--display); font-weight: 500; font-size: 14px; }
+  figure text.s { fill: var(--muted); font-size: 11px; }
+  figure text.l { font-size: 11px; }
+  figure text.acc { fill: var(--accent-ink); }
+  figure text.stale { fill: var(--stale); }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  /* ---------- decision list ---------- */
+  .decision {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 0 14px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .decision:last-child { border-bottom: 1px solid var(--rule); }
+  .decision .id {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--accent);
+    padding-top: 4px;
+  }
+  .decision h3 { margin: 0 0 6px; font-size: 19px; }
+  .decision p { margin: 0 0 8px; font-size: 16px; }
+  .decision .rec { color: var(--ink-2); }
+  .decision .rec b { font-weight: 600; color: var(--ink); }
+  .decision .decided { border-left: 3px solid var(--accent); padding-left: 12px; margin-top: 10px; color: var(--ink); }
+  .decision .decided b { font-weight: 600; color: var(--accent-ink); }
+
+  /* ---------- key/value spec ---------- */
+  dl.spec { display: grid; grid-template-columns: 110px 1fr; gap: 6px 16px; margin: 0 0 20px; font-size: 15.5px; }
+  dl.spec dt { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+  dl.spec dd { margin: 0; }
+  dl.spec dd p { margin: 0 0 6px; }
+  dl.spec dd ol { margin: 0; }
+
+  .phases { display: grid; gap: 12px; margin: 0 0 20px; }
+  .phase { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
+  .phase .when { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 3px; }
+  .phase p { margin: 0; font-size: 15.5px; }
+  .phase p b { font-weight: 600; }
+
+  .sources-list { padding-left: 0; list-style: none; }
+  .sources-list li { padding: 8px 0; border-top: 1px solid var(--rule); font-size: 15px; }
+  .sources-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .sources-list .who { font-family: var(--mono); font-size: 12px; color: var(--muted); display: block; }
+
+  .footer-note { font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px; }
+
+  /* ---------- scenarios ---------- */
+  .scen-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .chip { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); background: var(--surface); }
+  .chip.phase1 { border-color: var(--accent); color: var(--accent-ink); }
+  .chip.phase3 { border-color: var(--warn); color: var(--warn); }
+  .flow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px; margin: 0 0 20px; }
+  @media (max-width: 720px) { .flow { grid-template-columns: minmax(0, 1fr); } }
+  .step { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; font-size: 15px; line-height: 1.5; box-shadow: var(--shadow); }
+  .step p { margin: 0; }
+  .step .who { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  .answer { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 0 0 20px; font-size: 15.5px; box-shadow: var(--shadow); }
+  .answer p { margin: 0 0 10px; }
+  .answer .from { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .answer ul.cites { list-style: none; padding: 0; margin: 8px 0 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 8px; }
+  .answer ul.cites li { margin: 0; overflow-wrap: anywhere; }
+  pre b { font-weight: 600; color: var(--accent-ink); }
+  pre.wrap code { white-space: pre-wrap; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+  <header class="doc">
+    <p class="eyebrow">Scenarios · companion to the design (v0.5) and engine 0.5.0</p>
+    <h1>Commonplace in Practice</h1>
+    <p class="lede">Eight situations from a lead engineer's week, and what the system does in each: what you type, what the agent reads and writes, what comes back, and why you can trust it. Every scenario marked Phase 1 works with the engine as installed; the two that need a connector you don't have yet say so, and show the version that works today.</p>
+    <p class="meta"><span><b>For</b> Rafael</span><span><b>Pages used</b> the ten examples <code>/init --with-examples</code> installs</span><span><b>Times</b> what you spend, not the agent</span></p>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-label">Scenarios</p>
+    <ol>
+      <li><span class="n">0</span><a href="#how">How to read these</a></li>
+      <li><span class="n">S1</span><a href="#rfc">An RFC lands</a></li>
+      <li><span class="n">S2</span><a href="#standup">Before stand-up</a></li>
+      <li><span class="n">S3</span><a href="#meeting">A project meeting</a></li>
+      <li><span class="n">S4</span><a href="#slack">Slack, two days behind</a></li>
+      <li><span class="n">S5</span><a href="#incident">An incident on your system</a></li>
+      <li><span class="n">S6</span><a href="#why">"Why did we decide that?"</a></li>
+      <li><span class="n">S7</span><a href="#monday">Monday, thirty minutes</a></li>
+      <li><span class="n">S8</span><a href="#update">A stakeholder wants an update</a></li>
+      <li><span class="n">9</span><a href="#later">Waiting on a later phase</a></li>
+      <li><span class="n">10</span><a href="#habits">The four habits</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <!-- ================================================================ -->
+    <section id="how">
+      <p class="part">0 · How to read these</p>
+      <h2>Three columns, one contract</h2>
+      <p>Each scenario has the same shape. A <strong>trigger</strong>: something that happens in your day. Then three columns: what <strong>you</strong> do, usually one command or one pasted pointer; what the <strong>agent</strong> reads and writes, always through the operations in <code>CLAUDE.md</code>; and what <strong>you get</strong>, shown as the answer would actually come back. After that, <em>why you can trust it</em>, which is always the same three mechanisms doing their job: every page says who wrote it and who checked it, every claim carries a footnote to its source, and every answer names its pages with a trust tier and a date.</p>
+      <p>The tiers, as they appear in answers: <span class="tier">unverified</span> the agent wrote it and nobody has checked; <span class="tier machine">machine-confirmed</span> a separate pass re-fetched the source and found the page faithful; <span class="tier human">human-reviewed</span> you verified it, dated; <span class="tier draft">changed since verified</span> edited after your review, treated as unverified again; <span class="tier stale">stale</span> past its <code>stale_after</code>, whatever the tier. The scenarios reuse the example pages the engine installs, asset search, the review-bot pilot, the media pipeline RFC, so you can run most of them against your own data root today.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="rfc">
+      <p class="part">S1 · Design</p>
+      <h2>An RFC lands, and you have to review it by Friday</h2>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">about 10 minutes of yours</span><span class="chip">connectors: Google Docs or Confluence</span></p>
+      <p><strong>Trigger.</strong> The media team shares <em>RFC: Media pipeline v2</em>, a Google Doc, and asks for your review. It replaces the nightly batch pipeline with an event-driven one, and asset search consumes its output.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p>Paste the Doc URL into <code>raw/inbox/pull.md</code>. Type your first impressions into a note in <code>raw/inbox/</code>, three lines are enough. Run <code>/pull</code>.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Checks the Doc is inside the <code>gdocs</code> scope; fetches it read-only. Writes a <code>Source</code> page with a summary, the load-bearing lines as excerpts, and the Doc's modified time. Creates <code>design/rfcs/media-pipeline-v2.md</code> as the entry point: <code>resource</code> → the Doc, options, your notes under <em>Review notes</em>, a <em>Standards check</em>, outcome pending. Links it from <code>systems/asset-search.md</code>. Files a <code>Question</code> if ownership of reconciliation is unclear. Indexes, logs, commits.</p></div>
+        <div class="step"><p class="who">You get</p><p>An RFC page you can annotate, a query you can ask, and a line on Monday's review under <em>Design — awaiting your decision</em> with the due date.</p></div>
+      </div>
+<pre class="wrap"><div class="code-title">terminal — after /pull</div><code>/query what does media pipeline v2 change for the systems we own, and what does it not address?</code></pre>
+      <div class="answer">
+        <p class="from">answer</p>
+        <p>Media pipeline v2 replaces the nightly batch rebuild with event-driven writes into the search index. Asset search consumes that index directly, so two things become your concern: how partial events are reconciled before the index is queried, and how a bad batch of events is rolled back. The RFC addresses data retention but not observability or rollback, and it does not say who owns reconciliation.</p>
+        <ul class="cites">
+          <li>design/rfcs/media-pipeline-v2.md — <span class="tier">unverified</span> written by the agent today from the Doc and your notes</li>
+          <li>systems/asset-search.md — <span class="tier human">human-reviewed</span> 2026-08-26</li>
+          <li>sources/2026-09-02-rfc-media-pipeline-v2.md — <span class="tier machine">machine-confirmed</span> cross-check re-fetched the Doc</li>
+          <li>questions/who-owns-reconciliation.md — <span class="tier">unverified</span> filed during ingest</li>
+        </ul>
+      </div>
+      <h3>Why you can trust it</h3>
+      <p>Your review notes are yours and say so; everything else on the RFC page is the agent's reading of the Doc, footnoted to the Source page, and marked unverified until you <code>/verify</code> it. The Source page recorded the Doc's modified time, so if the authors edit it before Friday, Monday's drift check reports "changed since read" and queues a re-pull. The canonical RFC stays in the Doc (decision D10); the wiki page is an entry point, never a copy.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="standup">
+      <p class="part">S2 · Delivery</p>
+      <h2>Three minutes before stand-up</h2>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">3 minutes</span><span class="chip">no connector needed</span></p>
+      <p><strong>Trigger.</strong> 9:27. Stand-up is at 9:30 and you were in meetings all of yesterday afternoon.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p>One query, the same one every day, so it is a habit and not a prompt: <code>/query stand-up</code> with the question below.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Reads yesterday's and today's entries in <code>log.md</code> and the pages they touched; then every Project and Initiative page's <em>Status</em>, <em>Next</em> and <code>next_checkpoint</code>; System <em>KTLO</em> sections; open Question pages. Composes four short lists and cites each line.</p></div>
+        <div class="step"><p class="who">You get</p><p>A stand-up card: changed, blocked, decisions needed, checkpoints this week. Thirty seconds to read.</p></div>
+      </div>
+<pre class="wrap"><div class="code-title">terminal</div><code>/query stand-up: what changed since yesterday on our projects and systems, what is blocked, what needs a decision from me, which checkpoints fall this week?</code></pre>
+      <div class="answer">
+        <p class="from">answer</p>
+        <p><strong>Changed.</strong> The media pipeline v2 RFC was ingested with your review notes; asset search gained a KTLO item for the noisy latency alert. <strong>Blocked.</strong> Extending the review-bot pilot waits on the vendor evaluation decision, which is still a proposal. <strong>Needs you.</strong> Two: the vendor-evaluation decision (draft since Tuesday), and the RFC review (due Friday). <strong>Checkpoints this week.</strong> Review-bot pilot, Thursday.</p>
+        <ul class="cites">
+          <li>delivery/projects/review-bot-pilot.md — <span class="tier human">human-reviewed</span> 2026-08-29 · next_checkpoint 2026-09-04</li>
+          <li>design/decisions/evaluate-vendor-before-extending-pilot.md — <span class="tier">unverified</span> proposed 2026-09-01</li>
+          <li>design/rfcs/media-pipeline-v2.md — <span class="tier">unverified</span> written today</li>
+          <li>systems/asset-search.md — <span class="tier draft">changed since verified</span> KTLO item added 2026-09-02</li>
+        </ul>
+      </div>
+      <h3>Why you can trust it, and where it stops</h3>
+      <p>It only knows what was ingested. A good stand-up card is the return on yesterday's five-minute <code>/ingest</code> of your notes; a teammate's remark in Slack that you never captured is not in it, until the Slack connector arrives in Phase 3. Jira board state is Phase 2 too, so today this covers what you recorded, which for a lead's stand-up is usually the part that matters: decisions, blockers and dates. Each line carries its tier, so "changed since verified" on the System page tells you the KTLO item is the agent's reading of the incident report, not something you have confirmed.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="meeting">
+      <p class="part">S3 · Delivery</p>
+      <h2>A project meeting in thirty minutes</h2>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">10 minutes before, 5 after</span><span class="chip">no connector needed</span></p>
+      <p><strong>Trigger.</strong> 14:00, review of the review-bot pilot with the Product Trio and Security. You want status, the pending decision, the risks, what each stakeholder has actually said, and to not be caught quoting something the agent guessed.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p>Ask for the brief. Verify the two pages it flags. After the meeting, drop your notes into <code>raw/inbox/</code> and run <code>/ingest</code>.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Before: reads the Project page, its linked Decision, the Initiative's <em>Timeline</em> and <em>Stakeholders</em>, open Questions, and the Source pages behind them for the actual words. Flags which of these are unverified. After: updates <em>Status</em> and <em>Next</em>, records the decision's outcome, moves the checkpoint, files the new question, logs, commits.</p></div>
+        <div class="step"><p class="who">You get</p><p>A one-page brief with a "verify before you quote" line; after the meeting, pages that already say what was agreed.</p></div>
+      </div>
+<pre class="wrap"><div class="code-title">terminal — 13:30</div><code>/query brief me for the review-bot pilot meeting: status, decisions pending, risks, open questions, and what each stakeholder has said, with quotes where we have them</code></pre>
+      <div class="answer">
+        <p class="from">answer</p>
+        <p><strong>Status.</strong> Pilot running in one team; extension to two more is gated on a proposed decision to evaluate vendor X first. <strong>Pending.</strong> That decision, proposed Tuesday, not yet accepted. <strong>Risks.</strong> A vendor product makes the in-house bot redundant. <strong>Open.</strong> Who owns the evaluation harness — nobody could say. <strong>Stakeholders.</strong> Security: "wants the data-handling brief before the pilot extends" (leadership notes, 28 Aug). Product Trio: no recorded position.</p>
+        <p><strong>Verify before you quote:</strong> the decision page and the Initiative's stakeholder line are unverified. <code>/verify --queue</code> will offer both first.</p>
+        <ul class="cites">
+          <li>delivery/projects/review-bot-pilot.md — <span class="tier human">human-reviewed</span> 2026-08-29</li>
+          <li>design/decisions/evaluate-vendor-before-extending-pilot.md — <span class="tier">unverified</span></li>
+          <li>delivery/initiatives/ai-assisted-code-review-rollout.md — <span class="tier">unverified</span> stakeholder line added 2026-08-29</li>
+          <li>sources/2026-08-28-leadership-meeting-notes.md — <span class="tier machine">machine-confirmed</span></li>
+        </ul>
+      </div>
+<pre><div class="code-title">terminal — 13:34, two minutes</div><code>/verify --queue
+→ design/decisions/evaluate-vendor-before-extending-pilot.md: diff shown … verify? <b>yes</b>
+   verified by human:rafael · status stays draft (a proposed decision is stable only once accepted)
+→ delivery/initiatives/ai-assisted-code-review-rollout.md: diff shown … verify? <b>yes</b>
+   verified by human:rafael · status: stable</code></pre>
+<pre><div class="code-title">terminal — 15:10, after the meeting</div><code>/ingest
+* **Ingest**: [Review-bot pilot meeting, 2026-09-02](sources/2026-09-02-review-bot-pilot-meeting.md) — touched 5 pages (1 new)
+  projects/review-bot-pilot.md            Status, Next, next_checkpoint → 2026-09-16
+  decisions/evaluate-vendor-…             Outcome: accepted; two-week evaluation
+  initiatives/ai-assisted-code-review…    Timeline entry; Security position updated
+  questions/who-owns-the-eval-harness.md  Resolution: the pilot team, until the evaluation ends
+  questions/vendor-x-data-residency.md    new</code></pre>
+      <h3>Why you can trust it</h3>
+      <p>The brief separates what you have checked from what the agent inferred, and says which is which, so decision D4's gate (nothing you say outward rests on an unverified page) is a two-minute step rather than a discipline you have to remember. The quote from Security is an excerpt on the Source page, footnoted, not a paraphrase. After the meeting the accepted decision becomes <code>stable</code> only when you verify the outcome the agent recorded, which is the difference between "we decided" and "the agent heard".</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="slack">
+      <p class="part">S4 · Team and stakeholders</p>
+      <h2>Slack, two days behind</h2>
+      <p class="scen-meta"><span class="chip phase3">Phase 3 for the connector</span><span class="chip phase1">works now by pasting</span><span class="chip">5 minutes</span></p>
+      <p><strong>Trigger.</strong> You are back from two days of workshops. <code>#team-search</code> and <code>#incidents</code> have a hundred and forty messages between them, and somewhere in there are three questions only you can answer.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p>Phase 3: <code>/pull "#team-search, last 2 days"</code>, named channels only. Today: copy the threads you care about into a note in <code>raw/inbox/</code> and run <code>/ingest</code>; the rest of the scenario is identical.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Summarises each thread into a Source page with excerpts and permalinks, never a copy of the thread. Updates Initiative timelines, System incidents and (Phase 3) Stakeholder positions. Then lists what is <em>awaiting you</em>: questions addressed to you or about your systems with no reply from you, requests from stakeholders, decisions someone is waiting on; each with its permalink and a draft reply you can paste. It never posts.</p></div>
+        <div class="step"><p class="who">You get</p><p>A short list of what needs you, with drafts. You answer in Slack yourself.</p></div>
+      </div>
+      <div class="answer">
+        <p class="from">awaiting you (3)</p>
+        <p><strong>1.</strong> <em>#team-search, Tue 16:40</em> — the on-call asks whether the p95 latency SLO should be revisited after the index migration. No reply from you. Draft: "Not before we know whether the breach was the migration or the thresholds; I've filed a question and will bring it to Thursday's review." <strong>2.</strong> <em>#incidents, Wed 09:12</em> — Security asks who to send the data-handling questionnaire to for the review-bot pilot. Draft: "Me, for now; the pilot team owns the harness until the vendor evaluation ends." <strong>3.</strong> <em>#team-search, Wed 15:03</em> — a teammate asks if the KTLO item for the noisy alert can go into this sprint. Draft: "Yes, as the first KTLO item; I've added it to the system page."</p>
+        <ul class="cites">
+          <li>sources/2026-09-03-team-search-digest.md — <span class="tier">unverified</span> 2 threads, 6 participants, excerpts only</li>
+          <li>systems/asset-search.md — <span class="tier draft">changed since verified</span> KTLO section</li>
+          <li>questions/should-the-p95-slo-change.md — <span class="tier">unverified</span> new</li>
+        </ul>
+      </div>
+      <h3>Why you can trust it, and what it will not do</h3>
+      <p>The pull rule is the guardrail: named channels and threads only, never DMs, never a post, and a Source page holds your reading of a thread rather than the thread, so the vault carries no verbatim Slack. Remarks about people are not recorded; work content is. The drafts are drafts: the agent cannot reply for you, and the design keeps it that way. Until the connector is wired in Phase 3, pasting the threads into a note gives you the same "awaiting you" list, minus the permalinks.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="incident">
+      <p class="part">S5 · Systems</p>
+      <h2>An incident on a system you own</h2>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">5 minutes, then Monday</span><span class="chip">connector: Confluence</span></p>
+      <p><strong>Trigger.</strong> The search-latency alert fired repeatedly on Wednesday night; on Thursday the incident report is in Confluence. As system owner you have to escalate the alert-budget breach and make sure the fix does not get lost.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p>Paste the Confluence URL into <code>pull.md</code>; <code>/pull</code>. Later, one question.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Source page with the report's key lines. On <code>systems/asset-search.md</code>: unticks the alert-budget item under <em>Operational standards</em> with a footnote, adds the KTLO item, a timeline line, and the incident to <em>Runbooks &amp; links</em>. Updates the <em>Alert budget</em> concept. Files a Question if the cause is unresolved. Lint now reports one unticked standard; Monday's <em>Systems</em> section carries it as an escalation prompt.</p></div>
+        <div class="step"><p class="who">You get</p><p>A System page that is current, an escalation you cannot forget, and a quarter's worth of incident history on demand.</p></div>
+      </div>
+<pre class="wrap"><div class="code-title">terminal — Friday</div><code>/query what do we know about latency incidents on asset search this quarter, and what changed after each?</code></pre>
+      <div class="answer">
+        <p class="from">answer</p>
+        <p>Two incidents. 30 July: p95 latency exceeded the SLO for 40 minutes after a bad index rebuild; the rebuild job gained a validation step. 2 September: the latency alert fired repeatedly for three days and breached the alert budget; the on-call attributes it to thresholds set before the index migration, not a regression, and asked for a KTLO item to retune the alert, which is filed but not yet scheduled. One open question: whether the p95 SLO itself should change.</p>
+        <ul class="cites">
+          <li>systems/asset-search.md — <span class="tier draft">changed since verified</span> standards, KTLO and timeline updated 2026-09-03</li>
+          <li>sources/2026-09-03-incident-report-search-latency.md — <span class="tier machine">machine-confirmed</span></li>
+          <li>sources/2026-07-31-incident-report-index-rebuild.md — <span class="tier human">human-reviewed</span> 2026-08-04</li>
+          <li>concepts/alert-budget.md — <span class="tier human">human-reviewed</span> 2026-08-26</li>
+        </ul>
+      </div>
+<pre><div class="code-title">wiki/reviews/2026-W37.md — Monday</div><code># Systems
+- asset-search: alert budget breached 2026-09-02 · 1 standard unticked · KTLO item unscheduled → <span class="hl">escalate to EM; KTLO into sprint 18</span>
+- payments-ledger: ownership review due 2026-09-11 → <span class="hl">schedule</span></code></pre>
+      <h3>Why you can trust it</h3>
+      <p>The escalation is your own report's words, excerpted and footnoted, on a page that lint marks "changed since verified" until you look at it, which puts it at the top of Monday's queue. The unticked standard is a deterministic finding, not a judgement, and it stays in every lint report until the box is ticked with a footnote of its own. Nothing about the incident lives only in chat memory.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="why">
+      <p class="part">S6 · Design</p>
+      <h2>"Why did we decide that?"</h2>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">1 minute</span><span class="chip">no connector needed</span></p>
+      <p><strong>Trigger.</strong> An engineer who joined last month asks why the pilot extension was gated on a vendor evaluation. Six weeks ago you could have answered from memory; today you want the answer to be the record, not your recollection of it.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p><code>/query why did we decide to evaluate vendor X before extending the review-bot pilot?</code></p></div>
+        <div class="step"><p class="who">Agent</p><p>Reads the Decision page: <em>Context</em>, the three <em>Options</em>, the <em>Decision</em>, <em>Consequences</em>, <em>Standards applied</em>; the Source behind it for the words; the Initiative timeline for what happened since.</p></div>
+        <div class="step"><p class="who">You get</p><p>The rationale with the alternatives that were rejected, dated and tiered. If it is human-reviewed, you can forward it as is.</p></div>
+      </div>
+      <div class="answer">
+        <p class="from">answer</p>
+        <p>Because a vendor shipped an agentic review product the week the pilot was due to extend, and extending first would have meant building on a tool the vendor might make redundant. Three options were considered: extend as planned, evaluate the vendor for two weeks first, or pause the pilot. The second was accepted on 2 September; the cost was a two-week slip of the rollout checkpoint. The vendor-evaluation checklist applied, which is why Security's data-handling review came first.</p>
+        <ul class="cites">
+          <li>design/decisions/evaluate-vendor-before-extending-pilot.md — <span class="tier human">human-reviewed</span> 2026-09-02 · status stable</li>
+          <li>sources/2026-08-28-leadership-meeting-notes.md — <span class="tier machine">machine-confirmed</span></li>
+          <li>delivery/initiatives/ai-assisted-code-review-rollout.md — <span class="tier human">human-reviewed</span> 2026-09-02</li>
+        </ul>
+      </div>
+      <h3>Why you can trust it</h3>
+      <p>A Decision becomes <code>stable</code> only when you verify it, so the answer's first line tells the new engineer whether this is a decision or a proposal. The options that lost are on the page, which is the part memory drops first and the part that stops the same debate from happening twice. If the decision is later superseded, the page stays, marked <code>deprecated</code> with a link to what replaced it, and the answer says so.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="monday">
+      <p class="part">S7 · The weekly tick</p>
+      <h2>Monday, thirty minutes</h2>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">30 minutes</span><span class="chip">drift check needs the connectors</span></p>
+      <p><strong>Trigger.</strong> Monday 8:30. The agent ran over the weekend; the review page is waiting.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p><code>/weekly</code> if it has not run; open <code>reviews/2026-W37.md</code> in Obsidian; answer inline with <code>→</code>; <code>/weekly --apply</code>.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Runs lint (script, then the agent pass with source drift), builds the verify queue (five, ranked), the re-pull queue, expiries, checkpoints passed, RFCs awaiting a decision, systems due, open questions, engine proposals. Writes the page. On <code>--apply</code>, executes every answer, logs each as its own label, commits; accepted engine proposals go to the engine repo and its changelog, not the log.</p></div>
+        <div class="step"><p class="who">You get</p><p>Ten to fifteen decisions, none of which you had to assemble, and a wiki that is still trustworthy next Monday.</p></div>
+      </div>
+<pre><div class="code-title">wiki/reviews/2026-W37.md — answered inline</div><code># Verify queue (5 of 9 unverified, ranked by inbound links and domain)
+- [x] systems/asset-search.md — changed since your review on 2026-08-26 → <span class="hl">verified</span>
+- [x] design/decisions/evaluate-vendor-before-extending-pilot.md — accepted 09-02  → <span class="hl">verified · stable</span>
+- [ ] design/rfcs/media-pipeline-v2.md — review sent Friday, outcome pending → <span class="hl">skip until the authors reply</span>
+- [x] questions/should-the-p95-slo-change.md → <span class="hl">verified</span>
+- [ ] sources/2026-09-03-team-search-digest.md → <span class="hl">skip</span>
+
+# Re-pull queue (source drift)
+- design/rfcs/media-pipeline-v2.md — the Doc has 3 revisions since it was read → <span class="hl">re-pull</span>
+
+# Expiring (refresh / extend / deprecate)
+- delivery/projects/eval-harness.md — stale since 2026-09-05 → <span class="hl">deprecate: folded into the pilot</span>
+
+# Checkpoints passed
+- delivery/projects/review-bot-pilot.md — 2026-09-04 → <span class="hl">move to 2026-09-16</span>
+
+# Engine proposals (applied in the engine repo; CHANGELOG, not this log)
+- Incident reports keep yielding "alert thresholds" facts with no home.
+  Add a Thresholds heading to System? → <span class="hl">yes</span></code></pre>
+      <h3>Why you can trust it</h3>
+      <p>The queue is capped and ranked, so verification stays a habit rather than a backlog. Expiry forces a choice, refresh, extend or deprecate, so nothing persists silently. And the review is itself a page in the wiki, with a log line for every action it took, so the record of how the wiki was maintained is in the wiki.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="update">
+      <p class="part">S8 · Team and stakeholders</p>
+      <h2>A stakeholder wants an update</h2>
+      <p class="scen-meta"><span class="chip phase3">Phase 3 — /brief</span><span class="chip phase1">works now with /query and an edit</span><span class="chip">10 minutes</span></p>
+      <p><strong>Trigger.</strong> Security asks, by Friday, for the team's position on data handling in the review-bot pilot. You want to send something accurate in their terms, and nothing that rests on a guess.</p>
+      <div class="flow">
+        <div class="step"><p class="who">You</p><p>Phase 3: <code>/brief security --topic "review-bot pilot data handling"</code>. Today: the same request through <code>/query</code>, then edit and send.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Selects only pages that are human-reviewed, fresh and not deprecated. Drafts in the audience's terms, with the rationale. Lists what it excluded and why. Files the draft as a Synthesis with <code>audience: security</code>.</p></div>
+        <div class="step"><p class="who">You get</p><p>A draft you can send, and a list of what would have to be verified for the next one to say more.</p></div>
+      </div>
+      <div class="answer">
+        <p class="from">brief · audience: security · draft</p>
+        <p>The review-bot pilot sends diffs and review comments to the in-house bot service only; no source leaves the company's accounts. Extension to two more teams is on hold for a two-week evaluation of vendor X, decided on 2 September, and the vendor-evaluation checklist requires Security's data-handling review before any extension. The evaluation harness is owned by the pilot team until the evaluation ends. Questionnaire contact: Rafael.</p>
+        <p><strong>Excluded, unverified:</strong> the vendor's stated data-residency terms (a Question page, not yet answered) — verify or answer it and the next brief can include it.</p>
+        <ul class="cites">
+          <li>delivery/projects/review-bot-pilot.md — <span class="tier human">human-reviewed</span> 2026-09-02</li>
+          <li>design/decisions/evaluate-vendor-before-extending-pilot.md — <span class="tier human">human-reviewed</span> 2026-09-02</li>
+          <li>questions/vendor-x-data-residency.md — <span class="tier">unverified</span> excluded</li>
+        </ul>
+      </div>
+      <h3>Why you can trust it</h3>
+      <p>Guardrail 7 in <code>CLAUDE.md</code>: a brief draws on human-reviewed, fresh pages and names what it left out. Until <code>/brief</code> is enabled in Phase 3, a <code>/query</code> answer gives you the same content with tiers, and the edit you make before sending is the gate you apply by hand.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="later">
+      <p class="part">9 · Waiting on a later phase</p>
+      <h2>Four more, once their connectors and types exist</h2>
+      <p><strong>Sprint boundary (Phase 2).</strong> The sprint-report feed pulls the Jira snapshot; <code>/sprint</code> writes the goal beside what shipped, three numbers with receipts from <code>/measure</code>, deviations with proposed corrective actions, retro notes turned into Playbook proposals, next sprint's goals under the quarter's Objectives. Forty-five minutes, starting from a page instead of a blank Jira report.</p>
+      <p><strong>Preparing a 1:1 (Phase 3).</strong> Monday's review lists each report's last thread and open agreed actions, from their Person page and nothing else, and only if that page is human-reviewed. Two minutes per person, and the page holds only what your own notes said.</p>
+      <p><strong>Refreshing a technical vision (Phase 4).</strong> The Vision page's <em>Signals watched</em> section cites the radar; the quarterly retro asks you to re-read the plan against what the signals said and what shipped, and <code>/brief</code> socialises the result.</p>
+      <p><strong>A mentoring plan (Phase 4).</strong> A Learning Path with <code>owner</code> set to a report: goal, sequence, exit criteria they agreed, progress; prepared with the same loop and reviewed with the same gate.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="habits">
+      <p class="part">10 · The four habits</p>
+      <h2>What these scenarios rest on</h2>
+      <p>Every scenario above is a return on one of four small habits, and none works without them. <strong>End of day, five minutes:</strong> notes into <code>raw/inbox/</code>, <code>/ingest</code>; the stand-up card is only as good as this. <strong>Pointers as you meet them:</strong> an RFC, a report, a page, into <code>pull.md</code> the moment you see it, not when you need it. <strong>Verify what you will quote:</strong> <code>/verify --queue</code> before a meeting, five on Monday; the tiers do the rest. <strong>Monday, thirty minutes:</strong> the review page, answered inline, applied. Skip the first and the wiki goes quiet; skip the third and it fills with the agent's guesses wearing the look of records; skip the fourth and expiry stops meaning anything. The design's promise, Karpathy's, is that the bookkeeping is no longer yours; these four are what remains.</p>
+      <p class="footer-note">Scenarios reuse the example pages installed by <code>/init --with-examples</code>; names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.5.0) and the design page (v0.5).</p>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>
