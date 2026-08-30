@@ -1,7 +1,7 @@
 ---
 type: Review
 title: Example — Weekly review
-description: Example Review page — what /weekly produces; delete with tos-init --remove-examples.
+description: Example Review page — what /tos-weekly produces; delete with tos-init --remove-examples.
 tags: [example, review]
 generated: { by: process:init-examples, at: {{GENERATED_AT}} }
 status: draft

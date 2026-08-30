@@ -1,4 +1,4 @@
-"""/lint, deterministic half — OKF v0.2 conformance and TechLead OS trust checks.
+"""/tos-lint, deterministic half — OKF v0.2 conformance and TechLead OS trust checks.
 
     uv run tos-lint [--json] [--today YYYY-MM-DD]
 
@@ -75,7 +75,7 @@ def main(argv):
     root = pc.data_root(cfg)
     wiki = root / "wiki"
     if not wiki.exists():
-        sys.exit(f"no wiki at {wiki} — run /init first")
+        sys.exit(f"no wiki at {wiki} — run /tos-init first")
     expiring_days = int(pc.review_setting(cfg, "expiring_days", 7))
     draft_age = int(pc.review_setting(cfg, "draft_age_days", 14))
     registry = load_registry()

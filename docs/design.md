@@ -1,7 +1,9 @@
-<!-- Generated from the design page (v0.5, renamed TechLead OS). Figures are in docs/design.html / design.pdf. -->
+<!-- Generated from the design page (v0.5, renamed TechLead OS). Figures are in docs/design.html. -->
 
 
 Design proposal · v0.5 (draft — awaiting human:rafael)
+
+> **Command names on this page are the pre-0.6.0 ones.** Engine 0.6.0 renamed every command to `/tos-<verb>`: `/init` → `/tos-init`, `/pull` → `/tos-pull`, `/ingest` → `/tos-ingest`, and so on for `query`, `lint`, `verify`, `weekly`, `sprint`, `measure`, `brief` and `retro`. The procedures are unchanged. `README.md` has the current list.
 
 # TechLead OS
 

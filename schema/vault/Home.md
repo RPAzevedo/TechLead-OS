@@ -1,6 +1,6 @@
 # Home
 
-Engine-owned dashboard, installed by `/init` from `schema/vault/Home.md`; not part of the OKF bundle, not indexed, not logged. Needs the Dataview community plugin (Settings → Community plugins → Browse → Dataview).
+Engine-owned dashboard, installed by `/tos-init` from `schema/vault/Home.md`; not part of the OKF bundle, not indexed, not logged. Needs the Dataview community plugin (Settings → Community plugins → Browse → Dataview).
 
 ## Unverified, newest first
 

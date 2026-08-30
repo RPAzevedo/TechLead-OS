@@ -1,10 +1,10 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.5.3** (see `CHANGELOG.md`).
+Engine version **0.6.0** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
-The design, with its decisions, is in `docs/design.html` (also `design.pdf`, `design.md`); eight usage scenarios are in `docs/scenarios.html`; the step-by-step setup and first-fortnight guide is `docs/onboarding.html`; what comes next for the engine is `docs/roadmap.md`. This README is the short version of the onboarding guide.
+The design, with its decisions, is in `docs/design.html` (also `design.md`); eight usage scenarios are in `docs/scenarios.html`; the step-by-step setup and first-fortnight guide is `docs/onboarding.html`; what comes next for the engine is `docs/roadmap.md`. This README is the short version of the onboarding guide.
 
 ## Layout
 
@@ -13,12 +13,12 @@ engine/                      this repo
 ├── CLAUDE.md                the schema — what the agent reads first, every run
 ├── CHANGELOG.md             engine changes only (data changes go to <data.root>/wiki/log.md)
 ├── config.example.yaml      copy to ~/.config/tos/config.yaml
-├── .claude/commands/        /init /pull /ingest /query /lint /verify /weekly (+ gated /sprint /measure /brief /retro)
+├── .claude/commands/        one file per operation, all named tos-* — see Commands below
 ├── .claude/settings.json    permissions the commands need; settings.local.json (untracked, you create it) grants the data root
 ├── schema/types.md          the type registry: directory, horizon, gate, headings, phase
 ├── schema/templates/        one template per type, plus the pinned-copy header
-├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /init
-├── schema/examples/         ten worked example pages and one raw note, installed with /init --with-examples
+├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /tos-init
+├── schema/examples/         ten worked example pages and one raw note, installed with /tos-init --with-examples
 ├── pyproject.toml           the package: dependencies and the tos-* entry points
 ├── src/tos/common.py        config + frontmatter helpers (YAML is parsed strictly)
 ├── src/tos/init.py          creates the data root            → tos-init
@@ -27,7 +27,7 @@ engine/                      this repo
 ├── tests/                   pytest
 └── docs/                    the design
 
-<data.root>/                 wherever you point data.root — created by /init; the Obsidian vault; its own private git repo
+<data.root>/                 wherever you point data.root — created by /tos-init; the Obsidian vault; its own private git repo
 ├── raw/inbox/               drop zone for notes; pull.md lists pointers to read
 ├── raw/notes/               your notes after ingest (immutable)
 ├── raw/pinned/              verbatim copies you asked for with --pin (immutable)
@@ -53,27 +53,51 @@ That creates `.venv`, installs the engine editable with its dependencies
 | --- | --- |
 | `uv run tos-config` | print the resolved config: paths, actor, phase |
 | `uv run tos-init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root |
-| `uv run tos-lint [--json] [--today YYYY-MM-DD]` | the deterministic half of `/lint`; exit 1 on a conformance error |
+| `uv run tos-lint [--json] [--today YYYY-MM-DD]` | the deterministic half of `/tos-lint`; exit 1 on a conformance error |
 
 Run them from this directory. The engine finds `schema/` by walking up from the
 package to the checkout root; set `$TOS_ENGINE_ROOT` if you ever need to point
 it somewhere else.
 
+## Commands
+
+Every operation is a slash command in Claude Code, named `/tos-<verb>` so it does
+not collide with Claude Code's own `/init` and is recognisable in a session with
+other commands loaded. The full procedure for each is in
+`.claude/commands/tos-<verb>.md`.
+
+| command | what it does | phase |
+| --- | --- | --- |
+| `/tos-init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root described by the config (runs `tos-init`) | 1 |
+| `/tos-pull <pointer \| feed-name> [--pin]` | read a source through a connector and write its Source page; no verbatim copy unless `--pin` | 1 |
+| `/tos-ingest [path]` | turn the notes in `raw/inbox/` (or one file) into wiki pages | 1 |
+| `/tos-query <question>` | answer from the wiki, citing each page with its trust tier and age | 1 |
+| `/tos-lint [--fix]` | health-check the bundle: the `tos-lint` script, then the agent pass | 1 |
+| `/tos-verify <page> \| --queue` | promote a page you have read — the only way a `human:*` verification is ever written | 1 |
+| `/tos-weekly [--apply]` | the Monday tick: lint, queues, expiries, RFCs, systems, questions; `--apply` executes your inline answers | 1 |
+| `/tos-sprint` | sprint-boundary review with attested metrics | 2 |
+| `/tos-measure` | run an Attested Computation over a metric snapshot | 2 |
+| `/tos-brief` | outbound update for an audience, from human-reviewed pages only | 3 |
+| `/tos-retro` | quarterly retro: objectives, visions, systems, people re-verification, engine pruning | 4 |
+
+The commands above phase 1 exist but refuse to run until `rollout.phase` in the
+config reaches their phase.
+
 ## Quickstart
 
 1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then replace the `CHANGE_ME` placeholders in `data.root` (anywhere you like — it need not sit next to the engine) and `data.actor`, and set `data.timezone` and the connector scopes you have. It holds no secrets. `uv run tos-config` prints what the engine resolved.
-2. **Data root.** `uv run --directory <this repo> tos-init --with-examples` (or `/init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
+2. **Data root.** `uv run --directory <this repo> tos-init --with-examples` (or `/tos-init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
 3. **Claude Code.** Start it in this directory so `CLAUDE.md` loads, and grant it the data root: `claude --add-dir <data.root>`. To stop repeating the flag, put the absolute path in `permissions.additionalDirectories` in `.claude/settings.local.json` — untracked and per-machine, so it does not exist until you write it. Connectors are MCP servers configured in Claude Code; the config's `connectors.<name>.provider` must match their names.
-4. **First loop.** Drop a note into `raw/inbox/`, run `/ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/pull`; ask `/query <question>`; run `/lint`; on Monday, `/weekly`, answer inline, `/weekly --apply`.
-5. **Examples.** The ten pages tagged `example` are there so the first `/query` has something to find. Remove them with `uv run tos-init --remove-examples`.
+4. **First loop.** Drop a note into `raw/inbox/`, run `/tos-ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/tos-pull`; ask `/tos-query <question>`; run `/tos-lint`; on Monday, `/tos-weekly`, answer inline, `/tos-weekly --apply`.
+5. **Examples.** The ten pages tagged `example` are there so the first `/tos-query` has something to find. Remove them with `uv run tos-init --remove-examples`.
 
 ## Development Phases
 
 `rollout.phase` in the config gates connectors and commands:
 1. documents (Confluence, web, markdown, Docs);
-2. Jira, `/sprint`, `/measure`;
-3. Slack, the team domain, `/brief`;
-4. Trello (personal), visions, learning, radar, `/retro`.
+2. Jira, `/tos-sprint`, `/tos-measure`;
+3. Slack, the team domain, `/tos-brief`;
+4. Trello (personal), visions, learning, radar, `/tos-retro`.
 
 Phases 2–4 are designed ([docs/design.html §10](docs/design.html)) but not yet built; the gated commands say so.
 
