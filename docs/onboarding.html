@@ -424,10 +424,10 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.5.2 · Phase 1</p>
+    <p class="eyebrow">Onboarding · engine 0.5.3 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
-    <p class="lede">From the engine folder on your Mac to a wiki you trust: six setup steps that take about an hour, a first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
-    <p class="meta"><span><b>Engine</b> ~/Code/TechLead_OS/engine</span><span><b>Data root</b> ~/Code/TechLead_OS/data (yours to create)</span><span><b>Setup</b> about an hour</span><span><b>Acceptance</b> two weeks</span></p>
+    <p class="lede">From the engine folder on your Mac to a wiki you trust: five setup steps in about half an hour, a forty-five-minute first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
+    <p class="meta"><span><b>Engine</b> ~/Code/TechLead_OS/engine</span><span><b>Data root</b> ~/Code/TechLead_OS/data (yours to create)</span><span><b>Setup</b> ~30 min, then a 45-min first loop</span><span><b>Acceptance</b> two weeks</span></p>
   </header>
 
   <nav class="toc" aria-label="Contents">
@@ -453,7 +453,7 @@
     <section id="before">
       <p class="part">0 · Before you start</p>
       <h2>What you need, and the one thing to check first</h2>
-      <p>On the Mac: <a href="https://docs.astral.sh/uv/">uv</a> (<code>brew install uv</code>) — it fetches the Python the engine asks for and installs its one dependency, PyYAML — plus git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian, Google Drive and web fetch. Phase 1 uses only those three; Slack, Jira and Trello wait for their phases. Nothing else is installed by the engine.</p>
+      <p>On the Mac: <a href="https://docs.astral.sh/uv/">uv</a> (<code>brew install uv</code>) — it fetches the Python the engine asks for and installs its one dependency, PyYAML — plus git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian, Google Drive and web fetch. Phase 1 uses only those three, plus <code>md</code> for markdown in a local repository, which is read straight off disk and needs no server; Slack, Jira and Trello wait for their phases. Nothing else is installed by the engine.</p>
       <div class="callout warn">
         <p class="label">The policy check — decision D5</p>
         <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
@@ -461,7 +461,7 @@
       <p>Two things are already decided so you do not have to: the data root defaults to <code>~/Code/TechLead_OS/data</code> next to the engine, and <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built.</p>
 
       <figure>
-        <svg viewBox="0 0 760 150" role="img" aria-label="Six setup steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about an hour in total, then a fortnight of use.">
+        <svg viewBox="0 0 760 150" role="img" aria-label="Six steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about half an hour to step 5, then forty-five minutes for the loop, then a fortnight of use.">
           <defs>
             <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
           </defs>
@@ -506,9 +506,9 @@
       <p class="part">1 · The engine</p>
       <h2>It is already on your Mac</h2>
       <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/TechLead_OS/engine</span></p>
-      <p>The engine repository was created under <code>~/Code/TechLead_OS/engine</code>; its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, and 0.5.2 turned it into an installable package. It holds instructions, the type registry, templates, the code and the docs, and no data. Confirm it is what you expect, then install it:</p>
+      <p>The engine repository was created under <code>~/Code/TechLead_OS/engine</code>; its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, and 0.5.3 is the first fix on top of it. It holds instructions, the type registry, templates, the code and the docs, and no data. Confirm it is what you expect, then install it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine
-git log --oneline          <span class="cm"># newest first: 0.5.2 packaging, 0.5.1 rename, 0.5.0 initial engine</span>
+git log --oneline          <span class="cm"># newest first; the top line is 0.5.3, the history starts at 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 uv --version               <span class="cm"># brew install uv if this is missing</span>
 uv sync                    <span class="cm"># creates .venv, installs PyYAML and the tos-* commands</span></code></pre>
@@ -530,12 +530,11 @@ open -e ~/.config/tos/config.yaml</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code>config:   /Users/raf/.config/tos/config.yaml
-engine:   0.5.2 (config says 0.5)
+engine:   0.5.3 (config says 0.5)
 engine root: /Users/raf/Code/TechLead_OS/engine
 data:     /Users/raf/Code/TechLead_OS/data  exists=False
 actor:    human:rafael
-phase:    1
-yaml:     PyYAML</code></pre>
+phase:    1</code></pre>
       </div>
       <p>If you ever want a second config (a team data root, later), point <code>$TOS_CONFIG</code> at it; the engine reads that variable first.</p>
     </section>
@@ -562,9 +561,10 @@ git: repository initialised and first commit made</code></pre>
 <pre><div class="code-title">terminal</div><code>uv run tos-lint</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
-<pre class="inline"><code># Lint — 2026-08-31
-10 pages · tiers {'unverified': 10, …} · conformance errors: 0
-parsed with PyYAML
+<pre class="inline wrap"><code># Lint — 2026-08-31
+
+10 pages · tiers {'unverified': 10, 'machine-confirmed': 0, 'human-reviewed': 0, 'changed-since-verified': 0} · conformance errors: 0
+
 ## systems (1)
 - `systems/example-asset-search.md` — 1 operational standard(s) unticked</code></pre>
       </div>
@@ -577,7 +577,7 @@ parsed with PyYAML
       <h2>Open the data root as the vault</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">plugin: Dataview</span></p>
       <p>Obsidian → <em>Open folder as vault</em> → <code>~/Code/TechLead_OS/data</code>. Not the engine: the vault is the data. The settings <code>/init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
-      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Its eight queries should show the example pages: ten unverified pages in the first table, the System page under <em>Systems due for review</em> with its date ninety days out, the example RFC nowhere yet (it is not two weeks old), the example Question under <em>Open questions</em>. If the tables are empty, Dataview is not enabled; if they show errors, see §10.</p>
+      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Two of its eight queries have something to show on day one: <em>Unverified, newest first</em> lists nine pages — the tenth example is the weekly Review, which that query excludes — and <em>Open questions</em> lists the example Question. The other six are empty, and that is the right answer rather than a fault: <em>Systems due for review</em> looks fourteen days ahead and the example System does not expire for ninety, <em>RFCs stuck in draft</em> wants a draft a fortnight old, and nothing has yet expired, been verified, or passed a checkpoint. Home.md is an alarm panel; on a fresh vault almost all of it is quiet. If <em>every</em> table is empty, the first one included, Dataview is not enabled; if they show errors, see §10.</p>
       <p>Open <code>wiki/index.md</code> and follow a link or two. That top-down path, root index → directory index → page, is the one the agent takes for every query.</p>
     </section>
 
@@ -586,7 +586,15 @@ parsed with PyYAML
       <p class="part">5 · Claude Code and connectors</p>
       <h2>Start it in the engine, grant it the data</h2>
       <p class="scen-meta"><span class="chip phase1">15 minutes</span><span class="chip">connectors: atlassian · google-drive · fetch</span></p>
-      <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told: <code>.claude/settings.local.json</code> already grants <code>/Users/raf/Code/TechLead_OS/data</code> as an additional working directory. If your data root is elsewhere, edit that file, or start with <code>claude --add-dir &lt;data.root&gt;</code>.</p>
+      <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told. Say so on the command line and you are done:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && claude --add-dir ~/Code/TechLead_OS/data</code></pre>
+      <p>To stop repeating the flag, grant the directory once in <code>.claude/settings.local.json</code>. The engine ignores that file rather than shipping it — it is per-machine, and your data root is not necessarily anyone else's — so it does not exist until you create it:</p>
+<pre><div class="code-title">engine/.claude/settings.local.json</div><code>{
+  "permissions": {
+    "additionalDirectories": ["/Users/raf/Code/TechLead_OS/data"]
+  }
+}</code></pre>
+      <p>Give it the absolute path to your own data root, not <code>~</code>. Then the session starts plainly:</p>
 <pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && claude</code></pre>
       <p>Two checks inside the session. First, that the manual loaded and the config resolved:</p>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; what is the data root, which phase are we in, and which connectors may you use?</code></pre>
@@ -632,7 +640,8 @@ EOF</code></pre>
 &gt; /query what does the PDLC say a lead engineer is responsible for at each stage?
 &gt; /lint
 &gt; /verify --queue         <span class="cm"># verify what you would quote; skip the rest</span></code></pre>
-      <p>What to look for in the answers: every page cited with a tier and a date; the RFC page unverified and your review notes marked as yours; the System page's <em>Operational standards</em> ticked or unticked with footnotes; nothing stated without a source. If an answer states something with no citation, that is an engine bug; note it for the weekly review's <em>Engine proposals</em>. What to look for in the data root afterwards: the four pointer lines gone from <code>pull.md</code>, your note moved to <code>raw/notes/</code> untouched, five new lines under today's date in <code>wiki/log.md</code>, one commit per operation in <code>git log</code>, and nothing at all under <code>raw/pinned/</code>, because you did not ask for a pin.</p>
+      <p>What to look for in the answers: every page cited with a tier and a date; the RFC page unverified and your review notes marked as yours; the System page's <em>Operational standards</em> ticked or unticked with footnotes; nothing stated without a source. If an answer states something with no citation, that is an engine bug; note it for the weekly review's <em>Engine proposals</em>. What to look for in the data root afterwards: the four pointer lines gone from <code>pull.md</code>, your note moved to <code>raw/notes/</code> untouched, under today's date in <code>wiki/log.md</code> an <em>Ingest</em> for the note and a <em>Pull</em> with its <em>Ingest</em> for each of the four pointers, each of those its own commit in <code>git log</code>, and nothing at all under <code>raw/pinned/</code>, because you did not ask for a pin.</p>
+      <p>The other three commands are quieter than that makes them sound, and deliberately so — only a change to the wiki earns a line. A <code>/query</code> logs and commits when the answer was reusable enough to file as a Synthesis; a query that merely answers you leaves no trace, so do not expect three lines for three questions. <code>/lint</code> without <code>--fix</code> writes its findings into this week's Review page and neither logs nor commits, so expect an uncommitted change in the data root after it. <code>/verify --queue</code> logs and commits once per page you said yes to, and nothing for the ones you skipped.</p>
       <p>Then remove the examples, so the wiki is yours: <code>uv run tos-init --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
     </section>
 
@@ -648,7 +657,7 @@ EOF</code></pre>
             <tr><td>Day 1</td><td>Steps 1–6.</td><td>Five Source pages, three cited answers, a clean lint apart from what you left unticked.</td></tr>
             <tr><td>Days 2–5, end of day</td><td>Notes into <code>raw/inbox/</code>, pointers into <code>pull.md</code>; <code>/ingest</code> then <code>/pull</code>. Two <code>/query</code> during the day, whenever you would have searched.</td><td>Each day's log entries; pages accumulating under the domains you actually work in; answers that name their tiers.</td></tr>
             <tr><td>Monday (day 8)</td><td><code>/weekly</code>; answer the page inline in Obsidian; <code>/weekly --apply</code>.</td><td>A verify queue of five, a re-pull queue if any Doc changed, expiring pages with a choice each, RFCs awaiting you, systems due, questions; one log line per action after apply.</td></tr>
-            <tr><td>Days 9–12</td><td>Same daily rhythm. Before any meeting about a project, the S3 brief from the scenarios page, then <code>/verify --queue</code>.</td><td>The first time a brief flags something unverified that you would otherwise have quoted.</td></tr>
+            <tr><td>Days 9–12</td><td>Same daily rhythm. Before any meeting about a project, the S3 brief from the scenarios page — which is a <code>/query</code> and works in Phase 1, not the Phase 3 <code>/brief</code> — then <code>/verify --queue</code>.</td><td>The first time a brief flags something unverified that you would otherwise have quoted.</td></tr>
             <tr><td>Monday (day 15)</td><td>Second <code>/weekly</code>. Then the verdict: read the two review pages and the <em>Engine proposals</em> sections.</td><td>At least two or three proposals worth applying — a heading that keeps being needed, a type that was never used, a guardrail that got in the way. Those become the engine's next release.</td></tr>
           </tbody>
         </table>
@@ -727,7 +736,7 @@ EOF</code></pre>
         <li>Monday: <code>/weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.2, <code>~/Code/TechLead_OS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.3, <code>~/Code/TechLead_OS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
     </section>
   </main>
 </div>

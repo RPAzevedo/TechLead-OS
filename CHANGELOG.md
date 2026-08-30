@@ -2,6 +2,21 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.5.3 — 2026-08-30
+
+**The dashboard stops counting the bundle's own index files, and the setup docs match what the tools print.**
+
+- `schema/vault/Home.md`: *Unverified, newest first* and *Open questions* filtered only on a field
+  being absent (`!verified`, `status != "deprecated"`), and Dataview matches those against the
+  frontmatter-less `index.md` and `log.md` files that `/init` creates — so the first table filled its
+  ten-row limit with index files and *Open questions* listed `questions/index.md`. Both now require
+  the field to be present, the idiom the other six queries already used. Re-run `/init` to reinstall
+  the dashboard in an existing data root.
+- `docs/onboarding.html` and `README.md` now match the engine: the expected `tos-config` and
+  `tos-lint` output (both still carried a parser line that 0.5.2 removed), what `Home.md` shows on
+  day one, which commands write a log line and a commit, and `.claude/settings.local.json`, which is
+  untracked and yours to create rather than something the repository ships.
+
 ## 0.5.2 — 2026-08-29
 
 **Malformed YAML is now a conformance error, and the engine installs as a package.**
