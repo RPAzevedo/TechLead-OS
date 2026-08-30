@@ -7,7 +7,7 @@ Engine-owned dashboard, installed by `/init` from `schema/vault/Home.md`; not pa
 ```dataview
 TABLE type, status, generated.at AS written, stale_after
 FROM "wiki"
-WHERE !verified AND type != "Review"
+WHERE type AND !verified AND type != "Review"
 SORT generated.at DESC
 LIMIT 10
 ```
@@ -69,6 +69,6 @@ WHERE status = "draft" AND generated.at <= date(today) - dur(14 days)
 ```dataview
 LIST description
 FROM "wiki/questions"
-WHERE status != "deprecated"
+WHERE status AND status != "deprecated"
 SORT generated.at DESC
 ```
