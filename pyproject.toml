@@ -1,6 +1,6 @@
 [project]
 name = "techlead-os"
-version = "0.5.3"
+version = "0.5.4"
 description = "TechLead OS (tos) — the engine half of a personal knowledge OS: OKF v0.2 bundle tooling"
 readme = "README.md"
 requires-python = ">=3.10"

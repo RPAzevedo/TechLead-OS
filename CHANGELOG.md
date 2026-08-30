@@ -2,6 +2,22 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.5.4 — 2026-08-30
+
+**Setup no longer assumes where the engine and the data root live, and the snippets you are meant to type can be copied.**
+
+- `docs/onboarding.html` starts from a `git clone` into a directory you choose and keeps the two
+  locations in `$TOS_ENGINE` and `$TOS_DATA`, set once in steps 1 and 2. Every command reaches the
+  tools as `uv run --directory "$TOS_ENGINE" tos-…`, so none of them depends on the shell still
+  being in the engine directory, and the expected-output blocks no longer print one machine's home
+  directory and actor.
+- `config.example.yaml` ships `CHANGE_ME` placeholders for `data.root` and `data.actor` and an empty
+  `md` scope, so copying it forces a deliberate choice rather than inheriting someone else's layout.
+  `README.md` matches.
+- The onboarding page's thirteen terminal, prompt and settings snippets have copy buttons, which
+  omit the explanatory comments and Claude Code's `>` prompt marker. The page still works, and
+  prints, with JavaScript off.
+
 ## 0.5.3 — 2026-08-30
 
 **The dashboard stops counting the bundle's own index files, and the setup docs match what the tools print.**
