@@ -7,9 +7,10 @@
 engine: "0.5"                          # the engine version this config was written for
 
 data:
-  root: ~/Code/TechLead_OS/data                # raw/, wiki/, Home.md, .obsidian/ live here (created by /init)
+  root: ~/CHANGE_ME/techlead-os-data   # replace this: raw/, wiki/, Home.md, .obsidian/ live here (created
+                                       # by /init). Anywhere your policy allows; it need not sit next to the engine.
   timezone: Australia/Melbourne
-  actor: human:rafael                  # the human actor in every verified entry
+  actor: human:CHANGE_ME               # replace this: the human actor in every verified entry
 
 rollout:
   phase: 1                             # 1: documents; 2: Jira + sprint tick; 3: team, Slack, /brief; 4: vision, learning, radar
@@ -22,7 +23,7 @@ connectors:
     provider: mcp:fetch
   md:
     provider: filesystem
-    scope: { repos: ["~/code/asset-search"] }
+    scope: { repos: [] }               # e.g. ["~/code/asset-search"] — local repos read straight off disk
   gdocs:                               # enabled from phase 1 once you add folders
     provider: mcp:google-drive
     scope: { folders: [] }

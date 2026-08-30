@@ -27,7 +27,7 @@ engine/                      this repo
 ├── tests/                   pytest
 └── docs/                    the design
 
-<data.root>/                 e.g. ~/Code/TechLead_OS/data — created by /init; the Obsidian vault; its own private git repo
+<data.root>/                 wherever you point data.root — created by /init; the Obsidian vault; its own private git repo
 ├── raw/inbox/               drop zone for notes; pull.md lists pointers to read
 ├── raw/notes/               your notes after ingest (immutable)
 ├── raw/pinned/              verbatim copies you asked for with --pin (immutable)
@@ -61,8 +61,8 @@ it somewhere else.
 
 ## Quickstart
 
-1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then edit `data.root`, `data.actor`, `data.timezone`, and the connector scopes you have. It holds no secrets. `uv run tos-config` prints what the engine resolved.
-2. **Data root.** From this directory: `uv run tos-init --with-examples` (or `/init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
+1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then replace the `CHANGE_ME` placeholders in `data.root` (anywhere you like — it need not sit next to the engine) and `data.actor`, and set `data.timezone` and the connector scopes you have. It holds no secrets. `uv run tos-config` prints what the engine resolved.
+2. **Data root.** `uv run --directory <this repo> tos-init --with-examples` (or `/init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
 3. **Claude Code.** Start it in this directory so `CLAUDE.md` loads, and grant it the data root: `claude --add-dir <data.root>`. To stop repeating the flag, put the absolute path in `permissions.additionalDirectories` in `.claude/settings.local.json` — untracked and per-machine, so it does not exist until you write it. Connectors are MCP servers configured in Claude Code; the config's `connectors.<name>.provider` must match their names.
 4. **First loop.** Drop a note into `raw/inbox/`, run `/ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/pull`; ask `/query <question>`; run `/lint`; on Monday, `/weekly`, answer inline, `/weekly --apply`.
 5. **Examples.** The ten pages tagged `example` are there so the first `/query` has something to find. Remove them with `uv run tos-init --remove-examples`.

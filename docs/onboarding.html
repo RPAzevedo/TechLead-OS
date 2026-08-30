@@ -417,6 +417,41 @@
   ul.checklist li { position: relative; padding: 8px 0 8px 34px; border-top: 1px solid var(--rule); font-size: 15.5px; }
   ul.checklist li:last-child { border-bottom: 1px solid var(--rule); }
   ul.checklist li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 16px; height: 16px; border: 1.5px solid var(--ink-2); border-radius: 3px; background: var(--surface); }
+
+  /* copy buttons — the wrapper and the button are added by the script at the end of the body */
+  .code-block { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 26px;
+    min-width: 26px;
+    padding: 0 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+  .code-block:hover .copy-btn,
+  .copy-btn:focus-visible { opacity: 1; }
+  .copy-btn:hover { color: var(--ink-2); border-color: var(--ink-2); }
+  .copy-btn svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .copy-btn .copy-label:empty { display: none; }
+  .copy-btn[data-state="done"] { opacity: 1; color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+  .copy-btn[data-state="manual"] { opacity: 1; color: var(--warn); border-color: var(--warn); }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+  @media print { .copy-btn { display: none; } }
 </style>
 </head>
 <body>
@@ -424,10 +459,10 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.5.3 · Phase 1</p>
+    <p class="eyebrow">Onboarding · engine 0.5.4 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: five setup steps in about half an hour, a forty-five-minute first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
-    <p class="meta"><span><b>Engine</b> ~/Code/TechLead_OS/engine</span><span><b>Data root</b> ~/Code/TechLead_OS/data (yours to create)</span><span><b>Setup</b> ~30 min, then a 45-min first loop</span><span><b>Acceptance</b> two weeks</span></p>
+    <p class="meta"><span><b>Engine</b> wherever you clone it (<code>$TOS_ENGINE</code>)</span><span><b>Data root</b> wherever you choose (<code>$TOS_DATA</code>), named in the config</span><span><b>Setup</b> ~30 min, then a 45-min first loop</span><span><b>Acceptance</b> two weeks</span></p>
   </header>
 
   <nav class="toc" aria-label="Contents">
@@ -458,7 +493,7 @@
         <p class="label">The policy check — decision D5</p>
         <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
       </div>
-      <p>Two things are already decided so you do not have to: the data root defaults to <code>~/Code/TechLead_OS/data</code> next to the engine, and <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built.</p>
+      <p>One thing is already decided so you do not have to: <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built. The two locations — where the engine is cloned and where the data root sits — are yours, and neither this page nor the engine assumes anything about them: the config is the one place the data root is written down, and steps 1 and 2 put both paths in shell variables so every command below pastes and runs as it stands.</p>
 
       <figure>
         <svg viewBox="0 0 760 150" role="img" aria-label="Six steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about half an hour to step 5, then forty-five minutes for the loop, then a fortnight of use.">
@@ -504,15 +539,22 @@
     <!-- ================================================================ -->
     <section id="engine">
       <p class="part">1 · The engine</p>
-      <h2>It is already on your Mac</h2>
-      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">~/Code/TechLead_OS/engine</span></p>
-      <p>The engine repository was created under <code>~/Code/TechLead_OS/engine</code>; its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, and 0.5.3 is the first fix on top of it. It holds instructions, the type registry, templates, the code and the docs, and no data. Confirm it is what you expect, then install it:</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine
-git log --oneline          <span class="cm"># newest first; the top line is 0.5.3, the history starts at 0.5.0</span>
+      <h2>Clone it wherever you like</h2>
+      <p class="scen-meta"><span class="chip phase1">4 minutes</span><span class="chip">$TOS_ENGINE</span></p>
+      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, and 0.5.4 is this page. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>git clone git@github.com:RPAzevedo/TechLead-OS.git ~/code/techlead-os   <span class="cm"># or any directory you prefer</span>
+cd ~/code/techlead-os
+export TOS_ENGINE="$(git rev-parse --show-toplevel)"   <span class="cm"># already have a checkout? cd into it and run this line alone</span>
+
+git log --oneline          <span class="cm"># newest first; the top line is 0.5.4, the history starts at 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 uv --version               <span class="cm"># brew install uv if this is missing</span>
 uv sync                    <span class="cm"># creates .venv, installs PyYAML and the tos-* commands</span></code></pre>
-      <p>That last step is the whole installation. It puts three commands behind <code>uv run</code>: <code>tos-config</code> (print the resolved config), <code>tos-init</code> (create the data root) and <code>tos-lint</code> (the deterministic half of <code>/lint</code>). Run them from the engine directory.</p>
+      <p>That last step is the whole installation. It puts three commands behind <code>uv run</code>: <code>tos-config</code> (print the resolved config), <code>tos-init</code> (create the data root) and <code>tos-lint</code> (the deterministic half of <code>/lint</code>). Every snippet below reaches them as <code>uv run --directory "$TOS_ENGINE" tos-…</code>, which runs from whatever directory you happen to be in.</p>
+      <div class="callout">
+        <p class="label">Two variables, for this page only</p>
+        <p><code>$TOS_ENGINE</code> is the engine checkout; <code>$TOS_DATA</code>, set in step 2, is the data root. The engine reads neither — it reads <code>$TOS_CONFIG</code>, or <code>~/.config/tos/config.yaml</code>, and takes the data root from that. They exist so the commands here are the commands you actually type. A new terminal forgets them: put both <code>export</code> lines in <code>~/.zshrc</code> if you would rather not re-run them.</p>
+      </div>
       <p>Read <code>CLAUDE.md</code> once, top to bottom; it is the operating manual the agent loads on every run, and the guardrails in its §5 are the ones you will be relying on. Everything else in the repo is referenced from it.</p>
     </section>
 
@@ -521,34 +563,35 @@ uv sync                    <span class="cm"># creates .venv, installs PyYAML and
       <p class="part">2 · The config</p>
       <h2>One file, outside both repositories</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">~/.config/tos/config.yaml</span></p>
-      <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/tos/config.yaml</code>, is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
+      <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/tos/config.yaml</code> — the one fixed path on this page — is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>mkdir -p ~/.config/tos
-cp ~/Code/TechLead_OS/engine/config.example.yaml ~/.config/tos/config.yaml
+cp "$TOS_ENGINE"/config.example.yaml ~/.config/tos/config.yaml
 open -e ~/.config/tos/config.yaml</code></pre>
-      <p>Edit four things and leave the rest: <code>data.root</code> if you want the data somewhere other than <code>~/Code/TechLead_OS/data</code> (the policy check may decide this); <code>data.actor</code>, the actor string that will appear in every verification you make; <code>data.timezone</code>; and the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then check what the engine resolved:</p>
-<pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && uv run tos-config</code></pre>
+      <p>Edit four things and leave the rest. <code>data.root</code>: the example ships the placeholder <code>~/CHANGE_ME/techlead-os-data</code>, so replace it — the data root can go anywhere the policy check allows and need not sit next to the engine. <code>data.actor</code>, the actor string that will appear in every verification you make. <code>data.timezone</code>. And the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then tell this page the same path and check what the engine resolved:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>export TOS_DATA=~/techlead-os-data      <span class="cm"># the same path you just wrote into data.root</span>
+uv run --directory "$TOS_ENGINE" tos-config</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
-<pre class="inline"><code>config:   /Users/raf/.config/tos/config.yaml
-engine:   0.5.3 (config says 0.5)
-engine root: /Users/raf/Code/TechLead_OS/engine
-data:     /Users/raf/Code/TechLead_OS/data  exists=False
-actor:    human:rafael
+<pre class="inline"><code>config:   /Users/you/.config/tos/config.yaml
+engine:   0.5.4 (config says 0.5)
+engine root: /Users/you/code/techlead-os
+data:     /Users/you/techlead-os-data  exists=False
+actor:    human:you
 phase:    1</code></pre>
       </div>
-      <p>If you ever want a second config (a team data root, later), point <code>$TOS_CONFIG</code> at it; the engine reads that variable first.</p>
+      <p>The <code>data:</code> line and <code>$TOS_DATA</code> must be the same path; if they are not, one of the two edits went to the wrong place. If you ever want a second config (a team data root, later), point <code>$TOS_CONFIG</code> at it; the engine reads that variable first.</p>
     </section>
 
     <!-- ================================================================ -->
     <section id="data">
       <p class="part">3 · The data root</p>
       <h2>Created by <code>/init</code>, never by hand</h2>
-      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates ~/Code/TechLead_OS/data</span></p>
+      <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates $TOS_DATA</span></p>
       <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, ten example pages plus one example note, and a git repository with a first commit.</p>
-<pre><div class="code-title">terminal</div><code>uv run tos-init --with-examples</code></pre>
+<pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code></pre>
       <div class="answer">
         <p class="from">expected output (abridged)</p>
-<pre class="inline"><code>data root: /Users/raf/Code/TechLead_OS/data (created)
+<pre class="inline"><code>data root: /Users/you/techlead-os-data (created)
 created: raw/inbox … raw/notes … raw/pinned … raw/metrics … raw/assets
 created: raw/inbox/pull.md
 created: wiki/index.md … (26 index files) … wiki/log.md
@@ -558,7 +601,7 @@ example: wiki/systems/example-asset-search.md … (10 pages)
 git: repository initialised and first commit made</code></pre>
       </div>
       <p>Then run the deterministic lint once, before any real content, so you know what a clean report looks like:</p>
-<pre><div class="code-title">terminal</div><code>uv run tos-lint</code></pre>
+<pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" tos-lint</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline wrap"><code># Lint — 2026-08-31
@@ -576,7 +619,7 @@ git: repository initialised and first commit made</code></pre>
       <p class="part">4 · Obsidian</p>
       <h2>Open the data root as the vault</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">plugin: Dataview</span></p>
-      <p>Obsidian → <em>Open folder as vault</em> → <code>~/Code/TechLead_OS/data</code>. Not the engine: the vault is the data. The settings <code>/init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
+      <p>Obsidian → <em>Open folder as vault</em> → your data root. <code>echo "$TOS_DATA"</code> prints the path; ⌘⇧G in the file dialog takes a typed one. Not the engine: the vault is the data. The settings <code>/init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
       <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Two of its eight queries have something to show on day one: <em>Unverified, newest first</em> lists nine pages — the tenth example is the weekly Review, which that query excludes — and <em>Open questions</em> lists the example Question. The other six are empty, and that is the right answer rather than a fault: <em>Systems due for review</em> looks fourteen days ahead and the example System does not expire for ninety, <em>RFCs stuck in draft</em> wants a draft a fortnight old, and nothing has yet expired, been verified, or passed a checkpoint. Home.md is an alarm panel; on a fresh vault almost all of it is quiet. If <em>every</em> table is empty, the first one included, Dataview is not enabled; if they show errors, see §10.</p>
       <p>Open <code>wiki/index.md</code> and follow a link or two. That top-down path, root index → directory index → page, is the one the agent takes for every query.</p>
     </section>
@@ -587,20 +630,20 @@ git: repository initialised and first commit made</code></pre>
       <h2>Start it in the engine, grant it the data</h2>
       <p class="scen-meta"><span class="chip phase1">15 minutes</span><span class="chip">connectors: atlassian · google-drive · fetch</span></p>
       <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told. Say so on the command line and you are done:</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && claude --add-dir ~/Code/TechLead_OS/data</code></pre>
+<pre class="wrap"><div class="code-title">terminal</div><code>cd "$TOS_ENGINE" && claude --add-dir "$TOS_DATA"</code></pre>
       <p>To stop repeating the flag, grant the directory once in <code>.claude/settings.local.json</code>. The engine ignores that file rather than shipping it — it is per-machine, and your data root is not necessarily anyone else's — so it does not exist until you create it:</p>
 <pre><div class="code-title">engine/.claude/settings.local.json</div><code>{
   "permissions": {
-    "additionalDirectories": ["/Users/raf/Code/TechLead_OS/data"]
+    "additionalDirectories": ["/Users/you/techlead-os-data"]
   }
 }</code></pre>
-      <p>Give it the absolute path to your own data root, not <code>~</code>. Then the session starts plainly:</p>
-<pre><div class="code-title">terminal</div><code>cd ~/Code/TechLead_OS/engine && claude</code></pre>
+      <p>Give it the absolute path to your own data root — the file is JSON, which expands neither <code>~</code> nor <code>$TOS_DATA</code>. <code>echo "$TOS_DATA"</code> prints exactly what to paste. Then the session starts plainly:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>cd "$TOS_ENGINE" && claude</code></pre>
       <p>Two checks inside the session. First, that the manual loaded and the config resolved:</p>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; what is the data root, which phase are we in, and which connectors may you use?</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
-        <p>The data root is <code>/Users/raf/Code/TechLead_OS/data</code> (from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
+        <p>The data root is the path you set in <code>data.root</code> (read from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
       </div>
       <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
@@ -626,8 +669,8 @@ git: repository initialised and first commit made</code></pre>
         <li>One RFC you are currently reviewing — a Doc or Confluence page; a pointer, plus a note with your review comments.</li>
         <li>One runbook for a system you own — Confluence; a pointer.</li>
       </ol>
-<pre class="wrap"><div class="code-title">terminal — put the pointers in place</div><code>cp ~/Downloads/leadengineer.md ~/Code/TechLead_OS/data/raw/inbox/2026-08-31-lead-engineer-role.md
-cat &gt;&gt; ~/Code/TechLead_OS/data/raw/inbox/pull.md &lt;&lt;'EOF'
+<pre class="wrap"><div class="code-title">terminal — put the pointers in place</div><code>cp ~/Downloads/leadengineer.md "$TOS_DATA"/raw/inbox/2026-08-31-lead-engineer-role.md
+cat &gt;&gt; "$TOS_DATA"/raw/inbox/pull.md &lt;&lt;'EOF'
 https://&lt;your-site&gt;.atlassian.net/wiki/spaces/ENG/pages/…/System+Owner+expectations
 https://&lt;your-site&gt;.atlassian.net/wiki/spaces/PDLC/pages/…/Product+Development+Lifecycle
 https://docs.google.com/document/d/…/edit
@@ -642,7 +685,7 @@ EOF</code></pre>
 &gt; /verify --queue         <span class="cm"># verify what you would quote; skip the rest</span></code></pre>
       <p>What to look for in the answers: every page cited with a tier and a date; the RFC page unverified and your review notes marked as yours; the System page's <em>Operational standards</em> ticked or unticked with footnotes; nothing stated without a source. If an answer states something with no citation, that is an engine bug; note it for the weekly review's <em>Engine proposals</em>. What to look for in the data root afterwards: the four pointer lines gone from <code>pull.md</code>, your note moved to <code>raw/notes/</code> untouched, under today's date in <code>wiki/log.md</code> an <em>Ingest</em> for the note and a <em>Pull</em> with its <em>Ingest</em> for each of the four pointers, each of those its own commit in <code>git log</code>, and nothing at all under <code>raw/pinned/</code>, because you did not ask for a pin.</p>
       <p>The other three commands are quieter than that makes them sound, and deliberately so — only a change to the wiki earns a line. A <code>/query</code> logs and commits when the answer was reusable enough to file as a Synthesis; a query that merely answers you leaves no trace, so do not expect three lines for three questions. <code>/lint</code> without <code>--fix</code> writes its findings into this week's Review page and neither logs nor commits, so expect an uncommitted change in the data root after it. <code>/verify --queue</code> logs and commits once per page you said yes to, and nothing for the ones you skipped.</p>
-      <p>Then remove the examples, so the wiki is yours: <code>uv run tos-init --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
+      <p>Then remove the examples, so the wiki is yours: <code>uv run --directory "$TOS_ENGINE" tos-init --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -702,8 +745,9 @@ EOF</code></pre>
           <tbody>
             <tr><td><code>config not found: …</code></td><td>No config at the default path and <code>$TOS_CONFIG</code> unset.</td><td>Step 2. The message names the file to copy.</td></tr>
             <tr><td><code>config at … has no data.root</code></td><td>The YAML is malformed or <code>data:</code> was removed.</td><td>Compare with <code>config.example.yaml</code>; indentation is two spaces.</td></tr>
-            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>uv run tos-config</code>, then <code>/init</code>.</td></tr>
-            <tr><td><code>command not found: tos-lint</code></td><td>The engine is not installed, or you are outside its directory.</td><td><code>cd ~/Code/TechLead_OS/engine &amp;&amp; uv sync</code>, and invoke through <code>uv run</code>.</td></tr>
+            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>uv run --directory "$TOS_ENGINE" tos-config</code>, then <code>/init</code>.</td></tr>
+            <tr><td><code>command not found: tos-lint</code></td><td>The engine is not installed.</td><td><code>cd "$TOS_ENGINE" &amp;&amp; uv sync</code>, and invoke through <code>uv run</code>.</td></tr>
+            <tr><td><code>cd: no such file or directory</code>, or <code>--directory</code> with an empty path</td><td>A new terminal: <code>$TOS_ENGINE</code> and <code>$TOS_DATA</code> last only for the session that set them.</td><td>Re-run the two <code>export</code> lines from §1 and §2, or put them in <code>~/.zshrc</code>.</td></tr>
             <tr><td><code>frontmatter is not valid YAML</code> in a lint report</td><td>A page's frontmatter really is malformed — an unclosed <code>[</code>, an unquoted value containing <code>: </code>, a stray line.</td><td>Open the page at the line named and fix it. Lint exits 1 until it parses; OKF requires it.</td></tr>
             <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>tos-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
             <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
@@ -725,8 +769,8 @@ EOF</code></pre>
       <h2>Print this half-page</h2>
       <ul class="checklist">
         <li>Policy check done: summaries and excerpts of company material may live in the data root, at the path I chose.</li>
-        <li><code>uv sync</code> ran in the engine; <code>~/.config/tos/config.yaml</code> exists; <code>uv run tos-config</code> resolves the data root, actor and phase 1.</li>
-        <li><code>uv run tos-init --with-examples</code> ran; <code>uv run tos-lint</code> reports 0 conformance errors and the one intended finding.</li>
+        <li><code>uv sync</code> ran in the engine checkout; <code>$TOS_ENGINE</code> and <code>$TOS_DATA</code> are set; <code>~/.config/tos/config.yaml</code> exists; <code>uv run --directory "$TOS_ENGINE" tos-config</code> resolves the data root, actor and phase 1.</li>
+        <li><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code> ran; <code>… tos-lint</code> reports 0 conformance errors and the one intended finding.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
         <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
         <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
@@ -736,10 +780,117 @@ EOF</code></pre>
         <li>Monday: <code>/weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.3, <code>~/Code/TechLead_OS/engine</code>) and the scenarios page. Paths assume the defaults; the config is the one place to change them.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.5.4) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
     </section>
   </main>
 </div>
+<script>
+(function () {
+  var ICON_COPY = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5.6" y="5.6" width="8.2" height="8.8" rx="1.5"/><path d="M10.6 3.6v-1a1 1 0 0 0-1-1h-6.4a1 1 0 0 0-1 1v8.2a1 1 0 0 0 1 1h1"/></svg>';
+  var ICON_DONE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 8.6l3.1 3.1L12.8 5"/></svg>';
+
+  var live = document.createElement('div');
+  live.className = 'visually-hidden';
+  live.setAttribute('aria-live', 'polite');
+  document.body.appendChild(live);
+
+  // What the reader should end up with: the comments are annotations rather than input,
+  // and the "> " in a claude block is Claude Code's prompt, not something you type.
+  function textToCopy(pre, title) {
+    var code = pre.querySelector('code');
+    if (!code) return '';
+    var clone = code.cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll('.cm'), function (c) {
+      c.parentNode.removeChild(c);
+    });
+    var text = clone.textContent;
+    if (/^claude/i.test(title)) text = text.replace(/^> ?/gm, '');
+    return text.split('\n').map(function (line) {
+      return line.replace(/[ \t]+$/, '');
+    }).join('\n').replace(/^\n+|\n+$/g, '');
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  // The async clipboard API is missing, or rejects, in some file:// contexts.
+  function writeClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () {
+        if (!legacyCopy(text)) throw new Error('copy failed');
+      });
+    }
+    return legacyCopy(text) ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+  }
+
+  function selectCode(pre) {
+    var code = pre.querySelector('code');
+    if (!code || !window.getSelection || !document.createRange) return;
+    var range = document.createRange();
+    range.selectNodeContents(code);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  // Every block with a title is something to type; the expected-output blocks have none.
+  Array.prototype.forEach.call(document.querySelectorAll('pre > .code-title'), function (titleEl) {
+    var pre = titleEl.parentNode;
+    var title = (titleEl.textContent || '').trim();
+
+    // The button lives in a wrapper, not in the pre: the pre scrolls horizontally.
+    var wrap = document.createElement('div');
+    wrap.className = 'code-block';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.setAttribute('aria-label',
+      /^terminal/i.test(title) ? 'Copy the commands' :
+      /^claude/i.test(title) ? 'Copy the prompt' : 'Copy ' + title);
+    btn.innerHTML = ICON_COPY + '<span class="copy-label"></span>';
+    wrap.appendChild(btn);
+
+    var timer = null;
+
+    function flash(state, text, announcement) {
+      if (timer) clearTimeout(timer);
+      btn.setAttribute('data-state', state);
+      btn.innerHTML = (state === 'done' ? ICON_DONE : ICON_COPY) +
+        '<span class="copy-label">' + text + '</span>';
+      live.textContent = announcement;
+      timer = setTimeout(function () {
+        btn.removeAttribute('data-state');
+        btn.innerHTML = ICON_COPY + '<span class="copy-label"></span>';
+        live.textContent = '';
+      }, 1800);
+    }
+
+    btn.addEventListener('click', function () {
+      var text = textToCopy(pre, title);
+      writeClipboard(text).then(function () {
+        flash('done', 'copied', 'Copied');
+      }).catch(function () {
+        selectCode(pre);
+        flash('manual', 'press ⌘C', 'Copy failed; the snippet is selected, press Command C');
+      });
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
