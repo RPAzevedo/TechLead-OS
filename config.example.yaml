@@ -4,16 +4,16 @@
 # configuration; the one script that could ever need a token is given the NAME of
 # an environment variable, never a value.
 
-engine: "0.5"                          # the engine version this config was written for
+engine: "0.6"                          # the engine version this config was written for
 
 data:
   root: ~/CHANGE_ME/techlead-os-data   # replace this: raw/, wiki/, Home.md, .obsidian/ live here (created
-                                       # by /init). Anywhere your policy allows; it need not sit next to the engine.
+                                       # by /tos-init). Anywhere your policy allows; it need not sit next to the engine.
   timezone: Australia/Melbourne
   actor: human:CHANGE_ME               # replace this: the human actor in every verified entry
 
 rollout:
-  phase: 1                             # 1: documents; 2: Jira + sprint tick; 3: team, Slack, /brief; 4: vision, learning, radar
+  phase: 1                             # 1: documents; 2: Jira + sprint tick; 3: team, Slack, /tos-brief; 4: vision, learning, radar
 
 connectors:
   confluence:

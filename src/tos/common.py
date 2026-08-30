@@ -6,7 +6,7 @@
 
 Malformed YAML is never silently tolerated: `load_yaml()` raises `YamlError`,
 and `split_frontmatter()` / `read_page()` hand that message back as an explicit
-error so `/lint` can report it as the OKF conformance failure it is.
+error so `/tos-lint` can report it as the OKF conformance failure it is.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ import yaml
 try:
     ENGINE_VERSION = version("techlead-os")
 except PackageNotFoundError:  # running from a checkout with no install
-    ENGINE_VERSION = "0.5.4"
+    ENGINE_VERSION = "0.6.0"
 
 
 def _find_engine_root() -> Path:

@@ -1,4 +1,4 @@
-"""/init — create (or refresh) the data root described by the config.
+"""/tos-init — create (or refresh) the data root described by the config.
 
     uv run tos-init [--with-examples] [--remove-examples] [--dry-run]
 
@@ -52,7 +52,7 @@ RAW_DIRS = ["inbox", "notes", "pinned", "metrics", "assets"]
 
 PULL_MD = """# Pointers to pull
 
-One pointer per line. `/pull` reads each through its connector, writes a Source
+One pointer per line. `/tos-pull` reads each through its connector, writes a Source
 page, and removes the line. Add `--pin` after a pointer to keep a verbatim copy
 under raw/pinned/. Lines starting with `#` are ignored.
 

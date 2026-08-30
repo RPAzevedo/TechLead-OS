@@ -1,6 +1,6 @@
 """Everything the engine ships must parse clean.
 
-The example pages carry {{PLACEHOLDER}} tokens that /init substitutes on the way
+The example pages carry {{PLACEHOLDER}} tokens that /tos-init substitutes on the way
 in, so they are checked the way they are actually written to the data root.
 """
 import datetime as dt

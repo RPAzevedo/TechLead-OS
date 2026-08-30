@@ -2,6 +2,25 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.6.0 — 2026-08-30
+
+**Every command is now `/tos-<verb>`, and the README lists all eleven.**
+
+- The eleven operations are invoked as `/tos-init`, `/tos-pull`, `/tos-ingest`, `/tos-query`,
+  `/tos-lint`, `/tos-verify`, `/tos-weekly`, `/tos-sprint`, `/tos-measure`, `/tos-brief` and
+  `/tos-retro`. `/init` no longer shadows Claude Code's built-in command, and the set is
+  identifiable in a session that also has personal or plugin commands loaded.
+- `README.md` has a **Commands** table: each command with its arguments, what it does and the
+  rollout phase that enables it. `tests/test_commands.py` fails if a command file is added without
+  the prefix or without a row in that table. `.claude/` now ships in the sdist, so the command files
+  are part of the released artifact and its test suite passes from an extracted tarball.
+- `docs/onboarding.html` and `docs/roadmap.md` use the new names. The design record keeps the old
+  ones and says so in a notice under its title: `docs/design.md`, `docs/design.html` and
+  `docs/scenarios.html`. `docs/design.pdf` is gone — it was a browser print of `design.html` with no
+  build script behind it, so it could only ever go stale; read the HTML.
+- A config written for `engine: "0.5"` prints a drift note until it is set to `"0.6"`. Nothing else
+  in the config changes, and no data migration is needed.
+
 ## 0.5.4 — 2026-08-30
 
 **Setup no longer assumes where the engine and the data root live, and the snippets you are meant to type can be copied.**
