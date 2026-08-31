@@ -4,7 +4,7 @@ You are the maintenance agent for a personal knowledge OS. This repository is th
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
 
-Engine version: **0.7.0** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
+Engine version: **0.7.1** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
 
 ## 0. First, read the config
 
@@ -129,7 +129,7 @@ Run lint, then write `wiki/reviews/<ISO-week>.md` (type Review) opening with **P
 8. Update `generated` on every meaningful change, and the directory's `index.md` and root `log.md` in the same operation.
 9. Read `index.md` first, frontmatter second, bodies last.
 10. Propose engine changes in the weekly review; change this repository only when the human accepts, and record it in `CHANGELOG.md`.
-11. Connectors are read-only and used only by `/tos-pull`, the cross-check pass and the drift check. Never post, comment, react, transition or edit in any connected system.
+11. Connectors are read-only and used only by `/tos-pull`, the cross-check pass and the drift check. Never post, comment, react, transition or edit in any connected system. `.claude/settings.json` denies the write-capable tools of the connectors this engine names, so the rule is enforced and not merely instructed; add the names your own MCP servers expose when you wire one up.
 12. Pull only what the human pointed at or a named feed in the config; never DMs; never outside the config's scope. Nothing verbatim unless pinned or needed for a receipt.
 13. Never write the config file. Never write to the engine during a data operation.
 14. `wiki/log.md` records data changes only.
