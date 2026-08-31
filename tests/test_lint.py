@@ -1,4 +1,6 @@
-"""End-to-end: a page whose frontmatter will not parse is a conformance error."""
+"""End-to-end lint behaviour over a real bundle built by tos-init."""
+import re
+
 import pytest
 
 from tos import init as tos_init
@@ -34,6 +36,21 @@ def bundle(tmp_path, monkeypatch):
     assert tos_init.main(["--with-examples"]) == 0
     return root
 
+
+
+@pytest.fixture
+def bare(tmp_path, monkeypatch):
+    """A data root with no example pages: the new checks see only what a test writes."""
+    root = tmp_path / "data"
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(
+        f'engine: "0.7"\ndata:\n  root: {root}\n  timezone: Australia/Melbourne\n'
+        f"  actor: human:test\nrollout:\n  phase: 1\n",
+        encoding="utf8",
+    )
+    monkeypatch.setenv("TOS_CONFIG", str(cfg))
+    assert tos_init.main([]) == 0
+    return root
 
 def test_clean_bundle_has_no_conformance_error(bundle, capsys):
     code = tos_lint.main([])
@@ -74,3 +91,433 @@ def test_malformed_index_fails_lint(bundle, capsys):
     out = capsys.readouterr().out
     assert code == 1
     assert "index.md` frontmatter is not valid YAML" in out
+
+
+# --------------------------------------------------------------------- registry
+def test_registry_parses_every_type_and_no_extension_rows():
+    """The extension-fields table is three columns wide and must not become a type."""
+    reg = tos_lint.load_registry()
+    assert len(reg) == 20, sorted(reg)
+    assert "Project" in reg and "Objective" in reg
+    assert reg["Objective"]["phase"] == "P1"
+    assert not {"`owner`", "owner", "`role`", "role", "Field"} & set(reg)
+
+
+# --------------------------------------------------------------------- projects
+PROJECT = """---
+type: Project
+title: {title}
+description: A project.
+tags: []
+owner: human:test
+role: {role}
+stage: {stage}
+{priority}sources:
+  - id: n
+    resource: ../../../raw/notes/n.md
+    title: Note
+    author: human:test
+    last_modified: 2026-08-01
+generated: {{ by: claude-code/test, at: {gen}T09:00:00+10:00 }}
+status: draft
+stale_after: 2099-01-01
+---
+
+# Problem
+
+Something is slow.[^n]
+
+# Expected impact
+
+It gets faster.[^n]
+
+# Status
+
+Running.
+
+# Components & owners
+
+- Bot — human:test
+
+# Next
+
+- Ship it.
+
+# Risks
+
+- None.
+
+# Decisions
+
+- None.
+
+# Weekly log
+{log}
+[^n]: Note
+"""
+
+ENTRY = """
+## {week}
+
+- **Progress**: moved.
+"""
+
+
+def project(bare, name, *, role="lead", stage="build", priority=None, gen="2026-01-01", log="\n"):
+    """Write a project page into the bundle and index it. Returns its path."""
+    p = bare / "wiki" / "delivery" / "projects" / f"{name}.md"
+    p.write_text(PROJECT.format(title=name, role=role, stage=stage, gen=gen, log=log,
+                                priority="" if priority is None else f"priority: {priority}\n"),
+                 encoding="utf8")
+    idx = p.parent / "index.md"
+    idx.write_text(idx.read_text(encoding="utf8") + f"* [{name}]({name}.md) - a project\n", encoding="utf8")
+    return p
+
+
+def findings(capsys, section):
+    """The bullet lines lint printed under `## <section>`."""
+    out = capsys.readouterr().out
+    m = re.search(rf"^## {section} \(\d+\)$(.*?)(?=^## |\Z)", out, re.M | re.S)
+    return [ln for ln in m.group(1).splitlines() if ln.startswith("- ")] if m else []
+
+
+def test_fresh_example_bundle_has_no_project_or_objective_findings(bundle, capsys):
+    tos_lint.main([])
+    out = capsys.readouterr().out
+    assert "## projects" not in out, out
+    assert "## objectives" not in out, out
+
+
+def test_invalid_role_and_stage_are_flagged(bare, capsys):
+    project(bare, "bad-fields", role="owner", stage="shipping", priority=1)
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "role: 'owner'" in got
+    assert "stage: 'shipping'" in got
+
+
+def test_duplicate_priority_among_active_projects(bare, capsys):
+    project(bare, "one", priority=2, log=ENTRY.format(week="2026-W05"))
+    project(bare, "two", priority=2, log=ENTRY.format(week="2026-W05"))
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "priority 2 is carried by 2 active projects" in got
+
+
+def test_paused_and_done_projects_are_exempt_from_duplicate_priorities(bare, capsys):
+    project(bare, "live", priority=1, log=ENTRY.format(week="2026-W05"))
+    project(bare, "parked", stage="paused")
+    project(bare, "shipped", stage="done")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "carried by" not in got
+    assert "parked" not in got and "shipped" not in got, got
+
+
+def test_priority_on_an_inactive_project_is_flagged(bare, capsys):
+    project(bare, "shipped", stage="done", priority=3)
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "still carries `priority: 3`" in "\n".join(findings(capsys, "projects"))
+
+
+def test_missing_weekly_entry_is_flagged_past_the_grace_window(bare, capsys):
+    project(bare, "quiet", priority=1, log=ENTRY.format(week="2026-W02"))
+    tos_lint.main(["--today", "2026-02-16"])  # W02's Monday is 2026-01-05: 42 days
+    assert "no weekly entry since 2026-01-05" in "\n".join(findings(capsys, "projects"))
+
+
+def test_recent_weekly_entry_is_quiet_within_the_grace_window(bare, capsys):
+    project(bare, "current", priority=1, log=ENTRY.format(week="2026-W05"))
+    tos_lint.main(["--today", "2026-02-01"])  # W05's Monday is 2026-01-26: 6 days
+    assert findings(capsys, "projects") == []
+
+
+def test_a_young_project_without_a_weekly_log_stays_quiet(bare, capsys):
+    project(bare, "newborn", gen="2026-01-28")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "projects") == []
+
+
+def test_an_old_project_without_a_weekly_log_is_flagged(bare, capsys):
+    project(bare, "neglected", priority=1, gen="2026-01-01")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "no *Weekly log* section" in got or "no entry in its *Weekly log*" in got, got
+
+
+def test_missing_role_is_flagged_only_past_the_grace_window(bare, capsys):
+    page = project(bare, "roleless", priority=1, gen="2026-01-01", log=ENTRY.format(week="2026-W05"))
+    page.write_text(page.read_text(encoding="utf8").replace("role: lead\n", ""), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "an active Project with no `role`" in "\n".join(findings(capsys, "projects"))
+
+
+def test_unknown_weekly_log_label_is_flagged(bare, capsys):
+    project(bare, "mislabelled", priority=1,
+            log="\n## 2026-W05\n\n- **Vibes**: good.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "`**Vibes**` is not one of the five" in "\n".join(findings(capsys, "projects"))
+
+
+def test_weekly_log_entries_must_be_newest_first(bare, capsys):
+    project(bare, "backwards", priority=1,
+            log="\n## 2026-W04\n\n- **Progress**: a.\n\n## 2026-W05\n\n- **Progress**: b.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "out of order — newest first" in "\n".join(findings(capsys, "projects"))
+
+
+def test_an_active_project_is_not_listed_as_changed_since_verified(bare, capsys):
+    page = project(bare, "churned", priority=1, log=ENTRY.format(week="2026-W05"))
+    page.write_text(page.read_text(encoding="utf8").replace(
+        "status: draft",
+        "verified:\n  - { by: human:test, at: 2026-01-01T09:00:00+10:00 }\nstatus: draft"), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "changed-since-verified") == []
+
+
+# ------------------------------------------------------------------- objectives
+OBJECTIVE = """---
+type: Objective
+title: {title}
+description: An objective.
+tags: []
+level: {level}
+quarter: {quarter}
+sources:
+  - id: n
+    resource: ../../../raw/notes/n.md
+    title: Note
+    author: human:test
+    last_modified: 2026-08-01
+generated: {{ by: claude-code/test, at: 2026-01-01T09:00:00+10:00 }}
+status: draft
+stale_after: 2099-01-01
+---
+
+# Objective
+
+Go faster.[^n] {advances}
+
+# Key results
+
+- Faster.[^n]
+
+# Sprint goals
+
+…
+
+# Status
+
+{status}
+
+[^n]: Note
+"""
+
+
+def objective(bare, name, *, level="team", quarter="2026-Q1", status="Running.", advances=""):
+    p = bare / "wiki" / "delivery" / "objectives" / f"{name}.md"
+    p.write_text(OBJECTIVE.format(title=name, level=level, quarter=quarter, status=status,
+                                  advances=advances), encoding="utf8")
+    idx = p.parent / "index.md"
+    idx.write_text(idx.read_text(encoding="utf8") + f"* [{name}]({name}.md) - an objective\n", encoding="utf8")
+    return p
+
+
+def test_invalid_level_and_quarter_are_flagged(bare, capsys):
+    objective(bare, "wonky", level="squad", quarter="Q1 2026")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "objectives"))
+    assert "level: 'squad'" in got
+    assert "quarter: 'Q1 2026'" in got
+
+
+def test_lead_project_without_an_objective_link_is_flagged_only_once_objectives_exist(bare, capsys):
+    project(bare, "unlinked", priority=1, gen="2026-01-01", log=ENTRY.format(week="2026-W05"))
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "objectives") == [], "nudged before any objective existed"
+
+    objective(bare, "an-okr", status="Running.")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "*Expected impact* links no live objective" in "\n".join(findings(capsys, "objectives"))
+
+
+def test_team_objective_without_a_company_link_is_flagged_only_once_a_company_one_exists(bare, capsys):
+    objective(bare, "team-okr")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert not [f for f in findings(capsys, "objectives") if "company objective" in f]
+
+    objective(bare, "company-okr", level="company")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "objectives"))
+    assert "team-okr" in got and "links no 2026-Q1 company objective" in got
+
+
+def test_a_team_objective_linking_its_company_objective_is_quiet(bare, capsys):
+    objective(bare, "company-okr", level="company")
+    objective(bare, "team-okr", advances="Advances [the company objective](company-okr.md).")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert not [f for f in findings(capsys, "objectives") if "company objective" in f]
+
+
+def test_a_company_link_outside_the_objective_section_does_not_count(bare, capsys):
+    objective(bare, "company-okr", level="company")
+    objective(bare, "team-okr", status="Mentioned in passing: [company](company-okr.md).")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "links no 2026-Q1 company objective" in "\n".join(findings(capsys, "objectives"))
+
+
+def test_an_expiring_active_project_stays_out_of_the_expiry_queues(bare, capsys):
+    page = project(bare, "expiring", priority=1, log=ENTRY.format(week="2026-W05"))
+    page.write_text(page.read_text(encoding="utf8").replace("stale_after: 2099-01-01",
+                                                            "stale_after: 2026-02-03"), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-01"])
+    out = capsys.readouterr().out
+    assert "## expiring" not in out and "## stale" not in out, out
+
+
+def test_a_paused_project_still_reaches_the_expiry_queue(bare, capsys):
+    page = project(bare, "parked", stage="paused")
+    page.write_text(page.read_text(encoding="utf8").replace("stale_after: 2099-01-01",
+                                                            "stale_after: 2026-02-03"), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "parked" in "\n".join(findings(capsys, "expiring"))
+
+
+def test_a_weekly_updated_project_is_still_asked_for_its_missing_role(bare, capsys):
+    """The grace clock cannot be generated.at: --apply resets it every week the project moves."""
+    page = project(bare, "busy", priority=1, gen="2026-01-31", log=ENTRY.format(week="2026-W05"))
+    page.write_text(page.read_text(encoding="utf8").replace("role: lead\n", ""), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "an active Project with no `role`" in "\n".join(findings(capsys, "projects"))
+
+
+def test_repeated_weekly_entries_are_flagged(bare, capsys):
+    project(bare, "retried", priority=1,
+            log="\n## 2026-W05\n\n- **Progress**: a.\n\n## 2026-W05\n\n- **Progress**: again.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "more than one `## 2026-W05` entry" in "\n".join(findings(capsys, "projects"))
+
+
+def test_priorities_with_a_gap_are_flagged(bare, capsys):
+    project(bare, "first", priority=1, log=ENTRY.format(week="2026-W05"))
+    project(bare, "third", priority=3, log=ENTRY.format(week="2026-W05"))
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "not contiguous 1..N: [1, 3]" in "\n".join(findings(capsys, "projects"))
+
+
+def test_an_unranked_active_project_does_not_count_as_a_gap(bare, capsys):
+    project(bare, "first", priority=1, gen="2026-01-31", log=ENTRY.format(week="2026-W05"))
+    project(bare, "fresh", gen="2026-01-31")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "contiguous" not in "\n".join(findings(capsys, "projects"))
+
+
+def test_a_link_to_a_deprecated_objective_does_not_satisfy_the_nudge(bare, capsys):
+    objective(bare, "live-okr")
+    dead = objective(bare, "old-okr")
+    dead.write_text(dead.read_text(encoding="utf8").replace("status: draft", "status: deprecated"), encoding="utf8")
+    project(bare, "linked-to-a-corpse", priority=1, gen="2026-01-01",
+            log=ENTRY.format(week="2026-W05") + "\n- **Notes**: see [the old OKR](../objectives/old-okr.md).\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "*Expected impact* links no live objective" in "\n".join(findings(capsys, "objectives"))
+
+
+def test_a_weekly_heading_with_trailing_text_is_flagged(bare, capsys):
+    project(bare, "chatty-heading", priority=1, log="\n## 2026-W05 extra\n\n- **Progress**: a.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "`## 2026-W05 extra` is not `## YYYY-Www`" in "\n".join(findings(capsys, "projects"))
+
+
+def test_a_project_with_no_stage_is_flagged(bare, capsys):
+    page = project(bare, "stageless", priority=1, log=ENTRY.format(week="2026-W05"))
+    page.write_text(page.read_text(encoding="utf8").replace("stage: build\n", ""), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "has no `stage`" in "\n".join(findings(capsys, "projects"))
+
+
+def test_a_future_weekly_entry_is_flagged_and_does_not_mute_the_currency_check(bare, capsys):
+    project(bare, "time-traveller", priority=1,
+            log="\n## 2099-W01\n\n- **Progress**: someday.\n\n## 2026-W02\n\n- **Progress**: a.\n")
+    tos_lint.main(["--today", "2026-02-16"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "`## 2099-W01` is in the future" in got
+    assert "no weekly entry since 2026-01-05" in got, got
+
+
+def test_an_objective_link_in_the_weekly_log_does_not_count_as_alignment(bare, capsys):
+    objective(bare, "an-okr")
+    project(bare, "mentions-it", priority=1, gen="2026-01-01",
+            log=ENTRY.format(week="2026-W05") + "\n- **Notes**: see [the OKR](../objectives/an-okr.md).\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "*Expected impact* links no live objective" in "\n".join(findings(capsys, "objectives"))
+
+
+def test_a_company_objective_from_another_quarter_is_not_the_alignment(bare, capsys):
+    objective(bare, "company-q2", level="company", quarter="2026-Q2")
+    objective(bare, "team-q1", quarter="2026-Q1",
+              advances="Rolls up to [next quarter's company objective](company-q2.md).")
+    tos_lint.main(["--today", "2026-02-01"])
+    # no 2026-Q1 company objective exists, so there is nothing for the Q1 team objective to link
+    assert not [f for f in findings(capsys, "objectives") if "company objective" in f]
+
+    objective(bare, "company-q1", level="company", quarter="2026-Q1")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "team-q1" in "\n".join(findings(capsys, "objectives"))
+
+def test_an_entry_of_plain_prose_is_flagged(bare, capsys):
+    project(bare, "prose", priority=1, log="\n## 2026-W05\n\nWe made some progress this week.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "`## 2026-W05` has no labelled bullet" in "\n".join(findings(capsys, "projects"))
+
+
+def test_an_unbolded_label_is_flagged(bare, capsys):
+    project(bare, "unbolded", priority=1, log="\n## 2026-W05\n\n- Progress: moved.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "is not `- **Label**: …`" in got
+    assert "has no labelled bullet" in got
+
+
+def test_nested_detail_under_a_label_is_allowed(bare, capsys):
+    project(bare, "nested", priority=1,
+            log="\n## 2026-W05\n\n- **Progress**: moved.\n  - the harness landed\n- **Notes**: a tradeoff.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "projects") == []
+
+
+def test_a_label_in_one_entry_does_not_excuse_an_empty_one(bare, capsys):
+    project(bare, "half-empty", priority=1,
+            log="\n## 2026-W05\n\n- **Progress**: moved.\n\n## 2026-W04\n\nnothing much.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "`## 2026-W04` has no labelled bullet" in "\n".join(findings(capsys, "projects"))
+
+def test_a_bold_label_without_a_colon_is_flagged(bare, capsys):
+    project(bare, "colonless", priority=1, log="\n## 2026-W05\n\n- **Progress** moved.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "is not `- **Label**: …`" in got
+    assert "has no labelled bullet" in got
+
+
+def test_a_label_with_nothing_after_the_colon_is_flagged(bare, capsys):
+    project(bare, "empty-label", priority=1, log="\n## 2026-W05\n\n- **Progress**:\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "is not `- **Label**: …`" in "\n".join(findings(capsys, "projects"))
+
+
+def test_a_paused_project_still_has_its_log_structure_checked(bare, capsys):
+    project(bare, "parked", stage="paused",
+            log="\n## 2026-W04\n\n- **Vibes**: good.\n\n## 2026-W05\n\n- **Progress**: b.\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "`**Vibes**` is not one of the five" in got
+    assert "out of order — newest first" in got
+
+
+def test_a_paused_project_is_not_asked_for_currency_or_role(bare, capsys):
+    page = project(bare, "parked", stage="paused", gen="2026-01-01", log=ENTRY.format(week="2026-W02"))
+    page.write_text(page.read_text(encoding="utf8").replace("role: lead\n", ""), encoding="utf8")
+    tos_lint.main(["--today", "2026-02-16"])
+    got = "\n".join(findings(capsys, "projects"))
+    assert "no weekly entry since" not in got
+    assert "no `role`" not in got

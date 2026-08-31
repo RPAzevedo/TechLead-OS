@@ -4,7 +4,7 @@
 # configuration; the one script that could ever need a token is given the NAME of
 # an environment variable, never a value.
 
-engine: "0.6"                          # the engine version this config was written for
+engine: "0.7"                          # the engine version this config was written for
 
 data:
   root: ~/CHANGE_ME/techlead-os-data   # replace this: raw/, wiki/, Home.md, .obsidian/ live here (created
@@ -55,6 +55,8 @@ review:
   verify_queue: 5
   draft_age_days: 14                   # lint flags drafts older than this
   expiring_days: 7                     # lint flags pages expiring within this window
+  weekly_log_grace_days: 16            # lint flags an active project whose newest weekly entry is older
+                                       # than this (one quiet Monday is fine; two suggest pausing it)
 
 metrics:
   jira_token_env: JIRA_TOKEN           # fallback executor only; a variable NAME, never a value

@@ -8,13 +8,13 @@ OKF leaves `type` producer-defined. This registry is the engine's set. **From** 
 | Concept | P1 | `concepts/` | 365 d | H | Definition · How it works · Where it shows up · Open questions |
 | Decision | P1 | `design/decisions/` | — | H | Context · Options · Decision · Consequences · Standards applied |
 | RFC | P1 | `design/rfcs/` | 30 d while draft, then — | H | Summary · Options · Review notes · Standards check · Outcome |
-| Project | P1 | `delivery/projects/` | 30 d | H | Goal · Status · Components & owners · Next · Risks · Decisions |
+| Project | P1 | `delivery/projects/` | 30 d | H | Problem · Expected impact · Status · Components & owners · Next · Risks · Decisions · Weekly log |
 | Initiative | P1 | `delivery/initiatives/` | 30 d | H | Problem statement · Status · Timeline · Stakeholders · Dependencies · My stance · Open questions |
 | System | P1 | `systems/` | 90 d | H | Purpose · Ownership · Operational standards · KTLO · Dependencies · Runbooks & links |
 | Question | P1 | `questions/` | 60 d | — | Question · What we know · Who can resolve it · Resolution |
 | Synthesis | P1 | `syntheses/` | 90 d | H | Claim · Evidence · Counterpoints · What would change my mind |
 | Review | P1 | `reviews/` | — | — | generated sections (see the weekly command) |
-| Objective | P2 | `delivery/objectives/` | 90 d | H | Objective · Key results · Sprint goals · Status |
+| Objective | P1 | `delivery/objectives/` | 90 d | H | Objective · Key results · Sprint goals · Status |
 | Attested Computation | P2 | `delivery/metrics/`, `systems/metrics/` | 180 d | H (the human authors it) | Computation · Examples |
 | Person | P3 | `team/people/` | 90 d | H, always | Role · Growth focus · Ownership delegated · Agreed actions · Thread |
 | Stakeholder | P3 | `team/stakeholders/` | 90 d | H, always | Role & needs · Positions · Cadence & last contact · Thread |
@@ -31,13 +31,21 @@ Ordinary frontmatter keys; OKF consumers must not reject unknown keys.
 
 | Field | Types | Meaning |
 |---|---|---|
-| `owner` | Project, Initiative, System, Learning Path | actor string of the owner |
-| `stage` | Project, Initiative | free text: discovery, build, pilot, rollout, done |
+| `owner` | Project, Initiative, System, Learning Path | actor string of the owner — the work's owner, not necessarily the human |
+| `role` | Project | the human's relationship to the project: lead or support |
+| `stage` | Project, Initiative | Project: one of discovery, build, pilot, rollout, paused, done — paused and done end its active life. Initiative: free text |
+| `priority` | Project | positive integer, 1 = highest, unique and contiguous across active projects; written only by `/tos-weekly --apply`, absent before a project's first Monday and after it leaves active |
+| `level` | Objective | company or team |
+| `quarter` | Objective | `YYYY-Qn`, e.g. 2026-Q3 |
 | `next_checkpoint` | Project, Initiative | `YYYY-MM-DD`; the weekly review flags it once passed |
 | `superseded_by` | Decision, RFC | relative link to the page that replaced it |
 | `audience` | Synthesis (briefs) | who the synthesis was written for |
 | `review_due` | Drill | `YYYY-MM-DD` |
 | `pinned` | Source | `true` if a verbatim copy exists under `raw/pinned/` |
+
+## Projects and objectives
+
+A Project is **active** when `status` is not `deprecated` and `stage` is not `paused` or `done`. Active projects are ranked by `priority` and carry a weekly record; they surface in the weekly review's portfolio section rather than in the verify and expiry queues. The *Weekly log* is written only by `/tos-weekly --apply`: one `## YYYY-Www` entry per week with movement, newest first, bold-label bullets from **Progress**, **Challenges & risks**, **Blockers & support needed**, **Open questions & decisions**, **Notes**; a silent week writes no entry. A Project links the objective(s) it advances from *Expected impact*; a team Objective links its company objective from *Objective* — ordinary body links, no frontmatter field. Objective slugs are quarter-prefixed (`2026-q3-<slug>`).
 
 ## Status lifecycle
 

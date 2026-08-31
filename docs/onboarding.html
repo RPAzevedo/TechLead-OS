@@ -459,7 +459,7 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.6.0 · Phase 1</p>
+    <p class="eyebrow">Onboarding · engine 0.7.0 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: five setup steps in about half an hour, a forty-five-minute first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
     <p class="meta"><span><b>Engine</b> wherever you clone it (<code>$TOS_ENGINE</code>)</span><span><b>Data root</b> wherever you choose (<code>$TOS_DATA</code>), named in the config</span><span><b>Setup</b> ~30 min, then a 45-min first loop</span><span><b>Acceptance</b> two weeks</span></p>
@@ -493,7 +493,7 @@
         <p class="label">The policy check — decision D5</p>
         <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
       </div>
-      <p>One thing is already decided so you do not have to: <code>rollout.phase</code> starts at 1, which means documents only, the ten Phase 1 page types, and the seven commands that are built. The two locations — where the engine is cloned and where the data root sits — are yours, and neither this page nor the engine assumes anything about them: the config is the one place the data root is written down, and steps 1 and 2 put both paths in shell variables so every command below pastes and runs as it stands.</p>
+      <p>One thing is already decided so you do not have to: <code>rollout.phase</code> starts at 1, which means documents only, the eleven Phase 1 page types, and the seven commands that are built. The two locations — where the engine is cloned and where the data root sits — are yours, and neither this page nor the engine assumes anything about them: the config is the one place the data root is written down, and steps 1 and 2 put both paths in shell variables so every command below pastes and runs as it stands.</p>
 
       <figure>
         <svg viewBox="0 0 760 150" role="img" aria-label="Six steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about half an hour to step 5, then forty-five minutes for the loop, then a fortnight of use.">
@@ -541,12 +541,12 @@
       <p class="part">1 · The engine</p>
       <h2>Clone it wherever you like</h2>
       <p class="scen-meta"><span class="chip phase1">4 minutes</span><span class="chip">$TOS_ENGINE</span></p>
-      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, 0.5.4 is this page, and 0.6.0 gave every command the <code>/tos-</code> prefix. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
+      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, 0.5.4 is this page, 0.6.0 gave every command the <code>/tos-</code> prefix, and 0.7.0 made Project the first-class entity with a weekly log and a ranked portfolio. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>git clone git@github.com:RPAzevedo/TechLead-OS.git ~/code/techlead-os   <span class="cm"># or any directory you prefer</span>
 cd ~/code/techlead-os
 export TOS_ENGINE="$(git rev-parse --show-toplevel)"   <span class="cm"># already have a checkout? cd into it and run this line alone</span>
 
-git log --oneline          <span class="cm"># newest first; the top line is 0.6.0, the history starts at 0.5.0</span>
+git log --oneline          <span class="cm"># newest first; the top line is 0.7.0, the history starts at 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 uv --version               <span class="cm"># brew install uv if this is missing</span>
 uv sync                    <span class="cm"># creates .venv, installs PyYAML and the tos-* commands</span></code></pre>
@@ -573,7 +573,7 @@ uv run --directory "$TOS_ENGINE" tos-config</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code>config:   /Users/you/.config/tos/config.yaml
-engine:   0.6.0 (config says 0.6)
+engine:   0.7.0 (config says 0.7)
 engine root: /Users/you/code/techlead-os
 data:     /Users/you/techlead-os-data  exists=False
 actor:    human:you
@@ -587,7 +587,7 @@ phase:    1</code></pre>
       <p class="part">3 · The data root</p>
       <h2>Created by <code>/tos-init</code>, never by hand</h2>
       <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates $TOS_DATA</span></p>
-      <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, ten example pages plus one example note, and a git repository with a first commit.</p>
+      <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, eleven example pages plus one example note, and a git repository with a first commit.</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code></pre>
       <div class="answer">
         <p class="from">expected output (abridged)</p>
@@ -606,12 +606,12 @@ git: repository initialised and first commit made</code></pre>
         <p class="from">expected output</p>
 <pre class="inline wrap"><code># Lint — 2026-08-31
 
-10 pages · tiers {'unverified': 10, 'machine-confirmed': 0, 'human-reviewed': 0, 'changed-since-verified': 0} · conformance errors: 0
+11 pages · tiers {'unverified': 11, 'machine-confirmed': 0, 'human-reviewed': 0, 'changed-since-verified': 0} · conformance errors: 0
 
 ## systems (1)
 - `systems/example-asset-search.md` — 1 operational standard(s) unticked</code></pre>
       </div>
-      <p>The one finding is intended: the example System page has an unticked standard, so you can see what lint says about one. Ten pages, all unverified: nothing is trusted until you say so.</p>
+      <p>The one finding is intended: the example System page has an unticked standard, so you can see what lint says about one. Eleven pages, all unverified: nothing is trusted until you say so.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -620,7 +620,7 @@ git: repository initialised and first commit made</code></pre>
       <h2>Open the data root as the vault</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">plugin: Dataview</span></p>
       <p>Obsidian → <em>Open folder as vault</em> → your data root. <code>echo "$TOS_DATA"</code> prints the path; ⌘⇧G in the file dialog takes a typed one. Not the engine: the vault is the data. The settings <code>/tos-init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
-      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Two of its eight queries have something to show on day one: <em>Unverified, newest first</em> lists nine pages — the tenth example is the weekly Review, which that query excludes — and <em>Open questions</em> lists the example Question. The other six are empty, and that is the right answer rather than a fault: <em>Systems due for review</em> looks fourteen days ahead and the example System does not expire for ninety, <em>RFCs stuck in draft</em> wants a draft a fortnight old, and nothing has yet expired, been verified, or passed a checkpoint. Home.md is an alarm panel; on a fresh vault almost all of it is quiet. If <em>every</em> table is empty, the first one included, Dataview is not enabled; if they show errors, see §10.</p>
+      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Three of its nine queries have something to show on day one: <em>Portfolio</em> lists the example project, <em>Unverified, newest first</em> lists nine pages — it leaves out the weekly Review and the active project, which answers for its own trust in the portfolio — and <em>Open questions</em> lists the example Question. The other six are empty, and that is the right answer rather than a fault: <em>Systems due for review</em> looks fourteen days ahead and the example System does not expire for ninety, <em>RFCs stuck in draft</em> wants a draft a fortnight old, and nothing has yet expired, been verified, or passed a checkpoint. Home.md is an alarm panel; on a fresh vault almost all of it is quiet. If <em>every</em> table is empty, the first one included, Dataview is not enabled; if they show errors, see §10.</p>
       <p>Open <code>wiki/index.md</code> and follow a link or two. That top-down path, root index → directory index → page, is the one the agent takes for every query.</p>
     </section>
 
@@ -780,7 +780,7 @@ EOF</code></pre>
         <li>Monday: <code>/tos-weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.6.0) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.7.0) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
     </section>
   </main>
 </div>

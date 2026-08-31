@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.6.0** (see `CHANGELOG.md`).
+Engine version **0.7.0** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
@@ -18,7 +18,7 @@ engine/                      this repo
 ├── schema/types.md          the type registry: directory, horizon, gate, headings, phase
 ├── schema/templates/        one template per type, plus the pinned-copy header
 ├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /tos-init
-├── schema/examples/         ten worked example pages and one raw note, installed with /tos-init --with-examples
+├── schema/examples/         eleven worked example pages and one raw note, installed with /tos-init --with-examples
 ├── pyproject.toml           the package: dependencies and the tos-* entry points
 ├── src/tos/common.py        config + frontmatter helpers (YAML is parsed strictly)
 ├── src/tos/init.py          creates the data root            → tos-init
@@ -74,7 +74,7 @@ other commands loaded. The full procedure for each is in
 | `/tos-query <question>` | answer from the wiki, citing each page with its trust tier and age | 1 |
 | `/tos-lint [--fix]` | health-check the bundle: the `tos-lint` script, then the agent pass | 1 |
 | `/tos-verify <page> \| --queue` | promote a page you have read — the only way a `human:*` verification is ever written | 1 |
-| `/tos-weekly [--apply]` | the Monday tick: lint, queues, expiries, RFCs, systems, questions; `--apply` executes your inline answers | 1 |
+| `/tos-weekly [--apply]` | the Monday tick: the ranked project portfolio, then lint, queues, expiries, RFCs, systems, questions; `--apply` writes each project's weekly entry and executes your inline answers | 1 |
 | `/tos-sprint` | sprint-boundary review with attested metrics | 2 |
 | `/tos-measure` | run an Attested Computation over a metric snapshot | 2 |
 | `/tos-brief` | outbound update for an audience, from human-reviewed pages only | 3 |
@@ -89,7 +89,7 @@ config reaches their phase.
 2. **Data root.** `uv run --directory <this repo> tos-init --with-examples` (or `/tos-init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
 3. **Claude Code.** Start it in this directory so `CLAUDE.md` loads, and grant it the data root: `claude --add-dir <data.root>`. To stop repeating the flag, put the absolute path in `permissions.additionalDirectories` in `.claude/settings.local.json` — untracked and per-machine, so it does not exist until you write it. Connectors are MCP servers configured in Claude Code; the config's `connectors.<name>.provider` must match their names.
 4. **First loop.** Drop a note into `raw/inbox/`, run `/tos-ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/tos-pull`; ask `/tos-query <question>`; run `/tos-lint`; on Monday, `/tos-weekly`, answer inline, `/tos-weekly --apply`.
-5. **Examples.** The ten pages tagged `example` are there so the first `/tos-query` has something to find. Remove them with `uv run tos-init --remove-examples`.
+5. **Examples.** The eleven pages tagged `example` are there so the first `/tos-query` has something to find. Remove them with `uv run tos-init --remove-examples`.
 
 ## Development Phases
 

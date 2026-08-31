@@ -1,6 +1,6 @@
 # Roadmap — tos-engine
 
-Engine work only; data changes never appear here. The planned sections below are ordered, not numbered: 0.6.0 went on a command rename nobody had planned, and a numbered plan that reshuffles every time that happens tells the reader less than the order does. Each phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29; the engine is at 0.6.0 (0.5.1 was the rename to TechLead OS; 0.5.2 packaged it and made malformed YAML a conformance error; 0.5.3 fixed the Home.md dashboard and the setup docs; 0.5.4 made the setup paths portable; 0.6.0 prefixed the commands with `tos-`).
+Engine work only; data changes never appear here. The planned sections below are ordered, not numbered: 0.6.0 went on a command rename nobody had planned, and a numbered plan that reshuffles every time that happens tells the reader less than the order does. Each phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29; the engine is at 0.7.0 (0.5.1 was the rename to TechLead OS; 0.5.2 packaged it and made malformed YAML a conformance error; 0.5.3 fixed the Home.md dashboard and the setup docs; 0.5.4 made the setup paths portable; 0.6.0 prefixed the commands with `tos-`; 0.7.0 made Project the first-class entity and moved Objective to phase 1).
 
 ## Next — what the fortnight teaches
 
@@ -15,6 +15,7 @@ The agent currently edits `log.md` (newest-first date groups), `index.md` entrie
 - `src/tos/index_add.py` — adds or refreshes a page's entry in its directory index.
 - `src/tos/verify_mark.py` — appends a `verified` entry; invoked only by `/tos-verify`.
 - `tos-lint --fix` — mechanical repairs: index entries, log bullets, obviously moved links.
+- Generalise a required-headings lint check across the registry types: today only Project's *Weekly log* is checked for shape.
 - `src/tos/doctor.py` — runs the onboarding checklist: config, data root, engine/config version, connector names against `claude mcp list`, Obsidian files present.
 - `/tos-crosscheck` — the pass that produces machine-confirmed: re-fetch each Source page's pointer through its connector, judge faithfulness, write `verified: { by: process:cross-check }` or report drift. Agent-driven.
 
@@ -25,7 +26,7 @@ Shrinks `CLAUDE.md` accordingly. Does not depend on the fortnight; could start a
 - First task: capture one real query result through the Atlassian connector; the snapshot schema and the attester cannot be designed before that.
 - `src/tos/metrics/run.py` (executor), `attest.py` (attester), `sprint_completion.py`, `cycle_time.py`, `throughput.py`.
 - The sprint-report feed: writes JSON snapshots to `raw/metrics/jira/`, actor `process:pull-sprint-report`.
-- `/tos-measure` and `/tos-sprint` procedures; Objective pages in the weekly; `Home.md` additions.
+- `/tos-measure` and `/tos-sprint` procedures; sprint goals drafted against the (now phase-1) Objective pages; `Home.md` additions.
 - Then, in the config: Jira scope, the feed uncommented, `rollout.phase: 2`.
 
 ## Phase 3 — team and Slack
