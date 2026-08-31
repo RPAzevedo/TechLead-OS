@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.7.0** (see `CHANGELOG.md`).
+Engine version **0.7.1** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
@@ -14,7 +14,7 @@ engine/                      this repo
 ├── CHANGELOG.md             engine changes only (data changes go to <data.root>/wiki/log.md)
 ├── config.example.yaml      copy to ~/.config/tos/config.yaml
 ├── .claude/commands/        one file per operation, all named tos-* — see Commands below
-├── .claude/settings.json    permissions the commands need; settings.local.json (untracked, you create it) grants the data root
+├── .claude/settings.json    permissions the commands need, and the connector write-tool denies; settings.local.json (untracked, you create it) grants the data root
 ├── schema/types.md          the type registry: directory, horizon, gate, headings, phase
 ├── schema/templates/        one template per type, plus the pinned-copy header
 ├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /tos-init
@@ -82,6 +82,19 @@ other commands loaded. The full procedure for each is in
 
 The commands above phase 1 exist but refuse to run until `rollout.phase` in the
 config reaches their phase.
+
+## Connector safety
+
+Guardrail 11 says connectors are read-only. `.claude/settings.json` enforces it: `permissions.deny` lists the
+write-capable tools of the Google Drive, Slack and Atlassian servers — creating, updating, sharing, trashing,
+posting, commenting, transitioning — so the harness refuses the call rather than trusting the agent to decline.
+Reads are untouched, so `/tos-pull` works as before.
+
+Permission rules match a tool by its exact name, and MCP tool names are `mcp__<server>__<tool>`, where `<server>`
+is whatever you called the server in Claude Code. **A name that matches nothing is silently ignored**, so after
+wiring a connector, check the names it actually exposes and add any this list misses. The Google Drive entries
+were verified against a live server; the Slack and Atlassian entries cover the common tool names for those
+servers and should be confirmed against yours.
 
 ## Quickstart
 

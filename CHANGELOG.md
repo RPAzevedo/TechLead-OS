@@ -2,6 +2,18 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.7.1 — 2026-08-31
+
+**Connectors being read-only stops being a promise the agent keeps and becomes a rule the harness enforces.**
+
+- `.claude/settings.json` gains `permissions.deny` over the write-capable tools of the Google Drive, Slack and
+  Atlassian connectors: create, update, copy, share, trash, post, comment, react, transition, delete. Claude Code
+  refuses those calls outright, so guardrail 11 no longer rests on the agent declining a source that asks for a
+  write. Read tools are untouched and `/tos-pull` is unaffected.
+- Permission rules match exact tool names and MCP names embed the server name you chose, so an entry that matches
+  nothing does nothing. `README.md` says so, and says which entries were verified against a live server and which
+  need confirming when you wire that connector up.
+
 ## 0.7.0 — 2026-08-30
 
 **Projects become the first-class entity: each carries the problem it solves, your role, a weekly-ranked priority and a weekly log — and Objectives move to phase 1 to hold the quarter's company and team OKRs.**
