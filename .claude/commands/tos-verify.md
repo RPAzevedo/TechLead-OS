@@ -4,7 +4,7 @@ argument-hint: <page path> | --queue
 ---
 Follow CLAUDE.md §0, then §4.6. Target: $ARGUMENTS
 
-If `--queue`: list the top `review.verify_queue` unverified or changed-since-verified pages, ranked by inbound links, recency and domain weight (team > design > systems > delivery > learning), and take them one at a time.
+If `--queue`: list the top `review.verify_queue` unverified or changed-since-verified pages, ranked by inbound links, recency and domain weight (team > design > systems > delivery > learning), and take them one at a time. Leave out active Projects (`status` not `deprecated`, `stage` not `paused` or `done`) — they are verified from their rows in the weekly portfolio, where the week's entry is shown with them.
 
 For each page:
 1. Show the page's title, type, tier, and the diff since its newest `verified[].at` (or the whole page if never verified): `git -C <data.root> log -p -- <path>` narrowed to that window.

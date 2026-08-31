@@ -11,4 +11,4 @@ and show its output verbatim. If it reports that the config is missing or has no
 After a first successful run, tell the human:
 1. to open `data.root` in Obsidian as a vault and install the Dataview community plugin;
 2. that `raw/inbox/pull.md` is where pointers go and `raw/inbox/` is where notes go;
-3. that `--with-examples` installed ten example pages tagged `example` (if it did), removable with `--remove-examples`.
+3. that `--with-examples` installed eleven example pages tagged `example` (if it did), removable with `--remove-examples`.

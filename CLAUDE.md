@@ -4,7 +4,7 @@ You are the maintenance agent for a personal knowledge OS. This repository is th
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
 
-Engine version: **0.6.0** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
+Engine version: **0.7.0** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
 
 ## 0. First, read the config
 
@@ -70,14 +70,14 @@ Conventions:
 - **Trust tiers** (OKF): no `verified` → unverified; `verified` by `process:*` only → machine-confirmed; any `human:*` entry → human-reviewed. If `generated.at` is later than the newest `verified[].at`, treat the page as unverified again ("changed since verification").
 - **Links**: relative markdown links (`../concepts/foo.md`), never wikilinks, never leading-slash paths. Links are untyped; the sentence says what kind of link it is. A broken link is reported by lint, not fatal.
 - **Footnotes**: `Claim.[^source-id]` with `[^source-id]: Title` at the end of the body, keyed to `sources[].id`.
-- **Slugs**: lowercase, hyphenated, ASCII; Source pages and reviews are date-prefixed (`2026-08-28-…`, `2026-W36.md`, `sprint-2026-18.md`).
+- **Slugs**: lowercase, hyphenated, ASCII; Source pages and reviews are date-prefixed (`2026-08-28-…`, `2026-W36.md`, `sprint-2026-18.md`); Objectives are quarter-prefixed (`2026-q3-…`).
 - **index.md** (every directory under `wiki/`): no frontmatter except `okf_version: "0.2"` in the bundle root; body is `# Heading` sections of `* [Title](relative-path) - one-line description`. A page that is not indexed does not exist.
 - **log.md** (bundle root only): `# Data update log`, then `## YYYY-MM-DD` headings newest first, bullets `* **Label**: text with [links](path).` Labels: Creation, Pull, Ingest, Query, Brief, Measure, Lint, Verify, Review, Deprecate, Migration. Never edit old entries.
-- **Extension fields** used by this engine (OKF tolerates unknown keys): `owner`, `stage`, `next_checkpoint`, `superseded_by`, `audience`, `review_due`, `pinned`.
+- **Extension fields** used by this engine (OKF tolerates unknown keys): `owner`, `role`, `stage`, `priority`, `level`, `quarter`, `next_checkpoint`, `superseded_by`, `audience`, `review_due`, `pinned`.
 
 ## 3. Page types
 
-`schema/types.md` is the registry: for each type, its directory, horizon, the gate before `status: stable`, the body headings, and the rollout phase. **Phase 1 uses only the ten P1 types**: Source, Concept, Decision, RFC, Project, Initiative, System, Question, Synthesis, Review. Do not create pages of a later-phase type until the human enables the phase in the config (`rollout.phase`). Templates are in `schema/templates/<type>.md`; copy one, fill it, never re-derive the frontmatter from memory.
+`schema/types.md` is the registry: for each type, its directory, horizon, the gate before `status: stable`, the body headings, and the rollout phase. **Phase 1 uses only the eleven P1 types**: Source, Concept, Decision, RFC, Project, Initiative, Objective, System, Question, Synthesis, Review. Do not create pages of a later-phase type until the human enables the phase in the config (`rollout.phase`). Templates are in `schema/templates/<type>.md`; copy one, fill it, never re-derive the frontmatter from memory.
 
 ## 4. Operations
 
@@ -97,7 +97,7 @@ In Phase 1 only `confluence`, `gdocs`, `web` and `md` are enabled; the command r
 ### 4.3 `/tos-ingest [path]` — turn a source into pages
 For what `/tos-pull` just read, or every file in `raw/inbox/` (not `pull.md`), or one named file:
 1. Write or update `wiki/sources/<date>-<slug>.md` (type Source): a summary, the load-bearing lines quoted as short excerpts, and a `sources` entry with the pointer as `resource`, `title`, `author`, and the source's own `last_modified` or version. For a note from the inbox, `resource` is its path under `raw/notes/` after the move.
-2. Extract what the registry recognises — concepts, project and initiative updates, RFCs and decisions, system facts, questions — and create or update those pages from their templates (typically 5–15 touches). Internal updates go into an existing page's timeline, not new pages.
+2. Extract what the registry recognises — concepts, project and initiative updates, objectives from an OKR document, RFCs and decisions, system facts, questions — and create or update those pages from their templates (typically 5–15 touches). Internal updates go into an existing page's timeline, not new pages; on a Project that means *Status*, *Next*, *Risks* or *Decisions*, never its *Weekly log*, which only `/tos-weekly --apply` writes.
 3. Footnote every new claim to a `sources[].id`. On contradiction with an existing page, add to that page's *Open questions* instead of overwriting.
 4. Set `generated`, `status: draft`, `stale_after` (horizon from `schema/types.md`). Never write `verified`.
 5. Update every affected `index.md`; append to `log.md` under today's date; move an inbox note to `raw/notes/`; commit `DATA` with the log line as the message.
@@ -106,13 +106,13 @@ For what `/tos-pull` just read, or every file in `raw/inbox/` (not `pull.md`), o
 Read `wiki/index.md` → the relevant directory indexes → candidate frontmatter → bodies. Never walk the whole bundle. Answer with links to the pages used and, per page, its tier and date ("human-reviewed 2026-08-26", "unverified, written by the agent 2026-08-25", "stale since 2026-08-01"). Exclude `deprecated` pages unless asked. If the answer is reusable, file it as a `Synthesis` (draft) and log `* **Query**: "…" → [Synthesis](syntheses/….md)`.
 
 ### 4.5 `/tos-lint` — health check
-Run `uv run tos-lint` (deterministic: conformance, trust fields, stale and expiring, changed-since-verified, old drafts, RFCs stuck in draft, unticked System standards, broken links, orphans, index coverage, log format). Then the agent pass: contradictions, claims without a source, missing cross-references, gaps worth a `Question`, the people/stakeholder content policy (§5), and **source drift** — for each Source page whose `sources[].resource` is a connector URL in scope, compare the recorded `last_modified` with the live one and list "changed since read". Output goes into the next Review page; fix only mechanical things (index entries, link repairs) and log `* **Lint**: …`. Lint adds no `verified` entries.
+Run `uv run tos-lint` (deterministic: conformance, trust fields, stale and expiring, changed-since-verified, old drafts, RFCs stuck in draft, unticked System standards, project fields and priorities, weekly-log format and currency, objective fields and linkage, broken links, orphans, index coverage, log format). Then the agent pass: contradictions, claims without a source, missing cross-references, gaps worth a `Question`, the people/stakeholder content policy (§5) including a Weekly log's *Notes*, contradictions between a weekly entry and the page's live sections, and **source drift** — for each Source page whose `sources[].resource` is a connector URL in scope, compare the recorded `last_modified` with the live one and list "changed since read". Output goes into the next Review page; fix only mechanical things (index entries, link repairs) and log `* **Lint**: …`. Lint adds no `verified` entries.
 
 ### 4.6 `/tos-verify <page> | --queue` — the human promotes a page
 Show the diff since the last verification (git). On the human's explicit "yes": append `{ by: <ACTOR>, at: now }` to `verified`, flip `draft → stable` if the type's gate allows, log `* **Verify**: …`, commit. On "no": fix what they say is wrong; the page stays draft. **Never run this on your own initiative, and never write a `human:` verification any other way.**
 
 ### 4.7 `/tos-weekly [--apply]` — the Monday tick
-Run lint, then write `wiki/reviews/<ISO-week>.md` (type Review) with: ingested this week; verify queue (top `review.verify_queue` unverified pages by inbound links, recency, domain weight team > design > systems > delivery > learning); re-pull queue from source drift; expiring pages (refresh / extend / deprecate); checkpoints passed; RFCs awaiting a decision; systems due for review; questions; lint findings; engine proposals. The human answers inline; `--apply` executes the answers and logs each as its own label. Engine proposals the human accepts are applied in this repository and recorded in `CHANGELOG.md` — never in the data log.
+Run lint, then write `wiki/reviews/<ISO-week>.md` (type Review) opening with **Projects — ranked portfolio**: every active project in `priority` order, with its role, stage, trust tier, rank movement since last week, and the week's entry drafted from the log, the week's sources and git — then ingested this week; verify queue (top `review.verify_queue` unverified pages by inbound links, recency, domain weight team > design > systems > delivery > learning); re-pull queue from source drift; expiring pages (refresh / extend / deprecate); checkpoints passed; RFCs awaiting a decision; systems due for review; questions; lint findings; engine proposals. Active Projects are left out of the verify, expiry and checkpoint queues — they surface in their portfolio rows instead. The human answers inline (an unanswered row means: entry accepted, rank kept, no verify); `--apply` appends each accepted entry to its project's *Weekly log* and carries it into the live sections — adding what it reports, striking only what it resolves, never dropping a live item the entry was silent about — writing nothing at all for a week with no movement — the control answers like `rank` and `verify` are not movement — so a quiet project keeps its verification, and is safe to re-run after a partial failure, renumbers `priority`, reorders the projects index, and executes the other answers, logging each as its own label. Engine proposals the human accepts are applied in this repository and recorded in `CHANGELOG.md` — never in the data log.
 
 ### 4.8 Later phases
 `/tos-sprint`, `/tos-brief`, `/tos-measure`, `/tos-retro` exist as command files but refuse to run until `rollout.phase` in the config reaches 2 (sprint, measure), 3 (brief) or 4 (retro). Do not improvise them.
@@ -123,7 +123,7 @@ Run lint, then write `wiki/reviews/<ISO-week>.md` (type Review) with: ingested t
 2. Never write a `verified` entry with a `human:` actor except inside `/tos-verify` on the human's explicit instruction; never any `verified` entry during `/tos-ingest`.
 3. Always write `status` explicitly; new pages are `draft`; `stable` only when the type's gate is met.
 4. Never delete a page: `status: deprecated`, say what superseded it, keep it indexed under a *Deprecated* heading.
-5. Every factual claim on a Concept, Synthesis, Decision, RFC, Initiative or System page carries a footnote to a `sources[].id`; a claim without one is an *Open question*.
+5. Every factual claim on a Concept, Synthesis, Decision, RFC, Initiative, Objective or System page carries a footnote to a `sources[].id`; a claim without one is an *Open question*.
 6. Every answer names its pages with tier and date; stale pages are called out; nothing from deprecated pages unless asked.
 7. A brief (Phase 3) draws only on human-reviewed, fresh pages. A number (Phase 2) comes from an attested computation's receipt or it is not a number.
 8. Update `generated` on every meaningful change, and the directory's `index.md` and root `log.md` in the same operation.

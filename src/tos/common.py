@@ -22,7 +22,7 @@ import yaml
 try:
     ENGINE_VERSION = version("techlead-os")
 except PackageNotFoundError:  # running from a checkout with no install
-    ENGINE_VERSION = "0.6.0"
+    ENGINE_VERSION = "0.7.0"
 
 
 def _find_engine_root() -> Path:

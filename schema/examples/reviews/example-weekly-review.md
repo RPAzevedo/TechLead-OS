@@ -8,15 +8,24 @@ status: draft
 stale_after: ~
 ---
 
-# Ingested this week
-1 note · 1 pull · 9 pages touched · 9 new (all examples)
+# Projects — ranked portfolio
+An unanswered row = entry accepted, rank kept, no verify. The applied portfolio is the summary for your manager, the Product Trio and other tech leads.
 
-# Verify queue (5 unverified, ranked by inbound links and domain)
+## 1. [Review-bot pilot](../delivery/projects/example-review-bot-pilot.md) — lead · pilot · unverified (new)
+- **Progress**: pilot running in one team; vendor evaluation started.
+- **Challenges & risks**: a vendor product could make the in-house bot redundant.
+- **Blockers & support needed**: none this week.
+→
+
+# Ingested this week
+1 note · 1 pull · 10 pages touched · 10 new (all examples)
+
+# Verify queue (5 unverified, ranked by inbound links and domain — active projects verify from their portfolio rows)
 - [ ] [systems/example-asset-search.md](../systems/example-asset-search.md)
 - [ ] [design/rfcs/example-media-pipeline-v2.md](../design/rfcs/example-media-pipeline-v2.md)
 - [ ] [design/decisions/example-evaluate-vendor-before-extending-pilot.md](../design/decisions/example-evaluate-vendor-before-extending-pilot.md)
-- [ ] [delivery/projects/example-review-bot-pilot.md](../delivery/projects/example-review-bot-pilot.md)
 - [ ] [delivery/initiatives/example-ai-assisted-code-review-rollout.md](../delivery/initiatives/example-ai-assisted-code-review-rollout.md)
+- [ ] [delivery/objectives/example-review-turnaround-okr.md](../delivery/objectives/example-review-turnaround-okr.md)
 
 # Re-pull queue (source drift)
 - none yet — the drift check runs once the connectors are wired
@@ -24,7 +33,7 @@ stale_after: ~
 # Expiring (refresh / extend / deprecate)
 - none
 
-# Checkpoints passed
+# Checkpoints passed (initiatives)
 - none
 
 # Design — awaiting your decision

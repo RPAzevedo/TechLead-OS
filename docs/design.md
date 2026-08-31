@@ -3,7 +3,7 @@
 
 Design proposal · v0.5 (draft — awaiting human:rafael)
 
-> **Command names on this page are the pre-0.6.0 ones.** Engine 0.6.0 renamed every command to `/tos-<verb>`: `/init` → `/tos-init`, `/pull` → `/tos-pull`, `/ingest` → `/tos-ingest`, and so on for `query`, `lint`, `verify`, `weekly`, `sprint`, `measure`, `brief` and `retro`. The procedures are unchanged. `README.md` has the current list.
+> **Command names on this page are the pre-0.6.0 ones.** Engine 0.6.0 renamed every command to `/tos-<verb>`: `/init` → `/tos-init`, `/pull` → `/tos-pull`, `/ingest` → `/tos-ingest`, and so on for `query`, `lint`, `verify`, `weekly`, `sprint`, `measure`, `brief` and `retro`. The procedures are unchanged. `README.md` has the current list. Engine 0.7.0 then promoted Objective to phase 1 — the quarter's company and team OKRs — and made Project the first-class entity: `role`, a weekly-ranked `priority`, *Problem* and *Expected impact* in place of *Goal*, and a per-project *Weekly log* written by the Monday tick, which now opens with the ranked portfolio. `schema/types.md` and `CLAUDE.md` are the current record.
 
 # TechLead OS
 

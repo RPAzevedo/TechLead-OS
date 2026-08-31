@@ -25,7 +25,7 @@ WIKI_DIRS = {
     "delivery": ("Delivery", "initiatives, projects, objectives, delivery metrics"),
     "delivery/initiatives": ("Initiatives", "cross-functional efforts and company moving parts"),
     "delivery/projects": ("Projects", "what the team delivers"),
-    "delivery/objectives": ("Objectives", "the quarter's OKRs (phase 2)"),
+    "delivery/objectives": ("Objectives", "the quarter's OKRs — company and team"),
     "delivery/metrics": ("Delivery metrics", "attested computations over Jira snapshots (phase 2)"),
     "team": ("Team", "the team, its people, stakeholders and playbooks (phase 3)"),
     "team/people": ("People", "reports — human-reviewed before any use (phase 3)"),
@@ -107,6 +107,8 @@ def fill_placeholders(text: str, now: dt.datetime) -> str:
         "{{DATE+7}}": (now.date() + dt.timedelta(days=7)).isoformat(),
         "{{DATE+14}}": (now.date() + dt.timedelta(days=14)).isoformat(),
         "{{STALE_30}}": stale(30), "{{STALE_60}}": stale(60), "{{STALE_90}}": stale(90), "{{STALE_365}}": stale(365),
+        "{{QUARTER}}": f"{now.year}-Q{(now.month - 1) // 3 + 1}",
+        "{{ISO_WEEK}}": now.strftime("%G-W%V"),
     }
     for k, v in repl.items():
         text = text.replace(k, v)
