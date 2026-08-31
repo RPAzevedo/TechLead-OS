@@ -123,7 +123,6 @@ def main(argv):
             yaml_errors[rel(p, wiki)] = err
 
     inbound = defaultdict(set)
-    outbound = defaultdict(set)
     counts = defaultdict(int)
     priority_paths = defaultdict(list)  # priority -> active project paths carrying it
     lead_projects = []  # active lead projects past the grace window; checked against objectives post-loop
@@ -308,7 +307,6 @@ def main(argv):
                 rep.add("links", f"`{path}` → `{target}` is broken")
             elif trel and trel in pages:
                 inbound[trel].add(path)
-                outbound[path].add(trel)
 
     # ---- portfolio: duplicate priorities, objective linkage
     for prio, paths in sorted(priority_paths.items()):
