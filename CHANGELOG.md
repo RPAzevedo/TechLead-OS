@@ -2,6 +2,20 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.7.3 — 2026-08-31
+
+**The Atlassian half of the 0.7.1 deny list was guarding servers nobody has.**
+
+- A permission rule matches a tool by its exact name, and an entry naming a server that is not installed is
+  ignored without an error. 0.7.1 guarded `atlassian` and `claude_ai_Atlassian`; the first real install turned
+  out to expose `claude_ai_Jira` and `plugin_atlassian_atlassian`, so every one of its sixteen Atlassian rules
+  was inert and guardrail 11 rested on the agent declining after all. The list now covers those two servers and
+  `claude_ai_Confluence`, and keeps the old names, which cost nothing if absent.
+- `tests/test_settings.py` checks that every deny entry is a well-formed `mcp__<server>__<tool>`, that none
+  repeats, and that every server the list guards is one the README's *Connector safety* section names. No test
+  can reach a live MCP server, so the README now says plainly which names were seen on an install and which are
+  inferred from the server's vocabulary — the same assumption that made 0.7.1's entries inert.
+
 ## 0.7.2 — 2026-08-31
 
 **The first two defects phase 2 would have hit, fixed before the phase is built.**

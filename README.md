@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.7.2** (see `CHANGELOG.md`).
+Engine version **0.7.3** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
@@ -91,10 +91,21 @@ posting, commenting, transitioning — so the harness refuses the call rather th
 Reads are untouched, so `/tos-pull` works as before.
 
 Permission rules match a tool by its exact name, and MCP tool names are `mcp__<server>__<tool>`, where `<server>`
-is whatever you called the server in Claude Code. **A name that matches nothing is silently ignored**, so after
-wiring a connector, check the names it actually exposes and add any this list misses. The Google Drive entries
-were verified against a live server; the Slack and Atlassian entries cover the common tool names for those
-servers and should be confirmed against yours.
+is whatever you called the server in Claude Code. **A name that matches nothing is silently ignored** — it raises no
+error and appears to work. That is not hypothetical: the Atlassian entries added in 0.7.1 guarded `atlassian` and
+`claude_ai_Atlassian`, and the servers on the first real install turned out to be `claude_ai_Jira` and
+`plugin_atlassian_atlassian`, so not one of them was ever in force.
+
+The list therefore covers nine server names across the three connectors: `claude_ai_Google_Drive` and `gdrive`;
+`slack` and `claude_ai_Slack`; `atlassian`, `claude_ai_Atlassian`, `claude_ai_Jira`, `claude_ai_Confluence` and
+`plugin_atlassian_atlassian`. An entry naming a server you do not have costs nothing, so breadth is cheap and a gap
+is not.
+
+**Confirm it against your own install rather than trusting this list.** The Google Drive entries were verified
+against a live server, and the two Atlassian servers above were observed on one — but only their *read* tools were
+seen directly. Every write-tool name here is inferred from the server's own vocabulary, which is the same kind of
+assumption that made the 0.7.1 entries inert. After wiring a connector, ask Claude Code which tools that server
+exposes, and add any this list misses.
 
 ## Quickstart
 
