@@ -4,6 +4,7 @@ title: <Title>
 description: <One sentence.>
 tags: []
 level: <company|team>
+team: <slug>            # the team whose objective this is; omit at level: company
 quarter: <YYYY-Qn>
 sources:
   - id: <source-id>
@@ -18,7 +19,8 @@ stale_after: <generated.at + 90 d, as YYYY-MM-DD>
 ---
 
 <!-- Objective · lives in delivery/objectives/ · phase 1. A quarterly OKR, company or team; slug
-     quarter-prefixed, YYYY-qN-<slug>. A team objective links the company objective it advances from
+     quarter-prefixed, YYYY-qN-<slug>. A team objective names the team it belongs to, so several teams'
+     objectives can sit side by side. A team objective links the company objective it advances from
      *Objective*; Projects link here from *Expected impact*. -->
 
 # Objective

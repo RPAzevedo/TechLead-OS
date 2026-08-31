@@ -36,6 +36,7 @@ Ordinary frontmatter keys; OKF consumers must not reject unknown keys.
 | `stage` | Project, Initiative | Project: one of discovery, build, pilot, rollout, paused, done — paused and done end its active life. Initiative: free text |
 | `priority` | Project | positive integer, 1 = highest, unique and contiguous across active projects; written only by `/tos-weekly --apply`, absent before a project's first Monday and after it leaves active |
 | `level` | Objective | company or team |
+| `team` | Objective | the team whose objective it is, as a slug; required at `level: team`, absent at `level: company` |
 | `quarter` | Objective | `YYYY-Qn`, e.g. 2026-Q3 |
 | `next_checkpoint` | Project, Initiative | `YYYY-MM-DD`; the weekly review flags it once passed |
 | `superseded_by` | Decision, RFC | relative link to the page that replaced it |
@@ -45,7 +46,7 @@ Ordinary frontmatter keys; OKF consumers must not reject unknown keys.
 
 ## Projects and objectives
 
-A Project is **active** when `status` is not `deprecated` and `stage` is not `paused` or `done`. Active projects are ranked by `priority` and carry a weekly record; they surface in the weekly review's portfolio section rather than in the verify and expiry queues. The *Weekly log* is written only by `/tos-weekly --apply`: one `## YYYY-Www` entry per week with movement, newest first, bold-label bullets from **Progress**, **Challenges & risks**, **Blockers & support needed**, **Open questions & decisions**, **Notes**; a silent week writes no entry. A Project links the objective(s) it advances from *Expected impact*; a team Objective links its company objective from *Objective* — ordinary body links, no frontmatter field. Objective slugs are quarter-prefixed (`2026-q3-<slug>`).
+A Project is **active** when `status` is not `deprecated` and `stage` is not `paused` or `done`. Active projects are ranked by `priority` and carry a weekly record; they surface in the weekly review's portfolio section rather than in the verify and expiry queues. The *Weekly log* is written only by `/tos-weekly --apply`: one `## YYYY-Www` entry per week with movement, newest first, bold-label bullets from **Progress**, **Challenges & risks**, **Blockers & support needed**, **Open questions & decisions**, **Notes**; a silent week writes no entry. A Project links the objective(s) it advances from *Expected impact*; a team Objective names its `team` and links its company objective — of the same quarter — from *Objective*. The links are ordinary body links, no frontmatter field. Objective slugs are quarter-prefixed (`2026-q3-<slug>`).
 
 ## Status lifecycle
 
