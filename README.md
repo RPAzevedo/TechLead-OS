@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.7.1** (see `CHANGELOG.md`).
+Engine version **0.7.2** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 

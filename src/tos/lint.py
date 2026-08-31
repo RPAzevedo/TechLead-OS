@@ -50,7 +50,9 @@ def load_registry() -> dict:
         name, phase, lives, horizon, gate, _heads = cells[:6]
         if name in ("Field",) or not name:
             continue
-        reg[name] = {"phase": phase, "dir": lives.strip("`"), "horizon": horizon, "gate": gate}
+        # a type may name more than one directory (Attested Computation); each cell is backticked
+        dirs = [d.strip().strip("`").strip() for d in lives.split(",")]
+        reg[name] = {"phase": phase, "dir": [d for d in dirs if d], "horizon": horizon, "gate": gate}
     return reg
 
 
@@ -146,8 +148,9 @@ def main(argv):
             rep.add("registry", f"`{path}` has type `{t}` which is not in schema/types.md")
         else:
             want = registry[str(t)]["dir"]
-            if want and not any(path.startswith(w.strip()) for w in want.split(",")) and str(t) != "Team":
-                rep.add("registry", f"`{path}` is a `{t}` but lives outside `{want}`")
+            if want and not any(path.startswith(w) for w in want) and str(t) != "Team":
+                where = " or ".join(f"`{w}`" for w in want)
+                rep.add("registry", f"`{path}` is a `{t}` but lives outside {where}")
         gen = fm.get("generated") if isinstance(fm.get("generated"), dict) else None
         gen_at = pc.parse_datetime(gen.get("at")) if gen else None
         if not gen or not gen.get("by") or not gen_at:

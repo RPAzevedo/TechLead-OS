@@ -101,6 +101,55 @@ def test_registry_parses_every_type_and_no_extension_rows():
     assert "Project" in reg and "Objective" in reg
     assert reg["Objective"]["phase"] == "P1"
     assert not {"`owner`", "owner", "`role`", "role", "Field"} & set(reg)
+    assert reg["Concept"]["dir"] == ["concepts/"]
+    assert reg["Attested Computation"]["dir"] == ["delivery/metrics/", "systems/metrics/"]
+
+
+METRIC = """---
+type: Attested Computation
+title: {title}
+description: A computation.
+tags: []
+runtime: python
+parameters:
+  - {{ name: snapshot, type: path, required: true }}
+computation: ../../../src/tos/metrics/sprint_completion.py
+generated: {{ by: human:test, at: 2026-01-01T09:00:00+10:00 }}
+status: draft
+stale_after: 2099-01-01
+---
+
+# Computation
+
+Counts what completed.
+
+# Examples
+
+None yet.
+"""
+
+
+def metric(bare, subdir, name="sprint-completion"):
+    """Write an Attested Computation page into `subdir` and index it."""
+    p = bare / "wiki" / subdir / f"{name}.md"
+    p.write_text(METRIC.format(title=name), encoding="utf8")
+    idx = p.parent / "index.md"
+    idx.write_text(idx.read_text(encoding="utf8") + f"* [{name}]({name}.md) - a computation\n", encoding="utf8")
+    return p
+
+
+@pytest.mark.parametrize("subdir", ["delivery/metrics", "systems/metrics"])
+def test_a_type_naming_two_directories_is_at_home_in_either(bare, subdir, capsys):
+    """Attested Computation is the only row naming two directories, and both are legal."""
+    metric(bare, subdir)
+    tos_lint.main([])
+    assert findings(capsys, "registry") == []
+
+
+def test_a_type_naming_two_directories_is_still_flagged_outside_them(bare, capsys):
+    metric(bare, "concepts")
+    tos_lint.main([])
+    assert [f for f in findings(capsys, "registry") if "lives outside" in f]
 
 
 # --------------------------------------------------------------------- projects
