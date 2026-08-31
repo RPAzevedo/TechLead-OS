@@ -31,6 +31,7 @@ WEEKLY_LABELS = {"Progress", "Challenges & risks", "Blockers & support needed",
 LINK_RE = re.compile(r"(?<!!)\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:", re.M)
 QUARTER_RE = re.compile(r"^\d{4}-Q[1-4]$")
+TEAM_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 WEEK_RE = re.compile(r"^(\d{4})-W(\d{2})$")
 TOP_BULLET_RE = re.compile(r"^[-*] +(.*)$", re.M)          # nested bullets under a label are indented
 WEEKLY_LABEL_RE = re.compile(r"\*\*([^*]+)\*\*:[ \t]*\S")
@@ -278,6 +279,12 @@ def main(argv):
             quarter = fm.get("quarter")
             if quarter is None or not QUARTER_RE.match(str(quarter)):
                 rep.add("objectives", f"`{path}` has `quarter: {quarter!r}` — must be `YYYY-Qn`, e.g. 2026-Q3")
+            team = fm.get("team")
+            if str(level) == "team" and (team is None or not TEAM_RE.match(str(team))):
+                # several teams' objectives sit side by side, so each has to say whose it is
+                rep.add("objectives", f"`{path}` has `team: {team!r}` — a team Objective names its team as a slug")
+            elif str(level) == "company" and team is not None:
+                rep.add("objectives", f"`{path}` is `level: company` but carries `team: {team!r}`")
         # sources & footnotes
         srcs = fm.get("sources") or []
         ids = {str(s.get("id")) for s in srcs if isinstance(s, dict) and s.get("id")}

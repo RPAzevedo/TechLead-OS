@@ -11,6 +11,15 @@ WHERE type = "Project" AND status != "deprecated" AND stage != "paused" AND stag
 SORT default(priority, 999) ASC, file.name ASC
 ```
 
+## OKRs this quarter
+
+```dataview
+TABLE level, team, quarter, status
+FROM "wiki/delivery/objectives"
+WHERE type = "Objective" AND status != "deprecated"
+SORT level ASC, team ASC
+```
+
 ## Unverified, newest first
 
 ```dataview

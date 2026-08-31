@@ -73,7 +73,7 @@ Conventions:
 - **Slugs**: lowercase, hyphenated, ASCII; Source pages and reviews are date-prefixed (`2026-08-28-…`, `2026-W36.md`, `sprint-2026-18.md`); Objectives are quarter-prefixed (`2026-q3-…`).
 - **index.md** (every directory under `wiki/`): no frontmatter except `okf_version: "0.2"` in the bundle root; body is `# Heading` sections of `* [Title](relative-path) - one-line description`. A page that is not indexed does not exist.
 - **log.md** (bundle root only): `# Data update log`, then `## YYYY-MM-DD` headings newest first, bullets `* **Label**: text with [links](path).` Labels: Creation, Pull, Ingest, Query, Brief, Measure, Lint, Verify, Review, Deprecate, Migration. Never edit old entries.
-- **Extension fields** used by this engine (OKF tolerates unknown keys): `owner`, `role`, `stage`, `priority`, `level`, `quarter`, `next_checkpoint`, `superseded_by`, `audience`, `review_due`, `pinned`.
+- **Extension fields** used by this engine (OKF tolerates unknown keys): `owner`, `role`, `stage`, `priority`, `level`, `team`, `quarter`, `next_checkpoint`, `superseded_by`, `audience`, `review_due`, `pinned`.
 
 ## 3. Page types
 
