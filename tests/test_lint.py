@@ -282,7 +282,7 @@ title: {title}
 description: An objective.
 tags: []
 level: {level}
-quarter: {quarter}
+{team}quarter: {quarter}
 sources:
   - id: n
     resource: ../../../raw/notes/n.md
@@ -314,10 +314,12 @@ Go faster.[^n] {advances}
 """
 
 
-def objective(bare, name, *, level="team", quarter="2026-Q1", status="Running.", advances=""):
+def objective(bare, name, *, level="team", quarter="2026-Q1", status="Running.", advances="", team=None):
     p = bare / "wiki" / "delivery" / "objectives" / f"{name}.md"
-    p.write_text(OBJECTIVE.format(title=name, level=level, quarter=quarter, status=status,
-                                  advances=advances), encoding="utf8")
+    if team is None:
+        team = "a-team" if level == "team" else ""
+    p.write_text(OBJECTIVE.format(title=name, level=level, quarter=quarter, status=status, advances=advances,
+                                  team=f"team: {team}\n" if team else ""), encoding="utf8")
     idx = p.parent / "index.md"
     idx.write_text(idx.read_text(encoding="utf8") + f"* [{name}]({name}.md) - an objective\n", encoding="utf8")
     return p
@@ -521,3 +523,22 @@ def test_a_paused_project_is_not_asked_for_currency_or_role(bare, capsys):
     got = "\n".join(findings(capsys, "projects"))
     assert "no weekly entry since" not in got
     assert "no `role`" not in got
+
+def test_a_team_objective_must_name_its_team(bare, capsys):
+    objective(bare, "teamless", team="")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "a team Objective names its team as a slug" in "\n".join(findings(capsys, "objectives"))
+
+
+def test_a_company_objective_must_not_carry_a_team(bare, capsys):
+    objective(bare, "company-okr", level="company", team="search")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert "is `level: company` but carries `team:" in "\n".join(findings(capsys, "objectives"))
+
+
+def test_several_teams_objectives_coexist(bare, capsys):
+    objective(bare, "company-okr", level="company")
+    for slug in ("search-services", "media-pipeline", "identity"):
+        objective(bare, f"{slug}-okr", team=slug, advances="Rolls up to [the company objective](company-okr.md).")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "objectives") == []
