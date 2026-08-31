@@ -97,3 +97,8 @@ trello:
   - create_board
   - add_comment
   - move_card
+
+# Read-only by nature. Listed with an empty list on purpose: a kind that is simply
+# *absent* from this file is an error, so that a typo in `provider` cannot report
+# "0/0 denied" and exit 0 while nothing on that server is guarded.
+fetch: []

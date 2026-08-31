@@ -17,7 +17,9 @@ Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a dat
 - `schema/connector-writes.yaml` holds the write-tool names per connector kind, listing every naming convention
   its servers are known to use — Atlassian's own MCP says `createJiraIssue`, the community one says
   `jira_create_issue`, and a server gets both. Meeting a server that names a write tool something else is now an
-  edit to a data file rather than to Python.
+  edit to a data file rather than to Python. A kind missing from that file is an error, not an empty list: a typo
+  in `provider` fails closed rather than reporting the connector as fully covered. A kind with genuinely no write
+  tools, like `fetch`, says so with an empty list.
 - What this does **not** do, and the README says so: it proves the names in your config are covered, not that
   they are the names your servers use. That still needs confirming against the live server.
 

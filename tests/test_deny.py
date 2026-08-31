@@ -60,18 +60,48 @@ def test_a_connector_with_no_mcp_server_contributes_nothing(cfg):
     assert tos_deny.expected(c, VOCAB) == {}
 
 
-def test_an_unknown_kind_yields_no_entries_rather_than_crashing(cfg):
-    """A provider with no vocabulary is reported as 0/0, not an exception."""
-    c = cfg("  notion:\n    provider: mcp:notion\n")
-    assert tos_deny.expected(c, VOCAB) == {"notion": []}
+def test_an_unknown_kind_fails_closed_rather_than_reporting_nothing_to_do(cfg, monkeypatch, tmp_path, capsys):
+    """A typo in `provider` must not read as "this server has no write tools".
+
+    Reporting 0/0 and exiting 0 would be the same silent-pass that made 0.7.1's
+    entries inert, one level up.
+    """
+    c = cfg("  notion:\n    provider: mcp:notoin\n")
+    assert tos_deny.unknown_kinds(c, VOCAB) == {"notion": "notoin"}
+    assert "notion" not in tos_deny.expected(c, VOCAB)
+
+    monkeypatch.setattr(tos_deny.pc, "ENGINE_ROOT", tmp_path)
+    (tmp_path / ".claude").mkdir()
+    monkeypatch.setattr(tos_deny, "write_vocabulary", lambda: VOCAB)
+    assert tos_deny.main([]) == 1
+    assert "no write-tool vocabulary for" in capsys.readouterr().out
+
+
+def test_a_kind_with_no_write_tools_is_declared_not_omitted():
+    """`fetch` is read-only; it says so with an empty list rather than by absence."""
+    vocab = tos_deny.write_vocabulary()
+    assert vocab["fetch"] == []
+
+
+def test_writing_twice_is_a_no_op_rather_than_a_crash(cfg, tmp_path, monkeypatch, capsys):
+    """`--write` on an already-covered config used to raise UnboundLocalError."""
+    monkeypatch.setattr(tos_deny.pc, "ENGINE_ROOT", tmp_path)
+    (tmp_path / ".claude").mkdir()
+    monkeypatch.setattr(tos_deny, "write_vocabulary", lambda: VOCAB)
+    cfg("  slack:\n    provider: mcp:slack\n")
+
+    assert tos_deny.main(["--write"]) == 0
+    capsys.readouterr()
+    assert tos_deny.main(["--write"]) == 0
+    assert "every write tool the config implies is denied" in capsys.readouterr().out
 
 
 def test_the_shipped_vocabulary_covers_every_kind_the_example_config_names():
     vocab = tos_deny.write_vocabulary()
     example = pc.load_yaml(pc.engine_path("config.example.yaml").read_text(encoding="utf8"))
     kinds = {tos_deny.kind_of(s) for s in (example.get("connectors") or {}).values()}
-    # `fetch` is read-only by nature and filesystem exposes no server
-    missing = {k for k in kinds if k} - set(vocab) - {"fetch"}
+    # a kind with no write tools is declared with an empty list, never omitted
+    missing = {k for k in kinds if k} - set(vocab)
     assert not missing, f"connector kinds with no write vocabulary: {sorted(missing)}"
 
 

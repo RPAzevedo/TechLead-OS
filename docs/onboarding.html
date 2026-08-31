@@ -645,9 +645,9 @@ git: repository initialised and first commit made</code></pre>
         <p class="from">expected answer, in substance</p>
         <p>The data root is the path you set in <code>data.root</code> (read from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
       </div>
-      <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
+      <p>Second, the connectors. Each names two separate things: <code>provider: mcp:&lt;kind&gt;</code>, which selects the write-tool vocabulary in <code>schema/connector-writes.yaml</code>, and <code>mcp_server</code>, which must equal the server name as Claude Code lists it — one name or several, since Jira and Confluence are often different servers:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
-      <p>If your servers have different names, change the config's <code>provider</code> values to match rather than renaming the servers. Then confirm the scope check works by pointing at something outside it:</p>
+      <p>If your servers have different names, change the config's <code>mcp_server</code> values to match rather than renaming the servers, and leave <code>provider</code> alone. Then run <code>uv run tos-deny</code>, which reports which of those servers' write tools are not yet denied and adds them with <code>--write</code>. Then confirm the scope check works by pointing at something outside it:</p>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; /tos-pull https://example.atlassian.net/wiki/spaces/NOTINSCOPE/pages/1/Test</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
@@ -753,7 +753,7 @@ EOF</code></pre>
             <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
             <tr><td>"<code>/tos-pull</code> refused: … not in scope"</td><td>Working as designed: the pointer is outside <code>connectors.&lt;name&gt;.scope</code>.</td><td>Add the space, folder or repo to the scope in the config if it should be in.</td></tr>
             <tr><td>"<code>/tos-sprint</code> is not enabled until phase 2"</td><td>Working as designed.</td><td>§9. Build the phase before raising <code>rollout.phase</code>.</td></tr>
-            <tr><td>The agent could not find a connector named in the config</td><td><code>provider: mcp:&lt;name&gt;</code> does not match <code>claude mcp list</code>.</td><td>Change the config's provider to the listed name.</td></tr>
+            <tr><td>The agent could not find a connector named in the config</td><td><code>mcp_server</code> does not match <code>claude mcp list</code>.</td><td>Change the config's <code>mcp_server</code> to the listed name, then run <code>uv run tos-deny</code>.</td></tr>
             <tr><td>Dataview tables empty or erroring in <code>Home.md</code></td><td>Plugin not enabled, or a query line edited.</td><td>Enable Dataview; re-run <code>/tos-init</code> to reinstall <code>Home.md</code> (it is engine-owned).</td></tr>
             <tr><td>Lint: <code>… is not listed in its index.md</code></td><td>A page was written without its index entry, usually by hand.</td><td><code>/tos-lint --fix</code> adds the entry; guardrail 8 says the agent must do it in the same operation.</td></tr>
             <tr><td>Lint: <code>changed-since-verified</code> on a page you just verified</td><td>The agent edited it after your verification, which demotes it by design.</td><td>Read the diff with <code>/tos-verify &lt;page&gt;</code>; verify again or fix.</td></tr>
@@ -773,7 +773,7 @@ EOF</code></pre>
         <li><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code> ran; <code>… tos-lint</code> reports 0 conformance errors and the one intended finding.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
         <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
-        <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
+        <li><code>claude mcp list</code> names match the config's <code>mcp_server</code> values, and <code>uv run tos-deny</code> exits 0.</li>
         <li>Five sources in: one note ingested, four pointers pulled; three queries answered with tiers; one lint; the pages I would quote verified.</li>
         <li>Examples removed once I no longer need them as reference.</li>
         <li>Daily: notes and pointers in, <code>/tos-ingest</code> and <code>/tos-pull</code>, two queries.</li>

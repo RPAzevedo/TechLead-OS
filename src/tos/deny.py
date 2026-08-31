@@ -63,14 +63,28 @@ def kind_of(spec: dict) -> str | None:
     return provider.split("mcp:", 1)[1] if provider.startswith("mcp:") else None
 
 
-def expected(cfg: dict, vocab: dict[str, list[str]]) -> dict[str, list[str]]:
-    """{connector: [deny entry, …]} — every write tool of its kind, on every server it names."""
-    out = {}
+def unknown_kinds(cfg: dict, vocab: dict[str, list[str]]) -> dict[str, str | None]:
+    """{connector: kind} for connectors whose kind has no vocabulary — an error, not a gap.
+
+    A missing kind must fail closed. Were it treated as "no write tools", a typo in
+    `provider` would report that connector as 0/0 covered and exit 0, while nothing
+    on its server was denied. A kind that genuinely has no write tools says so with
+    an empty list in schema/connector-writes.yaml.
+    """
     conns = cfg.get("connectors") or {}
-    for name, names in servers(cfg).items():
-        tools = vocab.get(kind_of(conns.get(name)) or "", [])
-        out[name] = [f"mcp__{s}__{t}" for s in names for t in tools]
-    return out
+    return {n: kind_of(conns.get(n)) for n in servers(cfg)
+            if (kind_of(conns.get(n)) or "\0") not in vocab}
+
+
+def expected(cfg: dict, vocab: dict[str, list[str]]) -> dict[str, list[str]]:
+    """{connector: [deny entry, …]} — every write tool of its kind, on every server it names.
+
+    Connectors of an unknown kind are left out; `unknown_kinds` reports them.
+    """
+    conns = cfg.get("connectors") or {}
+    unknown = unknown_kinds(cfg, vocab)
+    return {name: [f"mcp__{s}__{t}" for s in names for t in vocab[kind_of(conns.get(name))]]
+            for name, names in servers(cfg).items() if name not in unknown}
 
 
 def present(engine_root: Path) -> set[str]:
@@ -111,25 +125,38 @@ def main(argv) -> int:
         return 2
 
     cfg = pc.load_config()
-    exp = expected(cfg, write_vocabulary())
+    vocab = write_vocabulary()
+    unknown = unknown_kinds(cfg, vocab)
+    exp = expected(cfg, vocab)
     have = present(pc.ENGINE_ROOT)
     missing = {c: [e for e in entries if e not in have] for c, entries in exp.items()}
     missing = {c: e for c, e in missing.items() if e}
 
+    target = None
     if do_write and missing:
         target = add_to_local(pc.ENGINE_ROOT, [e for entries in missing.values() for e in entries])
         have = present(pc.ENGINE_ROOT)
         missing = {}
 
     if as_json:
-        print(json.dumps({"expected": exp, "missing": missing}, indent=2))
-        return 1 if missing else 0
+        print(json.dumps({"expected": exp, "missing": missing, "unknown_kinds": unknown}, indent=2))
+        return 1 if missing or unknown else 0
 
     for conn, names in sorted(servers(cfg).items()):
+        if conn in unknown:
+            print(f"{conn:12} {', '.join(names):32} ?/? no vocabulary for this kind")
+            continue
         covered = [e for e in exp[conn] if e in have]
         print(f"{conn:12} {', '.join(names):32} {len(covered)}/{len(exp[conn])} write tools denied")
-    if not any(exp.values()):
-        print("\nno connector in the config names an MCP server; nothing to deny")
+    if not exp and not unknown:
+        print("no connector in the config names an MCP server; nothing to deny")
+    if unknown:
+        print("\nno write-tool vocabulary for:")
+        for conn, kind in sorted(unknown.items()):
+            named = f"kind `{kind}`" if kind else "a `provider` that is not `mcp:<kind>`"
+            print(f"  {conn}: {named} — add it to schema/connector-writes.yaml"
+                  " (an empty list if it really has no write tools)")
+        print("  until then this connector's write tools are not denied at all")
     if missing:
         total = sum(len(v) for v in missing.values())
         print(f"\n{total} entries missing. Re-run with --write to add them to .claude/settings.local.json:")
@@ -137,7 +164,9 @@ def main(argv) -> int:
             for e in entries:
                 print(f"  {e}")
         return 1
-    if do_write:
+    if unknown:
+        return 1
+    if target:
         print(f"\nwrote the missing entries to {target}")
     print("\nevery write tool the config implies is denied")
     print("NOTE: this proves the names in your config are covered, not that they are the names your")
