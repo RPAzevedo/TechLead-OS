@@ -2,6 +2,25 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.7.4 — 2026-08-31
+
+**The deny list stops being a list somebody maintains and becomes something the config implies.**
+
+- Connectors gain `mcp_server`: the name Claude Code knows the server by, copied from `claude mcp list`, one or
+  several. `provider` stays the *kind* of connector and now only selects a write-tool vocabulary. They were
+  conflated before, which is why a config saying `mcp:atlassian` produced rules guarding `atlassian` while the
+  real servers were `claude_ai_Jira` and `plugin_atlassian_atlassian`. A config without `mcp_server` falls back
+  to the provider name, so nothing breaks.
+- `uv run tos-deny` crosses those names with `schema/connector-writes.yaml` and reports which write tools are not
+  yet denied; `--write` appends the gaps to `.claude/settings.local.json`, which is per-machine and gitignored.
+  It only ever adds, so a hand-written rule survives, and it exits non-zero while anything is uncovered.
+- `schema/connector-writes.yaml` holds the write-tool names per connector kind, listing every naming convention
+  its servers are known to use — Atlassian's own MCP says `createJiraIssue`, the community one says
+  `jira_create_issue`, and a server gets both. Meeting a server that names a write tool something else is now an
+  edit to a data file rather than to Python.
+- What this does **not** do, and the README says so: it proves the names in your config are covered, not that
+  they are the names your servers use. That still needs confirming against the live server.
+
 ## 0.7.3 — 2026-08-31
 
 **The Atlassian half of the 0.7.1 deny list was guarding servers nobody has.**

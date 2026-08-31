@@ -1,0 +1,99 @@
+# Write-capable tool names, per connector kind (the part after `mcp:` in a
+# connector's `provider`). `tos-deny` crosses these with the server names in
+# your config to work out which `permissions.deny` entries guardrail 11 needs.
+#
+# A kind lists every naming convention its servers are known to use, because the
+# same connector is exposed under different vocabularies by different servers —
+# Atlassian's own remote MCP says `createJiraIssue`, the community one says
+# `jira_create_issue`. Emitting both for a server costs nothing: an entry that
+# matches no tool is inert. A missing one is a hole.
+#
+# Add to this file when you meet a server that names a write tool something else.
+
+slack:
+  - post_message
+  - send_message
+  - reply_to_thread
+  - update_message
+  - delete_message
+  - add_reaction
+  - remove_reaction
+  - upload_file
+  - create_channel
+  - invite_to_channel
+  - set_status
+  - postMessage
+  - sendMessage
+  - replyToThread
+  - updateMessage
+  - deleteMessage
+  - addReaction
+
+atlassian:
+  - createJiraIssue
+  - editJiraIssue
+  - deleteJiraIssue
+  - transitionJiraIssue
+  - addCommentToJiraIssue
+  - createConfluencePage
+  - updateConfluencePage
+  - deleteConfluencePage
+  - createConfluenceFooterComment
+  - createConfluenceInlineComment
+  - create_issue
+  - update_issue
+  - edit_issue
+  - delete_issue
+  - transition_issue
+  - assign_issue
+  - add_comment
+  - update_comment
+  - delete_comment
+  - add_worklog
+  - add_attachment
+  - create_issue_link
+  - jira_create_issue
+  - jira_batch_create_issues
+  - jira_update_issue
+  - jira_delete_issue
+  - jira_transition_issue
+  - jira_add_comment
+  - jira_add_worklog
+  - jira_create_issue_link
+  - jira_remove_issue_link
+  - jira_link_to_epic
+  - jira_create_sprint
+  - jira_update_sprint
+  - jira_create_version
+  - jira_batch_create_versions
+  - create_page
+  - update_page
+  - delete_page
+  - add_label
+  - confluence_create_page
+  - confluence_update_page
+  - confluence_delete_page
+  - confluence_add_comment
+  - confluence_add_label
+
+google-drive:
+  - create_file
+  - update_file
+  - copy_file
+  - share_file
+  - trash_file
+  - delete_file
+  - createFile
+  - updateFile
+  - copyFile
+  - shareFile
+  - trashFile
+
+trello:
+  - create_card
+  - update_card
+  - delete_card
+  - create_list
+  - create_board
+  - add_comment
+  - move_card

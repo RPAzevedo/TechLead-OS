@@ -15,9 +15,16 @@ data:
 rollout:
   phase: 1                             # 1: documents; 2: Jira + sprint tick; 3: team, Slack, /tos-brief; 4: vision, learning, radar
 
+# `provider` is the kind of connector: it picks the write-tool vocabulary in
+# schema/connector-writes.yaml. `mcp_server` is what the server is actually called in
+# Claude Code — run `claude mcp list` and copy the name exactly. They are not the same
+# thing: one install exposed Atlassian as `claude_ai_Jira` and `plugin_atlassian_atlassian`,
+# so entries guarding `atlassian` matched nothing and denied nothing. A connector may name
+# several servers. Run `uv run tos-deny` after editing this block.
 connectors:
   confluence:
-    provider: mcp:atlassian            # the MCP server name as configured in Claude Code
+    provider: mcp:atlassian
+    mcp_server: [atlassian, claude_ai_Atlassian, claude_ai_Confluence, plugin_atlassian_atlassian]
     scope: { spaces: ["ENG", "PDLC"] }
   web:
     provider: mcp:fetch
@@ -26,15 +33,19 @@ connectors:
     scope: { repos: [] }               # e.g. ["~/code/asset-search"] — local repos read straight off disk
   gdocs:                               # enabled from phase 1 once you add folders
     provider: mcp:google-drive
+    mcp_server: [gdrive, claude_ai_Google_Drive]
     scope: { folders: [] }
   jira:                                # phase 2
     provider: mcp:atlassian
+    mcp_server: [atlassian, claude_ai_Atlassian, claude_ai_Jira, plugin_atlassian_atlassian]
     scope: { projects: [], boards: [] }
   slack:                               # phase 3
     provider: mcp:slack
+    mcp_server: [slack, claude_ai_Slack]
     scope: { channels: [], dms: false }
   trello:                              # phase 4, personal board (D12)
     provider: mcp:trello
+    mcp_server: [trello, claude_ai_Trello]
     scope: { boards: [] }
 
 feeds:                                 # the only pulls that run without a pointer from you (D11); none in phase 1

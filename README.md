@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.7.3** (see `CHANGELOG.md`).
+Engine version **0.7.4** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
@@ -101,11 +101,18 @@ The list therefore covers nine server names across the three connectors: `claude
 `plugin_atlassian_atlassian`. An entry naming a server you do not have costs nothing, so breadth is cheap and a gap
 is not.
 
+`uv run tos-deny` closes the loop between the two. Name each connector's real server in the config —
+`mcp_server`, copied from `claude mcp list`, one name or several — and it crosses those with the write-tool
+vocabulary in `schema/connector-writes.yaml`, reports what is not yet denied, and with `--write` adds the gaps to
+`.claude/settings.local.json`, which is per-machine and gitignored. It only ever appends, so a rule you wrote by
+hand survives. Run it after adding or renaming a connector; it exits non-zero while anything is uncovered.
+
 **Confirm it against your own install rather than trusting this list.** The Google Drive entries were verified
 against a live server, and the two Atlassian servers above were observed on one — but only their *read* tools were
 seen directly. Every write-tool name here is inferred from the server's own vocabulary, which is the same kind of
-assumption that made the 0.7.1 entries inert. After wiring a connector, ask Claude Code which tools that server
-exposes, and add any this list misses.
+assumption that made the 0.7.1 entries inert — `tos-deny` proves the names in your *config* are covered, not that
+they are the names your *servers* use. After wiring a connector, ask Claude Code which tools that server exposes,
+and add anything missing to `schema/connector-writes.yaml`.
 
 ## Quickstart
 
