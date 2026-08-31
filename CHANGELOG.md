@@ -2,6 +2,21 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.7.2 — 2026-08-31
+
+**The first two defects phase 2 would have hit, fixed before the phase is built.**
+
+- `tos-lint` reads a type that names more than one directory correctly. `Attested Computation` is the only such
+  row, and the registry parser stripped the backticks off the whole cell rather than each directory in it, so
+  every phase-2 metric page would have been reported as living outside a directory it is in fact in. The
+  finding now names each legal directory.
+- `tests/test_commands.py` checks that a command the README gates by phase is a command that actually refuses
+  below that phase, and names the same number in both places. The refusal stub is the whole of a later-phase
+  command until the phase is built, so nothing else would have noticed the two drifting apart.
+- The type table in `docs/design.md` and `docs/design.html` lists Objective as phase 1, which it has been
+  since 0.7.0. The notice at the top of both already said so in prose; the table now agrees with
+  `schema/types.md`.
+
 ## 0.7.1 — 2026-08-31
 
 **Connectors being read-only stops being a promise the agent keeps and becomes a rule the harness enforces.**

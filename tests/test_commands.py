@@ -27,6 +27,14 @@ def commands_table() -> list[str]:
 
 TABLED = {m.group(1) for row in commands_table() for m in [re.match(r"\| `/(tos-[a-z-]+)", row)] if m}
 
+# {command: phase}. The phase is the last column; the first may contain escaped pipes.
+PHASES = {
+    m.group(1): re.search(r"\|\s*(\d+)\s*\|\s*$", row).group(1)
+    for row in commands_table()
+    for m in [re.match(r"\| `/(tos-[a-z-]+)", row)]
+    if m and re.search(r"\|\s*(\d+)\s*\|\s*$", row)
+}
+
 
 def test_commands_were_found():
     assert COMMANDS, f"no command files under {COMMAND_DIR}"
@@ -49,3 +57,36 @@ def test_the_table_lists_no_command_that_does_not_exist():
 def test_every_table_row_names_a_command():
     """A malformed row would otherwise be skipped by the regex and pass silently."""
     assert len(TABLED) == len(commands_table())
+
+
+def test_every_table_row_names_a_phase():
+    """A row whose phase column did not parse would silently skip the gating test below."""
+    assert set(PHASES) == TABLED
+
+
+# Each way a gated command states its phase, and how to read the number back out. `\d+` is
+# greedy, so a stub saying `below 20` reads as 20 and does not satisfy a README phase of 2.
+GATES = {
+    "refuses below": r"\bbelow (\d+)\b",
+    "names in its refusal": r"\bnot enabled until phase (\d+)\b",
+    "tells you to set": r"\brollout\.phase: (\d+)\b",
+}
+
+
+@pytest.mark.parametrize("path", COMMANDS, ids=lambda p: p.name)
+def test_a_command_is_gated_by_the_phase_the_readme_promises(path):
+    """A phase the README gates must be a refusal the command file actually makes.
+
+    The stub is the whole of a later-phase command until that phase is built, so
+    nothing else would notice if the number in it drifted from the table.
+    """
+    phase, body = PHASES[path.stem], path.read_text(encoding="utf8")
+    if phase == "1":
+        assert "not enabled until phase" not in body, f"/{path.stem} is phase 1 but refuses to run"
+        return
+    assert "rollout.phase" in body, f"/{path.stem} is phase {phase} but never reads rollout.phase"
+    for what, pattern in GATES.items():
+        found = sorted(set(re.findall(pattern, body)))
+        assert found == [phase], (
+            f"/{path.stem} is phase {phase} in the README but {what} phase {found or 'nothing'}"
+        )
