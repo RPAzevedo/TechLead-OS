@@ -2,6 +2,17 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.7.4 — 2026-08-31
+
+**Checking that the deny list matches your servers becomes a setup step you actually perform.**
+
+- `docs/onboarding.html` adds it beside the `claude mcp list` step: ask the session which tools each server
+  exposes, and add the write-capable ones that `permissions.deny` misses, to `settings.json` or to the
+  per-machine `settings.local.json`. It says why — a rule naming a server you do not have is ignored without an
+  error, which is how 0.7.1's Atlassian rules came to guard nothing — and the fortnight checklist and the
+  troubleshooting table ask for the same thing. The engine cannot know your server names, so this is a habit
+  rather than something it can do for you.
+
 ## 0.7.3 — 2026-08-31
 
 **The Atlassian half of the 0.7.1 deny list was guarding servers nobody has.**

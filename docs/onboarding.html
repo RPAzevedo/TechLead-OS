@@ -647,7 +647,12 @@ git: repository initialised and first commit made</code></pre>
       </div>
       <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
-      <p>If your servers have different names, change the config's <code>provider</code> values to match rather than renaming the servers. Then confirm the scope check works by pointing at something outside it:</p>
+      <p>If your servers have different names, change the config's <code>provider</code> values to match rather than renaming the servers.</p>
+      <p>Then do the same for the deny list, because this is the step that is easy to skip and silent when skipped. <code>.claude/settings.json</code> enforces guardrail 11 by naming write tools as <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>, and <strong>a rule naming a server you do not have is ignored without an error</strong>. The list shipped in 0.7.1 guarded <code>atlassian</code>; the first real install exposed <code>claude_ai_Jira</code> and <code>plugin_atlassian_atlassian</code>, so every one of its Atlassian rules was inert and nothing said so. Ask the session what each of your servers actually exposes:</p>
+<pre class="wrap"><div class="code-title">claude</div><code>&gt; List every tool each connected MCP server exposes, grouped by server, with the
+&gt; full mcp__&lt;server&gt;__&lt;tool&gt; name. Mark the ones that write, post, comment,
+&gt; transition, share, upload or delete. Do not call any of them.</code></pre>
+      <p>Add any write tool not already in <code>permissions.deny</code> — either to <code>.claude/settings.json</code> if it is a server others will have too, or to <code>.claude/settings.local.json</code>, which is per-machine and untracked. Repeat this whenever you add or rename a connector. Then confirm the scope check works by pointing at something outside it:</p>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; /tos-pull https://example.atlassian.net/wiki/spaces/NOTINSCOPE/pages/1/Test</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
@@ -753,7 +758,8 @@ EOF</code></pre>
             <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
             <tr><td>"<code>/tos-pull</code> refused: … not in scope"</td><td>Working as designed: the pointer is outside <code>connectors.&lt;name&gt;.scope</code>.</td><td>Add the space, folder or repo to the scope in the config if it should be in.</td></tr>
             <tr><td>"<code>/tos-sprint</code> is not enabled until phase 2"</td><td>Working as designed.</td><td>§9. Build the phase before raising <code>rollout.phase</code>.</td></tr>
-            <tr><td>The agent could not find a connector named in the config</td><td><code>provider: mcp:&lt;name&gt;</code> does not match <code>claude mcp list</code>.</td><td>Change the config's provider to the listed name.</td></tr>
+            <tr><td>The agent could not find a connector named in the config</td><td><code>provider: mcp:&lt;name&gt;</code> does not match <code>claude mcp list</code>.</td><td>Change the config's provider to the listed name — and check the deny list uses that name too.</td></tr>
+            <tr><td>The agent offered to post, comment or transition something</td><td>That server's write tools are not in <code>permissions.deny</code>; the rules there name a server you do not have.</td><td>List the server's tools and add the write ones. A rule that matches nothing is silently ignored.</td></tr>
             <tr><td>Dataview tables empty or erroring in <code>Home.md</code></td><td>Plugin not enabled, or a query line edited.</td><td>Enable Dataview; re-run <code>/tos-init</code> to reinstall <code>Home.md</code> (it is engine-owned).</td></tr>
             <tr><td>Lint: <code>… is not listed in its index.md</code></td><td>A page was written without its index entry, usually by hand.</td><td><code>/tos-lint --fix</code> adds the entry; guardrail 8 says the agent must do it in the same operation.</td></tr>
             <tr><td>Lint: <code>changed-since-verified</code> on a page you just verified</td><td>The agent edited it after your verification, which demotes it by design.</td><td>Read the diff with <code>/tos-verify &lt;page&gt;</code>; verify again or fix.</td></tr>
@@ -773,7 +779,7 @@ EOF</code></pre>
         <li><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code> ran; <code>… tos-lint</code> reports 0 conformance errors and the one intended finding.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
         <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
-        <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
+        <li><code>claude mcp list</code> names match the config's <code>provider</code> values, and every write tool those servers expose appears in <code>permissions.deny</code> — checked against the tools the session lists, not assumed from the shipped names.</li>
         <li>Five sources in: one note ingested, four pointers pulled; three queries answered with tiers; one lint; the pages I would quote verified.</li>
         <li>Examples removed once I no longer need them as reference.</li>
         <li>Daily: notes and pointers in, <code>/tos-ingest</code> and <code>/tos-pull</code>, two queries.</li>

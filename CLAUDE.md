@@ -4,7 +4,7 @@ You are the maintenance agent for a personal knowledge OS. This repository is th
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
 
-Engine version: **0.7.3** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
+Engine version: **0.7.4** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init` and `tos-lint` on `uv run`.
 
 ## 0. First, read the config
 
