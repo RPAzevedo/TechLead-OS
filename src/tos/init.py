@@ -18,36 +18,8 @@ import sys
 from pathlib import Path
 
 from tos import common as pc
+from tos.bundle import WIKI_DIRS, add_index_entry, index_body
 
-WIKI_DIRS = {
-    # path: (title, description)
-    "": ("TechLead OS", "the OKF bundle root — start here"),
-    "delivery": ("Delivery", "initiatives, projects, objectives, delivery metrics"),
-    "delivery/initiatives": ("Initiatives", "cross-functional efforts and company moving parts"),
-    "delivery/projects": ("Projects", "what the team delivers"),
-    "delivery/objectives": ("Objectives", "the quarter's OKRs — company and team"),
-    "delivery/metrics": ("Delivery metrics", "attested computations over Jira snapshots (phase 2)"),
-    "team": ("Team", "the team, its people, stakeholders and playbooks (phase 3)"),
-    "team/people": ("People", "reports — human-reviewed before any use (phase 3)"),
-    "team/stakeholders": ("Stakeholders", "partners outside the team (phase 3)"),
-    "team/playbooks": ("Playbooks", "how we do X; shareable (phase 3)"),
-    "systems": ("Systems", "systems owned or supported, their standards and KTLO"),
-    "systems/metrics": ("System metrics", "attested computations over system data (phase 2)"),
-    "design": ("Design", "RFCs, decisions, visions"),
-    "design/rfcs": ("RFCs", "proposals under review — entry points to the canonical documents"),
-    "design/decisions": ("Decisions", "ADR-style records"),
-    "design/visions": ("Visions", "technical visions per area of influence (phase 4)"),
-    "learning": ("Learning", "paths and drills (phase 4)"),
-    "learning/paths": ("Learning paths", "goals with exit criteria (phase 4)"),
-    "learning/drills": ("Drills", "retrieval practice (phase 4)"),
-    "concepts": ("Concepts", "ideas, techniques, standards, terms"),
-    "sources": ("Sources", "one page per source read: summary, excerpts, provenance"),
-    "syntheses": ("Syntheses", "overviews, comparisons, theses, briefs"),
-    "radar": ("Radar", "external signals feeding visions and initiatives (phase 4)"),
-    "radar/signals": ("Signals", "external observations with a 30-day horizon (phase 4)"),
-    "questions": ("Questions", "the ambiguity register"),
-    "reviews": ("Reviews", "weekly and sprint reviews with inline answers"),
-}
 RAW_DIRS = ["inbox", "notes", "pinned", "metrics", "assets"]
 
 PULL_MD = """# Pointers to pull
@@ -57,22 +29,6 @@ page, and removes the line. Add `--pin` after a pointer to keep a verbatim copy
 under raw/pinned/. Lines starting with `#` are ignored.
 
 """
-
-
-def index_body(rel: str, title: str, desc: str, root: Path) -> str:
-    lines = []
-    if rel == "":
-        lines.append('---\nokf_version: "0.2"\n---')
-    lines += [f"# {title}", "", desc, ""]
-    children = sorted(k for k in WIKI_DIRS if k != rel and str(Path(k).parent) == (rel or "."))
-    if children:
-        lines += ["## Directories", ""]
-        for c in children:
-            t, d = WIKI_DIRS[c]
-            lines.append(f"* [{t}]({Path(c).name}/) - {d}")
-        lines.append("")
-    lines += ["## Pages", ""]
-    return "\n".join(lines) + "\n"
 
 
 def ensure(path: Path, content: str, dry: bool, created: list):
@@ -113,20 +69,6 @@ def fill_placeholders(text: str, now: dt.datetime) -> str:
     for k, v in repl.items():
         text = text.replace(k, v)
     return text
-
-
-def add_index_entry(index_path: Path, title: str, filename: str, desc: str, dry: bool):
-    text = index_path.read_text(encoding="utf8") if index_path.exists() else ""
-    line = f"* [{title}]({filename}) - {desc}"
-    if f"]({filename})" in text:
-        return
-    if "## Pages" in text:
-        stripped = text.rstrip("\n")
-        text = stripped + ("\n\n" if stripped.endswith("## Pages") else "\n") + line + "\n"
-    else:
-        text = text.rstrip("\n") + "\n\n## Pages\n\n" + line + "\n"
-    if not dry:
-        index_path.write_text(text, encoding="utf8")
 
 
 def install_examples(root: Path, now: dt.datetime, dry: bool, log: list):
@@ -199,7 +141,7 @@ def main(argv):
     dry = "--dry-run" in argv
     cfg = pc.load_config()
     root = pc.data_root(cfg)
-    now = dt.datetime.now().astimezone()
+    now = pc.now(cfg)
     created, log = [], []
 
     if "--remove-examples" in argv:
@@ -223,7 +165,7 @@ def main(argv):
         d = root / "wiki" / rel
         if not dry:
             d.mkdir(parents=True, exist_ok=True)
-        ensure(d / "index.md", index_body(rel, title, desc, root), dry, created)
+        ensure(d / "index.md", index_body(rel, title, desc), dry, created)
     creation = (f"* **Creation**: data root initialised by tos-engine {pc.ENGINE_VERSION} "
                 f"(config engine \"{cfg.get('engine')}\").\n")
     ensure(root / "wiki" / "log.md",
@@ -245,8 +187,9 @@ def main(argv):
             log.append("git: not available — initialise the repository yourself")
 
     print(f"data root: {root} ({'existed' if existed else 'created'})")
-    if str(cfg.get("engine")) not in (pc.ENGINE_VERSION, pc.ENGINE_VERSION.rsplit(".", 1)[0]):
-        print(f"note: config engine \"{cfg.get('engine')}\" ≠ engine {pc.ENGINE_VERSION}")
+    drift = pc.engine_drift(cfg)
+    if drift:
+        print(drift)
     for p in created:
         print(f"created: {p.relative_to(root)}")
     for line in log:

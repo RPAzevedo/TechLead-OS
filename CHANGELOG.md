@@ -2,6 +2,34 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.8.0 — 2026-09-01
+
+**The bookkeeping writes become scripts, so the canonical formats can no longer drift per operation.**
+
+- `tos-new`, `tos-log`, `tos-index` and `tos-verify-mark` do the template copy, log bullet, index entry and
+  `verified`-entry appends the agent used to hand-edit. All of them edit frontmatter at the text level — never a
+  YAML round-trip — so template comments, key order and the flow-style `generated` survive. `/tos-verify` now
+  routes through `tos-verify-mark`, which refuses a `human:` actor without the command's explicit
+  `--human-confirmed` flag and refuses the agent outright; `process:*` actors pass, which is the piece the
+  cross-check pass was waiting on. Promoting an RFC also makes it a record — its horizon runs "30 d while
+  draft, then —", so keeping the draft's expiry would have lint report the stable page as stale a month later.
+  Page operands are bundle-relative and refused if they resolve outside `wiki/`.
+- Every date and timestamp the helpers write comes from `data.timezone`, not the host's — a UTC runner
+  would otherwise stamp the wrong offset on `generated` and count a horizon from the wrong calendar day.
+- An index entry is rewritten where it stands, so re-indexing a project after an ingest cannot re-rank the
+  priority-ordered portfolio; only a page it lists moves it, never a link in a neighbour's description. A
+  directory with no `index.md` gets the canonical one rather than a stub `/tos-init` would never replace.
+- `tos-lint --fix` repairs the mechanical findings — missing index entries, dead index lines, moved and
+  leading-slash links — and reports the rest; and the required-headings check now covers every type in
+  `schema/types.md`, not just Project's weekly log. An existing bundle may light up with `headings` findings
+  once; they are report-only. Links are read and repaired in the page body only, code spans and fenced blocks
+  excluded: a markdown-shaped frontmatter value is metadata and a link in a fenced example is an example.
+- `tos-doctor` runs the onboarding checklist: config, data-root layout, engine drift, vault files, git, the
+  config's connector names against `claude mcp list` (exact names, never a substring), and a report-only
+  note on deny-list coverage per connector server, so one guarded server cannot clear an unguarded one. A
+  `data.timezone` that is not an IANA zone is a warning, not an `ok` row.
+- A config written for `engine: "0.7"` prints a drift note until it says `"0.8"`.
+
 ## 0.7.3 — 2026-08-31
 
 **The Atlassian half of the 0.7.1 deny list was guarding servers nobody has.**

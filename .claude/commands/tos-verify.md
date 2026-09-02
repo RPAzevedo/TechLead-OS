@@ -9,8 +9,8 @@ If `--queue`: list the top `review.verify_queue` unverified or changed-since-ver
 For each page:
 1. Show the page's title, type, tier, and the diff since its newest `verified[].at` (or the whole page if never verified): `git -C <data.root> log -p -- <path>` narrowed to that window.
 2. Ask the human: verify, fix, or skip. **Wait for the answer. Never assume it.**
-3. On "verify": append `{ by: <data.actor>, at: <now, ISO-8601 with offset> }` to `verified` (create the list if absent); if the type's gate in `schema/types.md` is met, set `status: stable`; log `* **Verify**: [Title](path) by <data.actor>`; commit.
+3. On "verify": run `uv run tos-verify-mark <path> --by <data.actor> --human-confirmed --promote` (it appends the `verified` entry and lifts `draft → stable` only when the type's gate in `schema/types.md` is met); then `uv run tos-log Verify "[Title](path) by <data.actor>"`; commit with the printed bullet as the message.
 4. On "fix": make the change they describe, update `generated`, leave `status: draft`, log `* **Ingest**: [Title](path) — revised after review`, commit, and offer to verify again.
 5. On "skip": do nothing.
 
-Never write a `human:` verification outside this command. Never verify on your own initiative.
+Never write a `human:` verification outside this command, and never pass `--human-confirmed` anywhere else — the flag is this command's assertion that the human said "yes". Never verify on your own initiative.

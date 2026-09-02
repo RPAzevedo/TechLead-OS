@@ -20,9 +20,15 @@ engine/                      this repo
 ├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /tos-init
 ├── schema/examples/         eleven worked example pages and one raw note, installed with /tos-init --with-examples
 ├── pyproject.toml           the package: dependencies and the tos-* entry points
-├── src/tos/common.py        config + frontmatter helpers (YAML is parsed strictly)
+├── src/tos/common.py        config + frontmatter + registry helpers (YAML is parsed strictly)
+├── src/tos/bundle.py        the write-side helpers: log bullets, index entries, frontmatter edits
 ├── src/tos/init.py          creates the data root            → tos-init
-├── src/tos/lint.py          deterministic lint               → tos-lint
+├── src/tos/lint.py          deterministic lint and --fix     → tos-lint
+├── src/tos/new_page.py      page from template + registry    → tos-new
+├── src/tos/log_add.py       canonical log bullet             → tos-log
+├── src/tos/index_add.py     add/refresh an index entry       → tos-index
+├── src/tos/verify_mark.py   verified entries, gates enforced → tos-verify-mark
+├── src/tos/doctor.py        onboarding checklist             → tos-doctor
 ├── src/tos/metrics/         the attested-computation executor (phase 2; a README for now)
 ├── tests/                   pytest
 └── docs/                    the design
@@ -47,13 +53,18 @@ uv sync
 ```
 
 That creates `.venv`, installs the engine editable with its dependencies
-(PyYAML), and puts three commands on `uv run`:
+(PyYAML), and puts the commands on `uv run`:
 
 | command | what it does |
 | --- | --- |
 | `uv run tos-config` | print the resolved config: paths, actor, phase |
 | `uv run tos-init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root |
-| `uv run tos-lint [--json] [--today YYYY-MM-DD]` | the deterministic half of `/tos-lint`; exit 1 on a conformance error |
+| `uv run tos-lint [--json] [--fix] [--today YYYY-MM-DD]` | the deterministic half of `/tos-lint`; `--fix` repairs the mechanical findings; exit 1 on a conformance error |
+| `uv run tos-new <Type> <slug> --title "…" […]` | create a page from its template, frontmatter computed from the registry, indexed |
+| `uv run tos-log <Label> <text…> [--date …]` | append a bullet to wiki/log.md in the canonical shape, newest first |
+| `uv run tos-index <page.md> […]` | add or refresh the page's line in its directory index (`--deprecated` moves it) |
+| `uv run tos-verify-mark <page.md> --by <actor> […]` | append a `verified` entry — `process:*` freely, `human:` only via `/tos-verify` |
+| `uv run tos-doctor [--json]` | the onboarding checklist: config, layout, git, connector names vs `claude mcp list` |
 
 Run them from this directory. The engine finds `schema/` by walking up from the
 package to the checkout root; set `$TOS_ENGINE_ROOT` if you ever need to point

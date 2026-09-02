@@ -1,6 +1,6 @@
 [project]
 name = "techlead-os"
-version = "0.7.3"
+version = "0.8.0"
 description = "TechLead OS (tos) — the engine half of a personal knowledge OS: OKF v0.2 bundle tooling"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -10,6 +10,11 @@ dependencies = ["pyyaml>=6"]
 tos-config = "tos.common:cli"
 tos-init = "tos.init:cli"
 tos-lint = "tos.lint:cli"
+tos-new = "tos.new_page:cli"
+tos-log = "tos.log_add:cli"
+tos-index = "tos.index_add:cli"
+tos-verify-mark = "tos.verify_mark:cli"
+tos-doctor = "tos.doctor:cli"
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
