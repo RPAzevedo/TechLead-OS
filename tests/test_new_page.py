@@ -38,6 +38,24 @@ def test_source_gets_a_date_prefix_and_a_null_stale_after(bare, capsys):
     assert "# verified: never set by /tos-ingest" in path.read_text(encoding="utf8")
 
 
+def test_a_new_project_or_initiative_carries_no_pointer_keys(bare, capsys):
+    """The pointer keys ship commented out, so a fresh page carries none of them and lints clean.
+
+    A live `slack: "#channel"` in the template would survive tos-new, which fills only title,
+    description, generated and stale_after, and every new page would open with a finding.
+    """
+    for t, d in (("Project", "delivery/projects"), ("Initiative", "delivery/initiatives")):
+        assert new_page.main([t, "thing", "--title", "Thing", "--description", "One sentence."]) == 0
+        path = bare / "wiki" / d.split("/")[0] / d.split("/")[1] / "thing.md"
+        fm, _, _, err = pc.read_page(path)
+        assert err is None
+        for key in ("slack", "jira", "confluence", "rfc", "next_checkpoint"):
+            assert key not in fm, f"{t} carries a placeholder `{key}`"
+        assert '# slack: "#channel"' in path.read_text(encoding="utf8")
+    capsys.readouterr()
+    assert tos_lint.main([]) == 0
+
+
 def test_page_is_listed_in_its_index(bare, capsys):
     assert new_page.main(["Concept", "widget", "--title", "Widget", "--description", "One sentence."]) == 0
     idx = (bare / "wiki" / "concepts" / "index.md").read_text(encoding="utf8")

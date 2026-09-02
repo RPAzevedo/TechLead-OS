@@ -4,7 +4,7 @@
 # configuration; the one script that could ever need a token is given the NAME of
 # an environment variable, never a value.
 
-engine: "0.8"                          # the engine version this config was written for
+engine: "0.9"                          # the engine version this config was written for
 
 data:
   root: ~/CHANGE_ME/techlead-os-data   # replace this: raw/, wiki/, Home.md, .obsidian/ live here (created

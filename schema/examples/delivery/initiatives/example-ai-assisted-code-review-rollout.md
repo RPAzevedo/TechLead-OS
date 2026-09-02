@@ -6,6 +6,9 @@ tags: [example, initiative, ai-review]
 owner: human:example-director
 stage: rollout planning
 next_checkpoint: {{DATE+14}}
+slack: "#example-ai-review"
+jira: AIR-9
+confluence: https://example.atlassian.net/wiki/spaces/ENG/pages/12400/AI-assisted+code+review
 sources:
   - id: leadership-notes
     resource: ../../../raw/notes/example-leadership-meeting-notes.md

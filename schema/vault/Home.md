@@ -94,3 +94,13 @@ FROM "wiki/questions"
 WHERE status AND status != "deprecated"
 SORT generated.at DESC
 ```
+
+## Where the work lives
+
+```dataview
+TABLE slack, jira, confluence, rfc
+FROM "wiki/delivery"
+WHERE (type = "Project" OR type = "Initiative") AND status != "deprecated"
+  AND (slack OR jira OR confluence OR rfc)
+SORT type ASC, file.name ASC
+```

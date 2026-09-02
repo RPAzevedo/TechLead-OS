@@ -2,6 +2,36 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.9.0 — 2026-09-02
+
+**A Project or Initiative can say where the work actually lives — the channel, the epic, the page, the RFC —
+and lint checks the pointer without ever demanding one.**
+
+- Four optional frontmatter keys on Project and Initiative: `slack` (a channel name), `jira` (an issue key),
+  `confluence` (an https URL) and `rfc` (an https URL, or a relative path to a page in this bundle). One canonical pointer
+  each; further ones stay body links. They ship **commented out** in both templates, so a page from `tos-new`
+  carries none of them — a live placeholder would survive creation and open every new page with a finding.
+  `next_checkpoint` joins them, ending the last literal `YYYY-MM-DD` that used to survive page creation with
+  nothing to show for it.
+- A new `pointers` section reports shape, and only when the key is present: nothing here is a conformance
+  error and no page becomes non-conformant for lacking a pointer. A relative `rfc` is resolved against the
+  bundle with the same rules as a body link — leading slash, outside the bundle, missing page — but is
+  deliberately **not** counted as an inbound link, because the orphan check exists to make you link the page
+  from a section, and a frontmatter key would silently clear it. For the same reason `--fix` does not repair
+  an `rfc` pointer after the page it names moves.
+- `slack: #team-search` is a YAML comment, not a value, and lint now says so in as many words. Everything
+  that shows the field — the templates, the examples, the registry, the command files — shows it quoted,
+  because the alternative is a field the human believes they set and which parsed to nothing.
+- Initiative gets its first lint block; the four checks are written once and called from both types.
+  Recording where work lives is not reading it, so no rollout phase or connector scope enters into the check
+  — a `slack` pointer is legal on a phase-1 install, and `/tos-pull` alone answers for the connector. A
+  Project's or Initiative's `confluence` or `jira` value is in turn a legal pointer for `/tos-pull`, and
+  `/tos-weekly` sets and clears all four from the Monday answers without that counting as movement: ranking
+  or re-pointing a quiet project must not invent a week of progress.
+- The registry's extension-field table can no longer be misread as a type: `load_registry` stops at the first
+  section heading. Three columns plus three `|` inside a cell parses as a six-cell type row, and `\|` does not
+  escape — a test now pins the invariant at the source.
+
 ## 0.8.0 — 2026-09-01
 
 **The bookkeeping writes become scripts, so the canonical formats can no longer drift per operation.**

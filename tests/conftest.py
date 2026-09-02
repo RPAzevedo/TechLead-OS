@@ -11,7 +11,7 @@ def _root(tmp_path, monkeypatch, args):
     root = tmp_path / "data"
     cfg = tmp_path / "config.yaml"
     cfg.write_text(
-        f'engine: "0.8"\ndata:\n  root: {root}\n  timezone: Australia/Melbourne\n'
+        f'engine: "0.9"\ndata:\n  root: {root}\n  timezone: Australia/Melbourne\n'
         f"  actor: human:test\nrollout:\n  phase: 1\n",
         encoding="utf8",
     )

@@ -20,7 +20,7 @@ def test_missing_config_is_the_one_fatal_report(tmp_path, capsys, monkeypatch):
 
 def test_missing_data_root_fails(tmp_path, capsys, monkeypatch):
     cfg = tmp_path / "config.yaml"
-    cfg.write_text('engine: "0.8"\ndata:\n  root: /nonexistent/tos-data\n  timezone: UTC\n'
+    cfg.write_text('engine: "0.9"\ndata:\n  root: /nonexistent/tos-data\n  timezone: UTC\n'
                    "  actor: human:test\n", encoding="utf8")
     monkeypatch.setenv("TOS_CONFIG", str(cfg))
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: None)
@@ -30,7 +30,7 @@ def test_missing_data_root_fails(tmp_path, capsys, monkeypatch):
 
 def test_engine_drift_and_connectors_are_warnings_not_failures(bare, capsys, monkeypatch):
     cfg_path = bare.parent / "config.yaml"
-    cfg_path.write_text(cfg_path.read_text(encoding="utf8").replace('engine: "0.8"', 'engine: "0.5"')
+    cfg_path.write_text(cfg_path.read_text(encoding="utf8").replace('engine: "0.9"', 'engine: "0.5"')
                         + "connectors:\n  confluence:\n    provider: mcp:atlassian\n", encoding="utf8")
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: "some-other-server: npx foo\n")
     assert doctor.main(["--json"]) == 0
@@ -116,7 +116,7 @@ def test_an_unreadable_config_is_reported_not_raised(tmp_path, capsys, monkeypat
     assert doctor.main([]) == 1
     assert "can not be read" in capsys.readouterr().out
     bad = tmp_path / "bad.yaml"
-    bad.write_bytes(b'engine: "0.8"\ndata:\n  root: /tmp/x\n\xff\xfe\n')
+    bad.write_bytes(b'engine: "0.9"\ndata:\n  root: /tmp/x\n\xff\xfe\n')
     monkeypatch.setenv("TOS_CONFIG", str(bad))
     assert doctor.main([]) == 1
     assert "can not be read" in capsys.readouterr().out
@@ -126,7 +126,7 @@ def test_a_data_root_that_is_a_file_is_fatal(tmp_path, capsys, monkeypatch):
     root = tmp_path / "notadir"
     root.write_text("", encoding="utf8")
     cfg = tmp_path / "config.yaml"
-    cfg.write_text(f'engine: "0.8"\ndata:\n  root: {root}\n  timezone: UTC\n  actor: human:test\n',
+    cfg.write_text(f'engine: "0.9"\ndata:\n  root: {root}\n  timezone: UTC\n  actor: human:test\n',
                    encoding="utf8")
     monkeypatch.setenv("TOS_CONFIG", str(cfg))
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: None)

@@ -28,6 +28,16 @@ STATUSES = {"draft", "stable", "deprecated"}
 ROLES = {"lead", "support"}
 STAGES = {"discovery", "build", "pilot", "rollout", "paused", "done"}
 LEVELS = {"company", "team"}
+SLACK_RE = re.compile(r"^#[a-z0-9][a-z0-9_-]{0,79}$")
+JIRA_RE = re.compile(r"^[A-Z][A-Z0-9_]*-[1-9]\d*$")
+HTTPS_RE = re.compile(r"^https://\S+$")  # https only: the contract says https, and `http://` is a paste error
+# the pointer fields of a Project or Initiative, and the shape each finding names back
+POINTER_SHAPES = {
+    "slack": 'a quoted channel name, "#team-search"',
+    "jira": "an issue key, ABC-123",
+    "confluence": "an https URL",
+    "rfc": "an https URL, or a relative path to a page in this bundle",
+}
 WEEKLY_LABELS = {"Progress", "Challenges & risks", "Blockers & support needed",
                  "Open questions & decisions", "Notes"}
 # the label may carry escaped brackets — a title of `[bracketed]` is written `[\[bracketed\]]`
@@ -67,6 +77,51 @@ def weekly_entries(section: str) -> list:
     heads = list(re.finditer(r"^## +(.+?)[ \t]*$", section, re.M))
     return [(h.group(1), section[h.end():heads[i + 1].start() if i + 1 < len(heads) else len(section)])
             for i, h in enumerate(heads)]
+
+
+def check_pointers(fm: dict, path: str, page_dir: Path, wiki: Path, rep) -> None:
+    """The optional pointers a Project or Initiative carries out to the systems that host it.
+
+    Shape only, and only when present: `slack`, `jira`, `confluence` and `rfc` are notes to the
+    human and to a later /tos-pull, never a requirement, so nothing here is a conformance error.
+    Recording where work lives is not reading it — no rollout phase and no connector scope enter
+    into it; those belong to /tos-pull alone.
+
+    A relative `rfc` is resolved like a body link but is deliberately not one: it adds no inbound
+    link, because the orphan check exists to make you link the page from a section (`superseded_by`
+    is the same shape), and --fix does not repair it after the RFC page moves.
+    """
+    for key, want in POINTER_SHAPES.items():
+        if key not in fm:
+            continue
+        v = fm[key]
+        if v is None or (isinstance(v, str) and not v.strip()):
+            # `slack: #team-search` is not a string: an unquoted # opens a YAML comment, and the
+            # human is left believing they set a field that parsed to nothing
+            extra = " — an unquoted `#channel` is a YAML comment, so the value is empty" if key == "slack" else ""
+            rep.add("pointers", f"`{path}` has an empty `{key}` — expected {want}{extra}")
+        elif not isinstance(v, str):
+            rep.add("pointers", f"`{path}` has a non-string `{key}` ({v!r}) — one pointer, as {want}; "
+                                f"more than one goes in the body")
+        elif key == "slack" and not SLACK_RE.match(v):
+            rep.add("pointers", f"`{path}` has `slack: {v!r}` — expected {want}")
+        elif key == "jira" and not JIRA_RE.match(v):
+            rep.add("pointers", f"`{path}` has `jira: {v!r}` — expected {want}")
+        elif key == "confluence" and not HTTPS_RE.match(v):
+            rep.add("pointers", f"`{path}` has `confluence: {v!r}` — expected {want}")
+        elif key == "rfc" and not HTTPS_RE.match(v):
+            if v.startswith("/"):
+                rep.add("pointers", f"`{path}` has `rfc: {v!r}` — leading slash; use a relative path")
+                continue
+            target = (page_dir / v.split("#")[0]).resolve()
+            try:
+                rel(target, wiki.resolve())
+            except ValueError:
+                rep.add("pointers", f"`{path}` has `rfc: {v!r}` — it resolves outside the bundle")
+                continue
+            # a directory or a non-markdown file `exists()` too, and neither is a page to open
+            if not (target.is_file() and target.suffix == ".md"):
+                rep.add("pointers", f"`{path}` has `rfc: {v!r}` — no such page in this bundle")
 
 
 def section_links(body: str, heading: str, page_dir: Path, wiki: Path) -> set:
@@ -270,6 +325,7 @@ def main(argv):
             rep.add("conformance", f"`{path}` has no `type`", error=True)
             continue
         counts[str(t)] += 1
+        page_dir = (wiki / path).parent
         if str(t) not in registry:
             rep.add("registry", f"`{path}` has type `{t}` which is not in schema/types.md")
         else:
@@ -402,7 +458,7 @@ def main(argv):
                                         f"(assigned by /tos-weekly --apply)")
                 if str(role) == "lead" and seen_a_monday:
                     lead_projects.append(path)
-                alignment[path] = section_links(body, "Expected impact", (wiki / path).parent, wiki)
+                alignment[path] = section_links(body, "Expected impact", page_dir, wiki)
                 if newest is not None:
                     if (today - newest).days > weekly_grace:
                         rep.add("projects", f"`{path}` — an active Project with no weekly entry since "
@@ -410,8 +466,10 @@ def main(argv):
                 elif seen_a_monday:
                     # a missing *Weekly log* section itself is the headings check's finding
                     rep.add("projects", f"`{path}` — an active Project with no entry in its *Weekly log*")
+        if str(t) in ("Project", "Initiative"):
+            check_pointers(fm, path, page_dir, wiki, rep)
         if str(t) == "Objective":
-            alignment[path] = section_links(body, "Objective", (wiki / path).parent, wiki)
+            alignment[path] = section_links(body, "Objective", page_dir, wiki)
             level = fm.get("level")
             if level is None or str(level) not in LEVELS:
                 rep.add("objectives", f"`{path}` has `level: {level!r}` — must be company | team")
@@ -437,7 +495,6 @@ def main(argv):
         if str(t) in sourced_types and not srcs and status != "deprecated":
             rep.add("provenance", f"`{path}` — a `{t}` page with no `sources`")
         # links
-        page_dir = (wiki / path).parent
         for _text, target in prose_links(body):
             if target.startswith(("http://", "https://", "mailto:", "#")):
                 continue
@@ -556,7 +613,7 @@ def main(argv):
         print(f"# Lint — {today.isoformat()}\n")
         print(f"{summary['pages']} pages · tiers {summary['tiers']} · conformance errors: {rep.errors}\n")
         order = ["fixed", "conformance", "trust", "registry", "headings", "provenance", "stale", "expiring",
-                 "changed-since-verified", "old-drafts", "rfcs-stuck", "systems", "projects", "objectives",
+                 "changed-since-verified", "old-drafts", "rfcs-stuck", "systems", "projects", "pointers", "objectives",
                  "links", "orphans", "index", "log"]
         for check in order + [c for c in rep.findings if c not in order]:
             items = rep.findings.get(check)
