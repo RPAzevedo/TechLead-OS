@@ -1,5 +1,6 @@
 """End-to-end lint behaviour over a real bundle built by tos-init."""
 import re
+from pathlib import Path
 
 import pytest
 
@@ -69,9 +70,20 @@ def test_registry_parses_every_type_and_no_extension_rows():
     assert len(reg) == 20, sorted(reg)
     assert "Project" in reg and "Objective" in reg
     assert reg["Objective"]["phase"] == "P1"
-    assert not {"`owner`", "owner", "`role`", "role", "Field"} & set(reg)
+    assert not {"`owner`", "owner", "`role`", "role", "Field",
+                "`slack`", "slack", "`jira`", "jira", "`confluence`", "confluence", "`rfc`", "rfc"} & set(reg)
     assert reg["Concept"]["dir"] == ["concepts/"]
     assert reg["Attested Computation"]["dir"] == ["delivery/metrics/", "systems/metrics/"]
+
+
+def test_no_extension_row_can_be_read_as_a_type():
+    """Three columns plus three `|` in a cell is six cells — and `\\|` does not escape."""
+    text = (Path(tos_lint.__file__).parents[2] / "schema" / "types.md").read_text(encoding="utf8")
+    rows = text.split("## Extension fields", 1)[1].splitlines()
+    for line in rows:
+        if line.startswith("| ") and not line.startswith(("| Field", "|---")):
+            cells = line.strip("|").split("|")
+            assert len(cells) < 6, f"{line!r} parses as a type row — write \"or\" and `\u00b7`, never a pipe"
 
 
 def test_registry_derives_headings_horizons_and_gates():
@@ -200,7 +212,7 @@ tags: []
 owner: human:test
 role: {role}
 stage: {stage}
-{priority}sources:
+{priority}{pointers}sources:
   - id: n
     resource: ../../../raw/notes/n.md
     title: Note
@@ -251,10 +263,11 @@ ENTRY = """
 """
 
 
-def project(bare, name, *, role="lead", stage="build", priority=None, gen="2026-01-01", log="\n"):
+def project(bare, name, *, role="lead", stage="build", priority=None, gen="2026-01-01", log="\n",
+            pointers=""):
     """Write a project page into the bundle and index it. Returns its path."""
     p = bare / "wiki" / "delivery" / "projects" / f"{name}.md"
-    p.write_text(PROJECT.format(title=name, role=role, stage=stage, gen=gen, log=log,
+    p.write_text(PROJECT.format(title=name, role=role, stage=stage, gen=gen, log=log, pointers=pointers,
                                 priority="" if priority is None else f"priority: {priority}\n"),
                  encoding="utf8")
     idx = p.parent / "index.md"
@@ -274,6 +287,9 @@ def test_fresh_example_bundle_has_no_project_or_objective_findings(bundle, capsy
     out = capsys.readouterr().out
     assert "## projects" not in out, out
     assert "## objectives" not in out, out
+    # the only guard on the shipped examples' pointers: `slack: #x` is valid YAML (it parses to
+    # None), so test_engine_content cannot catch an unquoted channel or a broken rfc path
+    assert "## pointers" not in out, out
 
 
 def test_invalid_role_and_stage_are_flagged(bare, capsys):
@@ -630,3 +646,176 @@ def test_several_teams_objectives_coexist(bare, capsys):
         objective(bare, f"{slug}-okr", team=slug, advances="Rolls up to [the company objective](company-okr.md).")
     tos_lint.main(["--today", "2026-02-01"])
     assert findings(capsys, "objectives") == []
+
+
+# --------------------------------------------------------------------- pointers
+INITIATIVE = """---
+type: Initiative
+title: {title}
+description: An initiative.
+tags: []
+owner: human:test
+stage: rollout planning
+{pointers}sources:
+  - id: n
+    resource: ../../../raw/notes/n.md
+    title: Note
+    author: human:test
+    last_modified: 2026-08-01
+generated: {{ by: claude-code/test, at: 2026-01-01T09:00:00+10:00 }}
+status: draft
+stale_after: 2099-01-01
+---
+
+# Problem statement
+
+Something is slow.[^n]
+
+# Status
+
+Planning.
+
+# Timeline
+
+- Q1 — pilot.
+
+# Stakeholders
+
+- human:test
+
+# Dependencies
+
+- None.
+
+# My stance
+
+Worth doing.
+
+# Open questions
+
+- None.
+
+[^n]: Note
+"""
+
+
+def initiative(bare, name, *, pointers=""):
+    """Write an initiative page into the bundle and index it. Returns its path."""
+    p = bare / "wiki" / "delivery" / "initiatives" / f"{name}.md"
+    p.write_text(INITIATIVE.format(title=name, pointers=pointers), encoding="utf8")
+    idx = p.parent / "index.md"
+    idx.write_text(idx.read_text(encoding="utf8") + f"* [{name}]({name}.md) - an initiative\n", encoding="utf8")
+    return p
+
+
+ALL_FOUR = ('slack: "#team-search"\n'
+            "jira: PLAT-412\n"
+            "confluence: https://example.atlassian.net/wiki/spaces/ENG/pages/1/X\n"
+            "rfc: ../../design/rfcs/some-rfc.md\n")
+
+
+def rfc_stub(bare, name="some-rfc"):
+    """A file at the path an `rfc:` pointer names. Its own conformance is another check's business."""
+    p = bare / "wiki" / "design" / "rfcs" / f"{name}.md"
+    p.write_text("---\ntype: RFC\nstatus: draft\n---\n\n# Summary\n", encoding="utf8")
+    return p
+
+
+@pytest.mark.parametrize("write", [project, initiative])
+def test_a_page_with_no_pointers_is_quiet(bare, capsys, write):
+    """They are optional: absent is the normal case and must never be a finding."""
+    write(bare, "no-pointers")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "pointers") == []
+
+
+@pytest.mark.parametrize("write", [project, initiative])
+def test_well_formed_pointers_are_quiet(bare, capsys, write):
+    rfc_stub(bare)
+    write(bare, "wired-up", pointers=ALL_FOUR)
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "pointers") == []
+
+
+def test_an_unquoted_channel_is_a_yaml_comment_and_lint_says_so(bare, capsys):
+    """`slack: #team-search` parses to None — the human believes they set a field that is empty."""
+    project(bare, "unquoted", pointers="slack: #team-search\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "pointers"))
+    assert "empty `slack`" in got
+    assert "YAML comment" in got
+
+
+@pytest.mark.parametrize("bad,expect", [
+    ('slack: team-search\n', "slack: 'team-search'"),
+    ('jira: plat-412\n', "jira: 'plat-412'"),
+    ('jira: PLAT412\n', "jira: 'PLAT412'"),
+    ('confluence: confluence.example.com/x\n', "confluence: 'confluence.example.com/x'"),
+])
+def test_malformed_pointers_are_flagged(bare, capsys, bad, expect):
+    project(bare, "bad-pointer", pointers=bad)
+    tos_lint.main(["--today", "2026-02-01"])
+    assert expect in "\n".join(findings(capsys, "pointers"))
+
+
+def test_a_list_of_pointers_is_flagged_as_more_than_one(bare, capsys):
+    project(bare, "two-channels", pointers='slack: ["#a", "#b"]\n')
+    tos_lint.main(["--today", "2026-02-01"])
+    got = "\n".join(findings(capsys, "pointers"))
+    assert "non-string `slack`" in got
+    assert "more than one goes in the body" in got
+
+
+@pytest.mark.parametrize("value,expect", [
+    ("rfc: ../../design/rfcs/missing.md\n", "no such page in this bundle"),
+    ("rfc: ../../design/rfcs/\n", "no such page in this bundle"),   # a directory exists() too
+    ("rfc: .\n", "no such page in this bundle"),
+    ("rfc: ../../../../outside.md\n", "resolves outside the bundle"),
+    ("rfc: /design/rfcs/some-rfc.md\n", "leading slash"),
+])
+def test_a_relative_rfc_pointer_is_resolved_against_the_bundle(bare, capsys, value, expect):
+    rfc_stub(bare)
+    project(bare, "bad-rfc", pointers=value)
+    tos_lint.main(["--today", "2026-02-01"])
+    assert expect in "\n".join(findings(capsys, "pointers"))
+
+
+@pytest.mark.parametrize("key", ["confluence", "rfc"])
+def test_a_plain_http_url_is_not_an_https_url(bare, capsys, key):
+    """The contract says https; `http://` is a paste error, not a second accepted scheme."""
+    project(bare, "insecure", pointers=f"{key}: http://example.com/x\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert f"{key}: 'http://example.com/x'" in "\n".join(findings(capsys, "pointers"))
+
+
+@pytest.mark.parametrize("key", ["slack", "jira", "confluence", "rfc"])
+def test_an_empty_string_pointer_is_flagged_as_empty(bare, capsys, key):
+    """`rfc: ""` used to resolve to the page's own directory, which exists, and say nothing."""
+    project(bare, "blank", pointers=f'{key}: ""\n')
+    tos_lint.main(["--today", "2026-02-01"])
+    assert f"has an empty `{key}`" in "\n".join(findings(capsys, "pointers"))
+
+
+def test_an_https_rfc_pointer_is_not_resolved(bare, capsys):
+    project(bare, "url-rfc", pointers="rfc: https://example.com/rfcs/42\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "pointers") == []
+
+
+def test_an_rfc_pointer_is_not_an_inbound_link(bare, capsys):
+    """The orphan check exists to make you link the page from a section; frontmatter is not that."""
+    rfc = rfc_stub(bare)
+    idx = rfc.parent / "index.md"
+    idx.write_text(idx.read_text(encoding="utf8") + "* [Some RFC](some-rfc.md) - an rfc\n", encoding="utf8")
+    project(bare, "points-at-it", pointers="rfc: ../../design/rfcs/some-rfc.md\n")
+    tos_lint.main(["--today", "2026-02-01"])
+    out = capsys.readouterr().out
+    assert "## pointers" not in out, out
+    assert "design/rfcs/some-rfc.md` has no inbound link" in out
+
+
+def test_recording_a_pointer_is_not_gated_by_the_connector_phase(bare, capsys):
+    """The fixture config is phase 1; slack is a phase-3 connector. Only /tos-pull cares."""
+    project(bare, "phase-one", pointers='slack: "#team-search"\n')
+    tos_lint.main(["--today", "2026-02-01"])
+    assert findings(capsys, "pointers") == []

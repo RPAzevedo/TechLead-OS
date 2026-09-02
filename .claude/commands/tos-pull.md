@@ -4,6 +4,8 @@ argument-hint: <pointer | feed-name> [--pin]
 ---
 Follow CLAUDE.md §0, then §4.2 exactly. Pointer(s): $ARGUMENTS — or, if none given, every non-comment line of `raw/inbox/pull.md`.
 
+A Project's or Initiative's `confluence` or `jira` frontmatter pointer is a legal pointer here, subject to the same phase and scope checks as any other.
+
 For each pointer:
 1. Identify the connector (confluence page URL → `confluence`; Google Doc URL → `gdocs`; Slack permalink → `slack`; JQL or issue key → `jira`; Trello board → `trello`; a path inside a configured repo → `md`; any other URL → `web`).
 2. Check `rollout.phase` in the config allows that connector (phase 1: confluence, web, md, gdocs; jira from phase 2; slack from phase 3; trello from phase 4) and that the pointer is inside the connector's `scope`. If not, stop for that pointer and say which setting would allow it. Never DMs. Never a write to any connected system.

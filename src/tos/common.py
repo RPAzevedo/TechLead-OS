@@ -23,7 +23,7 @@ import yaml
 try:
     ENGINE_VERSION = version("techlead-os")
 except PackageNotFoundError:  # running from a checkout with no install
-    ENGINE_VERSION = "0.8.0"
+    ENGINE_VERSION = "0.9.0"
 
 
 def _find_engine_root() -> Path:
@@ -154,6 +154,11 @@ def load_registry() -> dict:
     reg = {}
     text = engine_path("schema", "types.md").read_text(encoding="utf8")
     for line in text.splitlines():
+        if line.startswith("## "):
+            # the type table ends at the first section heading. `## Extension fields` rows are three
+            # columns, but three `|` inside one of its cells would split into six and register as a
+            # type — and `\|` does not escape — so stop reading rather than rely on the count below.
+            break
         if not line.startswith("| ") or line.startswith("| Type") or line.startswith("|---"):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]

@@ -39,14 +39,22 @@ Ordinary frontmatter keys; OKF consumers must not reject unknown keys.
 | `team` | Objective | the team whose objective it is, as a slug; required at `level: team`, absent at `level: company` |
 | `quarter` | Objective | `YYYY-Qn`, e.g. 2026-Q3 |
 | `next_checkpoint` | Project, Initiative | `YYYY-MM-DD`; the weekly review flags it once passed |
+| `slack` | Project, Initiative | the one Slack channel this work lives in, quoted — `"#team-search"`; unquoted, YAML reads the `#` as a comment and the value is empty. Further channels go in the body |
+| `jira` | Project, Initiative | the initiative or epic issue key, e.g. `ABC-123`; resolved by the human's Jira site, which the config does not name until phase 2 |
+| `confluence` | Project, Initiative | the one Confluence page for this work, as an https URL |
+| `rfc` | Project, Initiative | the RFC this work implements: an https URL, or a relative path to an RFC page in this bundle |
 | `superseded_by` | Decision, RFC | relative link to the page that replaced it |
 | `audience` | Synthesis (briefs) | who the synthesis was written for |
 | `review_due` | Drill | `YYYY-MM-DD` |
 | `pinned` | Source | `true` if a verbatim copy exists under `raw/pinned/` |
 
+A row of this table carries no `|` of its own: the type table above is parsed by splitting on `|`, and a three-column row with three pipes in it yields six cells and registers as a type. Write "or" and `·`; `\|` does not escape.
+
+The four pointer fields say where work lives, which is not the same as reading it: a `slack` value is legal in phase 1 though the slack connector is phase 3. Only `/tos-pull` obeys a connector's phase and its scope.
+
 ## Projects and objectives
 
-A Project is **active** when `status` is not `deprecated` and `stage` is not `paused` or `done`. Active projects are ranked by `priority` and carry a weekly record; they surface in the weekly review's portfolio section rather than in the verify and expiry queues. The *Weekly log* is written only by `/tos-weekly --apply`: one `## YYYY-Www` entry per week with movement, newest first, bold-label bullets from **Progress**, **Challenges & risks**, **Blockers & support needed**, **Open questions & decisions**, **Notes**; a silent week writes no entry. A Project links the objective(s) it advances from *Expected impact*; a team Objective names its `team` and links its company objective — of the same quarter — from *Objective*. The links are ordinary body links, no frontmatter field. Objective slugs are quarter-prefixed (`2026-q3-<slug>`).
+A Project is **active** when `status` is not `deprecated` and `stage` is not `paused` or `done`. Active projects are ranked by `priority` and carry a weekly record; they surface in the weekly review's portfolio section rather than in the verify and expiry queues. The *Weekly log* is written only by `/tos-weekly --apply`: one `## YYYY-Www` entry per week with movement, newest first, bold-label bullets from **Progress**, **Challenges & risks**, **Blockers & support needed**, **Open questions & decisions**, **Notes**; a silent week writes no entry. A Project links the objective(s) it advances from *Expected impact*; a team Objective names its `team` and links its company objective — of the same quarter — from *Objective*. The links are ordinary body links, no frontmatter field — the one exception is a Project's or Initiative's `rfc`, a location for the human to open rather than an alignment lint reasons about. Objective slugs are quarter-prefixed (`2026-q3-<slug>`).
 
 ## Status lifecycle
 

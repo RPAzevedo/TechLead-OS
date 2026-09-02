@@ -9,6 +9,10 @@ role: lead
 stage: pilot
 priority: 1  # assigned by /tos-weekly --apply; the example shows the state after its first Monday
 next_checkpoint: {{DATE+14}}
+slack: "#example-review-bot"
+jira: REV-142
+confluence: https://example.atlassian.net/wiki/spaces/ENG/pages/12345/Review-bot+pilot
+rfc: ../../design/rfcs/example-media-pipeline-v2.md
 sources:
   - id: leadership-notes
     resource: ../../../raw/notes/example-leadership-meeting-notes.md
