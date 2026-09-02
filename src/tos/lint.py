@@ -1,10 +1,12 @@
 """/tos-lint, deterministic half — OKF v0.2 conformance and TechLead OS trust checks.
 
-    uv run tos-lint [--json] [--today YYYY-MM-DD]
+    uv run tos-lint [--json] [--fix] [--today YYYY-MM-DD]
 
 No LLM, no network. Reads the config for data.root and the review settings,
 walks wiki/, and prints a markdown report (or JSON). Exit code 1 when a
-conformance error is found, 0 otherwise. The agent pass (contradictions,
+conformance error is found, 0 otherwise. `--fix` first repairs the mechanical
+findings — missing index entries, dead index lines, moved and leading-slash
+links — then reports on the repaired tree. The agent pass (contradictions,
 unsupported claims, missing cross-references, the people policy, source drift)
 is described in CLAUDE.md §4.5 and is not this script's job.
 """
@@ -12,48 +14,37 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 from tos import common as pc
+from tos.bundle import LOG_LABELS, add_index_entry
 
 RESERVED = {"index.md", "log.md"}
 STATUSES = {"draft", "stable", "deprecated"}
-LOG_LABELS = {"Creation", "Pull", "Ingest", "Query", "Brief", "Measure",
-              "Lint", "Verify", "Review", "Deprecate", "Migration"}
 ROLES = {"lead", "support"}
 STAGES = {"discovery", "build", "pilot", "rollout", "paused", "done"}
 LEVELS = {"company", "team"}
 WEEKLY_LABELS = {"Progress", "Challenges & risks", "Blockers & support needed",
                  "Open questions & decisions", "Notes"}
-LINK_RE = re.compile(r"(?<!!)\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+# the label may carry escaped brackets — a title of `[bracketed]` is written `[\[bracketed\]]`
+LINK_RE = re.compile(r"(?<!!)\[((?:[^\]\\]|\\.)*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:", re.M)
 QUARTER_RE = re.compile(r"^\d{4}-Q[1-4]$")
 TEAM_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 WEEK_RE = re.compile(r"^(\d{4})-W(\d{2})$")
 TOP_BULLET_RE = re.compile(r"^[-*] +(.*)$", re.M)          # nested bullets under a label are indented
 WEEKLY_LABEL_RE = re.compile(r"\*\*([^*]+)\*\*:[ \t]*\S")
+FENCE_RE = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})")
+# a fenced block (to the closing fence, or the end of the page when it is never closed) or an
+# inline code span. What is inside one is an example, not a link this bundle has to resolve.
+CODE_RE = re.compile(r"(?ms)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*\n.*?(?:^[ \t]{0,3}\1[ \t]*$|\Z)|`[^`\n]+`")
 
 
-def load_registry() -> dict:
-    """Parse schema/types.md into {type: {dir, horizon, gate}} from the markdown table."""
-    reg = {}
-    text = pc.engine_path("schema", "types.md").read_text(encoding="utf8")
-    for line in text.splitlines():
-        if not line.startswith("| ") or line.startswith("| Type") or line.startswith("|---"):
-            continue
-        cells = [c.strip() for c in line.strip("|").split("|")]
-        if len(cells) < 6:
-            continue
-        name, phase, lives, horizon, gate, _heads = cells[:6]
-        if name in ("Field",) or not name:
-            continue
-        # a type may name more than one directory (Attested Computation); each cell is backticked
-        dirs = [d.strip().strip("`").strip() for d in lives.split(",")]
-        reg[name] = {"phase": phase, "dir": [d for d in dirs if d], "horizon": horizon, "gate": gate}
-    return reg
+load_registry = pc.load_registry  # moved to common.py in 0.8.0; the helpers need it too
 
 
 class Report:
@@ -89,7 +80,7 @@ def section_links(body: str, heading: str, page_dir: Path, wiki: Path) -> set:
     if not m:
         return set()
     found = set()
-    for _text, target in LINK_RE.findall(m.group(1)):
+    for _text, target in prose_links(m.group(1)):
         if target.startswith(("http://", "https://", "mailto:", "#", "/")):
             continue
         try:
@@ -99,12 +90,144 @@ def section_links(body: str, heading: str, page_dir: Path, wiki: Path) -> set:
     return found
 
 
+def prose_links(text: str) -> list:
+    """The `(label, target)` pairs of `text`, code spans and fenced blocks excluded.
+
+    A link inside a fenced example is not a link of this bundle: it must not count as an
+    inbound link, be reported broken, list a page in an index, or be repaired by --fix.
+    """
+    found, pos = [], 0
+    for m in CODE_RE.finditer(text):
+        found += LINK_RE.findall(text[pos:m.start()])
+        pos = m.end()
+    return found + LINK_RE.findall(text[pos:])
+
+
+def sub_outside_code(repl, text: str) -> str:
+    """`LINK_RE.sub(repl, text)` applied only outside code spans and fenced blocks."""
+    out, pos = [], 0
+    for m in CODE_RE.finditer(text):
+        out += [LINK_RE.sub(repl, text[pos:m.start()]), m.group(0)]
+        pos = m.end()
+    out.append(LINK_RE.sub(repl, text[pos:]))
+    return "".join(out)
+
+
+def _splice_target(m, new_target: str) -> str:
+    """The link match with its target replaced, label and optional title kept."""
+    s, e = m.start(2) - m.start(0), m.end(2) - m.start(0)
+    return m.group(0)[:s] + new_target + m.group(0)[e:]
+
+
+def run_fixes(wiki: Path) -> list[str]:
+    """The mechanical repairs behind --fix; returns one line per repair.
+
+    Only what needs no judgement: a page missing from its (existing) index, a
+    dead index line, a broken link whose target's basename exists exactly once
+    elsewhere in the bundle, a leading-slash link that resolves inside wiki/.
+    Everything else stays a report finding. Idempotent: a second run fixes zero.
+    """
+    fixed = []
+    by_name = defaultdict(list)
+    for p in sorted(wiki.rglob("*.md")):
+        if p.name not in RESERVED:
+            by_name[p.name].append(p)
+
+    def retarget(target: str, page_dir: Path):
+        """A repaired bundle-relative target for a broken one, or None."""
+        clean, _, frag = target.partition("#")
+        if target.startswith("/"):
+            # `/../outside.md` resolves out of the bundle; repairing it would write a
+            # relative link to a file that is not a page of this bundle at all
+            cand = pc.bundle_path(wiki, clean.lstrip("/"))
+            if cand is None or not cand.exists():
+                return None
+        elif (page_dir / clean).resolve().exists():
+            return None
+        else:
+            cands = by_name.get(Path(clean).name, [])
+            if len(cands) != 1:
+                return None
+            cand = cands[0]
+        return os.path.relpath(cand, page_dir).replace("\\", "/") + (f"#{frag}" if frag else "")
+
+    # pages missing from their directory's existing index.md
+    for d in sorted({p.parent for p in wiki.rglob("*.md")}):
+        idx = d / "index.md"
+        if not idx.exists():
+            continue  # a whole missing index needs a title and a description — report, don't guess
+        _, body, err = pc.split_frontmatter(idx.read_text(encoding="utf8"))
+        if err:
+            continue  # a broken index is a conformance error, not a mechanical fix
+        listed = {t for _, t in prose_links(body)}
+        for p in sorted(d.glob("*.md")):
+            if p.name in RESERVED or p.name in listed:
+                continue
+            fm, _, _, _ = pc.read_page(p)
+            heading = "Deprecated" if (fm or {}).get("status") == "deprecated" else "Pages"
+            # refresh, so a line this parser could not read (a title with an unescaped `]`,
+            # written before 0.8.0) is replaced rather than left beside a second entry —
+            # and report only what actually changed, or --fix would claim it every run
+            action = add_index_entry(idx, str((fm or {}).get("title") or p.stem), p.name,
+                                     str((fm or {}).get("description") or ""), False,
+                                     refresh=True, heading=heading)
+            if action:
+                fixed.append(f"`{rel(p, wiki)}` {action} in `{rel(idx, wiki)}`")
+
+    # dead or moved links — index lines are repaired or removed, body links only repaired
+    for p in sorted(wiki.rglob("*.md")):
+        if p.name == "log.md":
+            continue
+        text = p.read_text(encoding="utf8")
+        prel = rel(p, wiki)
+        # the body only: a markdown-shaped frontmatter value is metadata, not a link, and
+        # rewriting it would edit the page's provenance to repair a link that is not there
+        _, body, _ = pc.split_frontmatter(text)
+        head = text[:len(text) - len(body)]
+        if p.name == "index.md":
+            out, fence = [], None
+            for ln in body.split("\n"):
+                f = FENCE_RE.match(ln)
+                if f and (fence is None or ln.strip().startswith(fence)):
+                    fence = None if fence else f.group(1)
+                    out.append(ln)
+                    continue
+                m = None if fence else LINK_RE.search(ln)
+                target = m.group(2) if m else ""
+                if (not m or not ln.lstrip().startswith(("*", "-"))
+                        or target.startswith(("http://", "https://", "mailto:", "#"))
+                        or (p.parent / target.partition("#")[0]).resolve().exists()):
+                    out.append(ln)
+                    continue
+                new = retarget(target, p.parent)
+                if new:
+                    out.append(ln[:m.start()] + _splice_target(m, new) + ln[m.end():])
+                    fixed.append(f"`{prel}` link `{target}` → `{new}`")
+                else:
+                    fixed.append(f"`{prel}` dead line for `{target}` removed")
+            new_body = "\n".join(out)
+        else:
+            def repl(m, page_dir=p.parent, prel=prel):
+                target = m.group(2)
+                if target.startswith(("http://", "https://", "mailto:", "#")):
+                    return m.group(0)
+                new = retarget(target, page_dir)
+                if new is None:
+                    return m.group(0)
+                fixed.append(f"`{prel}` link `{target}` → `{new}`")
+                return _splice_target(m, new)
+            new_body = sub_outside_code(repl, body)
+        if new_body != body:
+            p.write_text(head + new_body, encoding="utf8")
+    return fixed
+
+
 def main(argv):
     as_json = "--json" in argv
-    today = pc.today()
+    cfg = pc.load_config()
+    today = pc.today(cfg)
     if "--today" in argv:
         today = pc.parse_date(argv[argv.index("--today") + 1]) or today
-    cfg = pc.load_config()
     root = pc.data_root(cfg)
     wiki = root / "wiki"
     if not wiki.exists():
@@ -114,6 +237,9 @@ def main(argv):
     weekly_grace = int(pc.review_setting(cfg, "weekly_log_grace_days", 16))
     registry = load_registry()
     rep = Report()
+    if "--fix" in argv:
+        for msg in run_fixes(wiki):  # repairs land before the walk, so the report sees the fixed tree
+            rep.add("fixed", msg)
 
     pages = {}  # rel path -> (fm, body)
     yaml_errors = {}  # rel path -> parser message
@@ -151,6 +277,16 @@ def main(argv):
             if want and not any(path.startswith(w) for w in want) and str(t) != "Team":
                 where = " or ".join(f"`{w}`" for w in want)
                 rep.add("registry", f"`{path}` is a `{t}` but lives outside {where}")
+            req = registry[str(t)]["headings"]
+            if req and fm.get("status") != "deprecated":
+                found = [m.group(1) for m in re.finditer(r"^# (.+?)[ \t]*$", body, re.M)]
+                missing = [h for h in req if h not in found]
+                if missing:
+                    rep.add("headings", f"`{path}` — a `{t}` missing required heading(s): "
+                                        + " · ".join(f"`# {h}`" for h in missing))
+                elif [found.index(h) for h in req] != sorted(found.index(h) for h in req):
+                    rep.add("headings", f"`{path}` — required headings out of template order "
+                                        f"({' · '.join(req)})")
         gen = fm.get("generated") if isinstance(fm.get("generated"), dict) else None
         gen_at = pc.parse_datetime(gen.get("at")) if gen else None
         if not gen or not gen.get("by") or not gen_at:
@@ -272,8 +408,8 @@ def main(argv):
                         rep.add("projects", f"`{path}` — an active Project with no weekly entry since "
                                             f"{newest.isoformat()} (its Monday) — pause or deprecate it if it stopped")
                 elif seen_a_monday:
-                    what = "no entry in its *Weekly log*" if wl else "no *Weekly log* section"
-                    rep.add("projects", f"`{path}` — an active Project with {what}")
+                    # a missing *Weekly log* section itself is the headings check's finding
+                    rep.add("projects", f"`{path}` — an active Project with no entry in its *Weekly log*")
         if str(t) == "Objective":
             alignment[path] = section_links(body, "Objective", (wiki / path).parent, wiki)
             level = fm.get("level")
@@ -302,7 +438,7 @@ def main(argv):
             rep.add("provenance", f"`{path}` — a `{t}` page with no `sources`")
         # links
         page_dir = (wiki / path).parent
-        for _text, target in LINK_RE.findall(body):
+        for _text, target in prose_links(body):
             if target.startswith(("http://", "https://", "mailto:", "#")):
                 continue
             if target.startswith("/"):
@@ -370,7 +506,7 @@ def main(argv):
         elif fm:
             rep.add("index", f"`{drel}/index.md` carries frontmatter — only the bundle root may")
         listed = set()
-        for _t, target in LINK_RE.findall(body):
+        for _t, target in prose_links(body):
             if target.startswith(("http://", "https://")):
                 continue
             tp = (d / target).resolve()
@@ -419,8 +555,9 @@ def main(argv):
     else:
         print(f"# Lint — {today.isoformat()}\n")
         print(f"{summary['pages']} pages · tiers {summary['tiers']} · conformance errors: {rep.errors}\n")
-        order = ["conformance", "trust", "registry", "provenance", "stale", "expiring", "changed-since-verified",
-                 "old-drafts", "rfcs-stuck", "systems", "projects", "objectives", "links", "orphans", "index", "log"]
+        order = ["fixed", "conformance", "trust", "registry", "headings", "provenance", "stale", "expiring",
+                 "changed-since-verified", "old-drafts", "rfcs-stuck", "systems", "projects", "objectives",
+                 "links", "orphans", "index", "log"]
         for check in order + [c for c in rep.findings if c not in order]:
             items = rep.findings.get(check)
             if not items:

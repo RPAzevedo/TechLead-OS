@@ -2,7 +2,7 @@
 
 - config loading
 - frontmatter parsing for OKF pages (PyYAML)
-- date helpers
+- date helpers, in the config's timezone
 
 Malformed YAML is never silently tolerated: `load_yaml()` raises `YamlError`,
 and `split_frontmatter()` / `read_page()` hand that message back as an explicit
@@ -16,13 +16,14 @@ import re
 import sys
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import yaml
 
 try:
     ENGINE_VERSION = version("techlead-os")
 except PackageNotFoundError:  # running from a checkout with no install
-    ENGINE_VERSION = "0.7.3"
+    ENGINE_VERSION = "0.8.0"
 
 
 def _find_engine_root() -> Path:
@@ -75,20 +76,34 @@ def config_path() -> Path:
     return Path(env).expanduser() if env else Path("~/.config/tos/config.yaml").expanduser()
 
 
-def load_config(path: Path | None = None) -> dict:
+def try_load_config(path: Path | None = None):
+    """Return (cfg, None) or (None, error) — for callers that report rather than die."""
     p = path or config_path()
     if not p.exists():
-        sys.exit(
+        return None, (
             f"config not found: {p}\n"
             f"  copy {ENGINE_ROOT / 'config.example.yaml'} there, or set $TOS_CONFIG"
         )
     try:
-        cfg = load_yaml(p.read_text(encoding="utf8"))
+        raw = p.read_text(encoding="utf8")
+    except (OSError, UnicodeDecodeError) as e:
+        # a directory, a permission denial, or bytes that are not UTF-8: the path exists
+        # but there is no config to read, and every caller promised a report, not a traceback
+        return None, f"config at {p} can not be read: {e}"
+    try:
+        cfg = load_yaml(raw)
     except YamlError as e:
-        sys.exit(f"config at {p} is not valid YAML: {e}")
+        return None, f"config at {p} is not valid YAML: {e}"
     if not isinstance(cfg, dict) or "data" not in cfg or not (cfg.get("data") or {}).get("root"):
-        sys.exit(f"config at {p} has no data.root")
+        return None, f"config at {p} has no data.root"
     cfg["_path"] = str(p)
+    return cfg, None
+
+
+def load_config(path: Path | None = None) -> dict:
+    cfg, err = try_load_config(path)
+    if err:
+        sys.exit(err)
     return cfg
 
 
@@ -96,8 +111,68 @@ def data_root(cfg: dict) -> Path:
     return Path(str(cfg["data"]["root"])).expanduser().resolve()
 
 
+def bundle_path(wiki: Path, arg: str) -> Path | None:
+    """The page `arg` names inside the bundle, or None when it points outside it.
+
+    Page operands are bundle-relative by contract. An absolute path (which would
+    discard `wiki` entirely) or one that climbs out with `..` is not a page of
+    this bundle: the helpers refuse it before any read or write.
+    """
+    candidate = (wiki / arg).resolve()
+    return candidate if candidate.is_relative_to(wiki.resolve()) else None
+
+
 def review_setting(cfg: dict, key: str, default):
     return (cfg.get("review") or {}).get(key, default)
+
+
+def engine_drift(cfg: dict) -> str | None:
+    """The one-line note when the config was written for another engine version."""
+    if str(cfg.get("engine")) not in (ENGINE_VERSION, ENGINE_VERSION.rsplit(".", 1)[0]):
+        return f"note: config engine \"{cfg.get('engine')}\" ≠ engine {ENGINE_VERSION}"
+    return None
+
+
+# ----------------------------------------------------------------------------- registry
+# Review's headings cell is prose ("generated sections …"), not a heading list
+FREEFORM_HEADINGS = {"Review"}
+HORIZON_DAYS_RE = re.compile(r"(\d+)\s*d\b")
+RECORD_WHEN_STABLE_RE = re.compile(r"while draft,\s*then\s*—")
+STALE_AFTER_RECORD = "stale_after: ~   # a record: never expires"
+
+
+def load_registry() -> dict:
+    """Parse schema/types.md into {type: {phase, dir, horizon, gate, …}} from the markdown table.
+
+    Derived fields, computed here so no caller re-parses the prose cells:
+      * headings: the template's H1 sections in order, or None for free-form bodies
+      * horizon_days: the integer feeding stale_after, or None for a record
+      * gate_kind: "H" | "M" | "-" — the stable gate with its parenthetical stripped
+      * record_when_stable: the horizon applies "while draft, then —" (RFC), so
+        promoting the page makes it a record and `stale_after` becomes `~`
+    """
+    reg = {}
+    text = engine_path("schema", "types.md").read_text(encoding="utf8")
+    for line in text.splitlines():
+        if not line.startswith("| ") or line.startswith("| Type") or line.startswith("|---"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 6:
+            continue
+        name, phase, lives, horizon, gate, heads = cells[:6]
+        if name in ("Field",) or not name:
+            continue
+        # a type may name more than one directory (Attested Computation); each cell is backticked
+        dirs = [d.strip().strip("`").strip() for d in lives.split(",")]
+        m = HORIZON_DAYS_RE.search(horizon)
+        reg[name] = {
+            "phase": phase, "dir": [d for d in dirs if d], "horizon": horizon, "gate": gate,
+            "headings": None if name in FREEFORM_HEADINGS else [h.strip() for h in heads.split("·") if h.strip()],
+            "horizon_days": int(m.group(1)) if m else None,
+            "gate_kind": gate[:1] if gate[:1] in ("H", "M") else "-",
+            "record_when_stable": bool(RECORD_WHEN_STABLE_RE.search(horizon)),
+        }
+    return reg
 
 
 # ----------------------------------------------------------------------------- frontmatter
@@ -142,8 +217,48 @@ def read_page(path: Path):
 
 
 # ----------------------------------------------------------------------------- dates
-def today() -> dt.date:
-    return dt.date.today()
+_warned_timezones: set[str] = set()
+
+
+def load_timezone(name: str) -> dt.tzinfo | None:
+    """`name` as a tzinfo, or None when it is not an IANA zone this machine knows.
+
+    Reports rather than raises: tos-doctor turns the None into a warning row, the
+    write helpers into a fallback.
+    """
+    try:
+        return ZoneInfo(name)
+    except (ZoneInfoNotFoundError, ValueError):
+        return None
+
+
+def tzinfo(cfg: dict) -> dt.tzinfo:
+    """The config's `data.timezone`, falling back to the host zone with a warning.
+
+    Every timestamp and date a helper writes carries this offset: the page contract
+    is written in the human's timezone, and a UTC runner filling `generated.at` with
+    its own offset would also compute `stale_after` for the wrong calendar day.
+    """
+    name = str((cfg.get("data") or {}).get("timezone") or "").strip()
+    if name:
+        zone = load_timezone(name)
+        if zone is not None:
+            return zone
+        if name not in _warned_timezones:
+            _warned_timezones.add(name)
+            print(f"warning: data.timezone `{name}` is not an IANA timezone — using the host zone",
+                  file=sys.stderr)
+    return dt.datetime.now().astimezone().tzinfo
+
+
+def now(cfg: dict) -> dt.datetime:
+    """Now in the configured timezone, to the second — what `generated.at` carries."""
+    return dt.datetime.now(tzinfo(cfg)).replace(microsecond=0)
+
+
+def today(cfg: dict | None = None) -> dt.date:
+    """Today in the configured timezone; the host's day when no config is at hand."""
+    return now(cfg).date() if cfg is not None else dt.date.today()
 
 
 def parse_date(v) -> dt.date | None:

@@ -1,25 +1,18 @@
 # Roadmap — tos-engine
 
-Engine work only; data changes never appear here. The planned sections below are ordered, not numbered: 0.6.0 went on a command rename nobody had planned, and a numbered plan that reshuffles every time that happens tells the reader less than the order does. Each phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29; the engine is at 0.7.0 (0.5.1 was the rename to TechLead OS; 0.5.2 packaged it and made malformed YAML a conformance error; 0.5.3 fixed the Home.md dashboard and the setup docs; 0.5.4 made the setup paths portable; 0.6.0 prefixed the commands with `tos-`; 0.7.0 made Project the first-class entity and moved Objective to phase 1).
+Engine work only; data changes never appear here. The planned sections below are ordered, not numbered: 0.6.0 went on a command rename nobody had planned, and a numbered plan that reshuffles every time that happens tells the reader less than the order does. Each phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29, last revised 2026-09-01; the engine is at 0.8.0 (0.5.1 was the rename to TechLead OS; 0.5.2 packaged it and made malformed YAML a conformance error; 0.5.3 fixed the Home.md dashboard and the setup docs; 0.5.4 made the setup paths portable; 0.6.0 prefixed the commands with `tos-`; 0.7.0 made Project the first-class entity and moved Objective to phase 1; 0.7.1–0.7.3 denied the connectors' write tools and fixed the two defects phase 2 would have hit; 0.8.0 turned the bookkeeping writes — page creation, log bullets, index entries, verified entries — into scripts, gave lint `--fix` and a registry-wide headings check, and added `tos-doctor`).
 
 ## Next — what the fortnight teaches
 
 No planned scope. The *Engine proposals* sections of the first two Monday reviews become the changelog entries: a heading that keeps being needed, a type nobody used, a guardrail that got in the way, lint findings that were noise. Nothing larger is started until this has happened.
 
-## Then — mechanical helpers and the cross-check pass
+## Then — the cross-check pass
 
-The agent currently edits `log.md` (newest-first date groups), `index.md` entries and frontmatter by hand on every operation. Those are the writes most likely to drift and the easiest to make deterministic.
+The mechanical helpers shipped in 0.8.0; what remains of this section is the pass that consumes them:
 
-- `src/tos/new_page.py` — creates a page from its template with `generated`, `status: draft` and `stale_after` computed from `schema/types.md`.
-- `src/tos/log_add.py` — appends a labelled entry under today's heading, creating the heading at the top when absent.
-- `src/tos/index_add.py` — adds or refreshes a page's entry in its directory index.
-- `src/tos/verify_mark.py` — appends a `verified` entry; invoked only by `/tos-verify`.
-- `tos-lint --fix` — mechanical repairs: index entries, log bullets, obviously moved links.
-- Generalise a required-headings lint check across the registry types: today only Project's *Weekly log* is checked for shape.
-- `src/tos/doctor.py` — runs the onboarding checklist: config, data root, engine/config version, connector names against `claude mcp list`, Obsidian files present.
-- `/tos-crosscheck` — the pass that produces machine-confirmed: re-fetch each Source page's pointer through its connector, judge faithfulness, write `verified: { by: process:cross-check }` or report drift. Agent-driven.
+- `/tos-crosscheck` — the pass that produces machine-confirmed: re-fetch each Source page's pointer through its connector, judge faithfulness, write the entry with `tos-verify-mark --by process:cross-check` (which already accepts it) or report drift. Agent-driven; a command file and a README row, nothing more. Deferred from 0.8.0 because it is the one helper that needs live connectors and judgement.
 
-Shrinks `CLAUDE.md` accordingly. Does not depend on the fortnight; could start at any time.
+Does not depend on the fortnight; could start at any time.
 
 ## Phase 2 — Jira and the sprint tick
 
