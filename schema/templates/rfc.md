@@ -17,7 +17,7 @@ status: draft
 stale_after: <generated.at + 30 d, as YYYY-MM-DD>
 ---
 
-<!-- RFC · lives in design/rfcs/ · phase 1. Entry point to a proposal under review; the canonical document stays where it lives. Horizon 30 d while draft; once stable, set stale_after to ~ (a record). -->
+<!-- RFC · lives in design/rfcs/ · phase 1. Entry point to a proposal under review; the canonical document stays where it lives. Horizon 30 d while draft; when `uv run verify-mark --promote` lifts it to stable, it sets stale_after to ~ (a record) itself. -->
 
 # Summary
 

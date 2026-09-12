@@ -20,7 +20,7 @@ engine/                      this repo
 ├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /tos-init
 ├── schema/examples/         eleven worked example pages and one raw note, installed with /tos-init --with-examples
 ├── pyproject.toml           the package: dependencies and the CLI entry points (bare verbs, no prefix)
-├── src/tos/common.py        config + frontmatter + registry helpers (YAML is parsed strictly)
+├── src/tos/common.py        config, registry, strict YAML    → uv run config
 ├── src/tos/bundle.py        the write-side helpers: log bullets, index entries, frontmatter edits
 ├── src/tos/init.py          creates the data root            → uv run init
 ├── src/tos/lint.py          deterministic lint and --fix     → uv run lint

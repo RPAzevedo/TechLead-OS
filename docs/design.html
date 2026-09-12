@@ -529,8 +529,8 @@ dl.spec dd ol { margin: 0; }
 │   └── vault/                 <span class="cm"># Home.md and .obsidian/ defaults for /init</span>
 └── src/tos/
     ├── common.py              <span class="cm"># config, strict YAML, frontmatter, dates</span>
-    ├── lint.py                <span class="cm"># deterministic checks; no LLM → tos-lint</span>
-    ├── init.py                <span class="cm"># creates the data root layout → tos-init</span>
+    ├── lint.py                <span class="cm"># deterministic checks; no LLM → uv run lint</span>
+    ├── init.py                <span class="cm"># creates the data root layout → uv run init</span>
     └── metrics/               <span class="cm"># executor, attester, one script per metric</span></code></pre>
 <h3>The config file</h3>
 <p>One file per installation, in YAML because the rest of the system already speaks YAML frontmatter (D13). It lives outside both repositories, at <code>~/.config/tos/config.yaml</code>, and <code>CLAUDE.md</code>'s first instruction is to read it. It names the data root; it says which provider serves each connector and how far the agent may reach into it; it lists the feeds allowed to run unattended; and it carries the review settings. It holds no credentials: connector authentication belongs to the MCP server configuration in Claude Code, and the one script that could ever need a token is told the <em>name</em> of an environment variable, never its value.</p>

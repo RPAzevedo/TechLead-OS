@@ -17,6 +17,11 @@ Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a dat
   `log` shadows macOS's `/usr/bin/log` inside an activated `.venv`; going through `uv run` is unaffected.
 - `tests/test_scripts.py` holds the two surfaces apart, the way `test_commands.py` already did for the slash
   commands: no entry point may wear the prefix, and each one must have a row in the README's install table.
+- The docs are current again. The onboarding guide had stayed at 0.7.0 and the scenarios page at 0.5.3 — the
+  version, the eight scripts, their real output and error messages, the Home dashboard's eleven queries, the Monday
+  portfolio — and the scenarios still used the pre-0.6.0 command names. `/tos-query`, `/tos-verify` and `/tos-weekly`
+  now write their log lines and index entries through `uv run log` and `uv run index`, as `CLAUDE.md` §0 already
+  required, so no command file hand-writes a bullet any more.
 
 ## 0.9.0 — 2026-09-02
 
