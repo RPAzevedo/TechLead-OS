@@ -1,6 +1,6 @@
 """/tos-lint, deterministic half — OKF v0.2 conformance and TechLead OS trust checks.
 
-    uv run tos-lint [--json] [--fix] [--today YYYY-MM-DD]
+    uv run lint [--json] [--fix] [--today YYYY-MM-DD]
 
 No LLM, no network. Reads the config for data.root and the review settings,
 walks wiki/, and prints a markdown report (or JSON). Exit code 1 when a

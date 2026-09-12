@@ -1,4 +1,4 @@
-"""tos-log writes the canonical log shape, newest first."""
+"""`uv run log` writes the canonical log shape, newest first."""
 import datetime as dt
 
 from conftest import config_today
@@ -16,7 +16,7 @@ def test_appends_under_todays_existing_heading(bare, capsys):
     assert log_add.main(["Ingest", "first thing"]) == 0
     assert log_add.main(["Query", "second thing"]) == 0
     text = log_text(bare)
-    assert text.count(f"## {config_today().isoformat()}") == 1  # tos-init already wrote today's heading
+    assert text.count(f"## {config_today().isoformat()}") == 1  # /tos-init already wrote today's heading
     assert text.index("* **Ingest**: first thing") < text.index("* **Query**: second thing")
 
 
@@ -47,7 +47,7 @@ def test_unknown_label_is_refused(bare, capsys):
 def test_missing_log_says_run_init(bare, capsys):
     (bare / "wiki" / "log.md").unlink()
     assert log_add.main(["Ingest", "text"]) == 1
-    assert "tos-init" in capsys.readouterr().err
+    assert "/tos-init" in capsys.readouterr().err  # the slash command, not the `uv run init` script
 
 
 def test_dry_run_writes_nothing(bare, capsys):

@@ -1,6 +1,6 @@
-"""tos-log — append a labelled entry to wiki/log.md in the canonical shape.
+"""`uv run log` — append a labelled entry to wiki/log.md in the canonical shape.
 
-    uv run tos-log <Label> <text…> [--date YYYY-MM-DD] [--dry-run]
+    uv run log <Label> <text…> [--date YYYY-MM-DD] [--dry-run]
 
 Writes `* **Label**: text` under the day's `## YYYY-MM-DD` heading, creating
 the heading in date order (newest first) when absent. Prints the bullet it
@@ -28,7 +28,7 @@ def main(argv) -> int:
             return 2
         del argv[i:i + 2]
     if len(argv) < 2:
-        print("usage: tos-log <Label> <text…> [--date YYYY-MM-DD] [--dry-run]", file=sys.stderr)
+        print("usage: uv run log <Label> <text…> [--date YYYY-MM-DD] [--dry-run]", file=sys.stderr)
         return 2
     label, text = argv[0], " ".join(argv[1:])
     if label not in bundle.LOG_LABELS:

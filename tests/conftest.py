@@ -1,4 +1,4 @@
-"""Shared fixtures: real data roots built by tos-init, config via $TOS_CONFIG."""
+"""Shared fixtures: real data roots built by `uv run init`, config via $TOS_CONFIG."""
 import time
 
 import pytest
@@ -6,12 +6,16 @@ import pytest
 from tos import common as pc
 from tos import init as tos_init
 
+# The config the fixtures write matches this engine, as a real one does after `uv run init`;
+# a hard-coded version would turn every fixture into a drift warning at the next bump.
+ENGINE_MINOR = pc.ENGINE_VERSION.rsplit(".", 1)[0]
+
 
 def _root(tmp_path, monkeypatch, args):
     root = tmp_path / "data"
     cfg = tmp_path / "config.yaml"
     cfg.write_text(
-        f'engine: "0.9"\ndata:\n  root: {root}\n  timezone: Australia/Melbourne\n'
+        f'engine: "{ENGINE_MINOR}"\ndata:\n  root: {root}\n  timezone: Australia/Melbourne\n'
         f"  actor: human:test\nrollout:\n  phase: 1\n",
         encoding="utf8",
     )
@@ -22,7 +26,7 @@ def _root(tmp_path, monkeypatch, args):
 
 @pytest.fixture
 def bundle(tmp_path, monkeypatch):
-    """A real data root built by tos-init, with the example pages."""
+    """A real data root built by `uv run init`, with the example pages."""
     return _root(tmp_path, monkeypatch, ["--with-examples"])
 
 

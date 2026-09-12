@@ -1,6 +1,6 @@
-"""tos-new — create a page from its template, frontmatter computed from the registry.
+"""`uv run new` — create a page from its template, frontmatter computed from the registry.
 
-    uv run tos-new <Type> <slug> --title "…" [--description "…"] [--by <actor>]
+    uv run new <Type> <slug> --title "…" [--description "…"] [--by <actor>]
                    [--dir <one of the type's directories>] [--log "Label: text"] [--dry-run]
 
 Copies schema/templates/<type>.md, fills `title`, `description`, `generated`
@@ -44,7 +44,7 @@ def main(argv) -> int:
         else:
             log_arg = val
     if err or len(argv) != 2 or not title:
-        print(err or "usage: tos-new <Type> <slug> --title \"…\" [--description …] [--by <actor>] "
+        print(err or "usage: uv run new <Type> <slug> --title \"…\" [--description …] [--by <actor>] "
                      "[--dir <d>] [--log \"Label: text\"] [--dry-run]", file=sys.stderr)
         return 2
     type_name, slug = argv
@@ -87,7 +87,7 @@ def main(argv) -> int:
     else:
         dest = wiki / dirs[0] / f"{slug}.md"
     if dest.exists():
-        print(f"`{dest.relative_to(wiki)}` already exists — tos-new never overwrites", file=sys.stderr)
+        print(f"`{dest.relative_to(wiki)}` already exists — `uv run new` never overwrites", file=sys.stderr)
         return 1
     # before the page is written: a page the index operation then refuses would be an orphan
     if bundle.ensure_index(wiki, dest.parent, dry):

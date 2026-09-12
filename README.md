@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.7.3** (see `CHANGELOG.md`).
+Engine version **0.10.0** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
@@ -19,16 +19,16 @@ engine/                      this repo
 ├── schema/templates/        one template per type, plus the pinned-copy header
 ├── schema/vault/            Obsidian settings and the Home.md dashboard, installed into the data root by /tos-init
 ├── schema/examples/         eleven worked example pages and one raw note, installed with /tos-init --with-examples
-├── pyproject.toml           the package: dependencies and the tos-* entry points
+├── pyproject.toml           the package: dependencies and the CLI entry points (bare verbs, no prefix)
 ├── src/tos/common.py        config + frontmatter + registry helpers (YAML is parsed strictly)
 ├── src/tos/bundle.py        the write-side helpers: log bullets, index entries, frontmatter edits
-├── src/tos/init.py          creates the data root            → tos-init
-├── src/tos/lint.py          deterministic lint and --fix     → tos-lint
-├── src/tos/new_page.py      page from template + registry    → tos-new
-├── src/tos/log_add.py       canonical log bullet             → tos-log
-├── src/tos/index_add.py     add/refresh an index entry       → tos-index
-├── src/tos/verify_mark.py   verified entries, gates enforced → tos-verify-mark
-├── src/tos/doctor.py        onboarding checklist             → tos-doctor
+├── src/tos/init.py          creates the data root            → uv run init
+├── src/tos/lint.py          deterministic lint and --fix     → uv run lint
+├── src/tos/new_page.py      page from template + registry    → uv run new
+├── src/tos/log_add.py       canonical log bullet             → uv run log
+├── src/tos/index_add.py     add/refresh an index entry       → uv run index
+├── src/tos/verify_mark.py   verified entries, gates enforced → uv run verify-mark
+├── src/tos/doctor.py        onboarding checklist             → uv run doctor
 ├── src/tos/metrics/         the attested-computation executor (phase 2; a README for now)
 ├── tests/                   pytest
 └── docs/                    the design
@@ -57,14 +57,21 @@ That creates `.venv`, installs the engine editable with its dependencies
 
 | command | what it does |
 | --- | --- |
-| `uv run tos-config` | print the resolved config: paths, actor, phase |
-| `uv run tos-init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root |
-| `uv run tos-lint [--json] [--fix] [--today YYYY-MM-DD]` | the deterministic half of `/tos-lint`; `--fix` repairs the mechanical findings; exit 1 on a conformance error |
-| `uv run tos-new <Type> <slug> --title "…" […]` | create a page from its template, frontmatter computed from the registry, indexed |
-| `uv run tos-log <Label> <text…> [--date …]` | append a bullet to wiki/log.md in the canonical shape, newest first |
-| `uv run tos-index <page.md> […]` | add or refresh the page's line in its directory index (`--deprecated` moves it) |
-| `uv run tos-verify-mark <page.md> --by <actor> […]` | append a `verified` entry — `process:*` freely, `human:` only via `/tos-verify` |
-| `uv run tos-doctor [--json]` | the onboarding checklist: config, layout, git, connector names vs `claude mcp list` |
+| `uv run config` | print the resolved config: paths, actor, phase |
+| `uv run init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root |
+| `uv run lint [--json] [--fix] [--today YYYY-MM-DD]` | the deterministic half of `/tos-lint`; `--fix` repairs the mechanical findings; exit 1 on a conformance error |
+| `uv run new <Type> <slug> --title "…" […]` | create a page from its template, frontmatter computed from the registry, indexed |
+| `uv run log <Label> <text…> [--date …]` | append a bullet to wiki/log.md in the canonical shape, newest first |
+| `uv run index <page.md> […]` | add or refresh the page's line in its directory index (`--deprecated` moves it) |
+| `uv run verify-mark <page.md> --by <actor> […]` | append a `verified` entry — `process:*` freely, `human:` only via `/tos-verify` |
+| `uv run doctor [--json]` | the onboarding checklist: config, layout, git, connector names vs `claude mcp list` |
+
+They are bare verbs, deliberately: the `tos-` prefix marks a Claude Code slash
+command and nothing else, so `uv run lint` and `/tos-lint` no longer read as one
+thing. Because `lint` or `doctor` alone says nothing about which tool it is,
+always write a script as `uv run <name>` — and note that `log` shadows macOS's
+`/usr/bin/log` if you ever activate `.venv` directly rather than going through
+`uv run`.
 
 Run them from this directory. The engine finds `schema/` by walking up from the
 package to the checkout root; set `$TOS_ENGINE_ROOT` if you ever need to point
@@ -79,11 +86,11 @@ other commands loaded. The full procedure for each is in
 
 | command | what it does | phase |
 | --- | --- | --- |
-| `/tos-init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root described by the config (runs `tos-init`) | 1 |
+| `/tos-init [--with-examples \| --remove-examples \| --dry-run]` | create or refresh the data root described by the config (runs `uv run init`) | 1 |
 | `/tos-pull <pointer \| feed-name> [--pin]` | read a source through a connector and write its Source page; no verbatim copy unless `--pin` | 1 |
 | `/tos-ingest [path]` | turn the notes in `raw/inbox/` (or one file) into wiki pages | 1 |
 | `/tos-query <question>` | answer from the wiki, citing each page with its trust tier and age | 1 |
-| `/tos-lint [--fix]` | health-check the bundle: the `tos-lint` script, then the agent pass | 1 |
+| `/tos-lint [--fix]` | health-check the bundle: the `uv run lint` script, then the agent pass | 1 |
 | `/tos-verify <page> \| --queue` | promote a page you have read — the only way a `human:*` verification is ever written | 1 |
 | `/tos-weekly [--apply]` | the Monday tick: the ranked project portfolio, then lint, queues, expiries, RFCs, systems, questions; `--apply` writes each project's weekly entry and executes your inline answers | 1 |
 | `/tos-sprint` | sprint-boundary review with attested metrics | 2 |
@@ -120,11 +127,11 @@ exposes, and add any this list misses.
 
 ## Quickstart
 
-1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then replace the `CHANGE_ME` placeholders in `data.root` (anywhere you like — it need not sit next to the engine) and `data.actor`, and set `data.timezone` and the connector scopes you have. It holds no secrets. `uv run tos-config` prints what the engine resolved.
-2. **Data root.** `uv run --directory <this repo> tos-init --with-examples` (or `/tos-init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
+1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then replace the `CHANGE_ME` placeholders in `data.root` (anywhere you like — it need not sit next to the engine) and `data.actor`, and set `data.timezone` and the connector scopes you have. It holds no secrets. `uv run config` prints what the engine resolved.
+2. **Data root.** `uv run --directory <this repo> init --with-examples` (or `/tos-init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
 3. **Claude Code.** Start it in this directory so `CLAUDE.md` loads, and grant it the data root: `claude --add-dir <data.root>`. To stop repeating the flag, put the absolute path in `permissions.additionalDirectories` in `.claude/settings.local.json` — untracked and per-machine, so it does not exist until you write it. Connectors are MCP servers configured in Claude Code; the config's `connectors.<name>.provider` must match their names.
 4. **First loop.** Drop a note into `raw/inbox/`, run `/tos-ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/tos-pull`; ask `/tos-query <question>`; run `/tos-lint`; on Monday, `/tos-weekly`, answer inline, `/tos-weekly --apply`.
-5. **Examples.** The eleven pages tagged `example` are there so the first `/tos-query` has something to find. Remove them with `uv run tos-init --remove-examples`.
+5. **Examples.** The eleven pages tagged `example` are there so the first `/tos-query` has something to find. Remove them with `uv run init --remove-examples`.
 
 ## Development Phases
 

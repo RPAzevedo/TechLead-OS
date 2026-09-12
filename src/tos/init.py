@@ -1,6 +1,6 @@
 """/tos-init — create (or refresh) the data root described by the config.
 
-    uv run tos-init [--with-examples] [--remove-examples] [--dry-run]
+    uv run init [--with-examples] [--remove-examples] [--dry-run]
 
 Creates data.root with raw/ and wiki/ (every directory with its index.md), the
 bundle-root index.md carrying okf_version "0.2", log.md with a Creation entry,

@@ -1,6 +1,6 @@
-"""tos-index — add or refresh a page's entry in its directory's index.md.
+"""`uv run index` — add or refresh a page's entry in its directory's index.md.
 
-    uv run tos-index <wiki-relative-page.md> [--title "…"] [--desc "…"] [--deprecated] [--dry-run]
+    uv run index <wiki-relative-page.md> [--title "…"] [--desc "…"] [--deprecated] [--dry-run]
 
 Title and description default to the page's own frontmatter so the entry and
 the page cannot disagree; the flags override. `--deprecated` files the entry
@@ -39,7 +39,7 @@ def main(argv) -> int:
     if not err:
         argv, desc, err = _flag(argv, "--desc")
     if err or len(argv) != 1:
-        print(err or "usage: tos-index <wiki-relative-page.md> [--title …] [--desc …] [--deprecated] [--dry-run]",
+        print(err or "usage: uv run index <wiki-relative-page.md> [--title …] [--desc …] [--deprecated] [--dry-run]",
               file=sys.stderr)
         return 2
     cfg = pc.load_config()

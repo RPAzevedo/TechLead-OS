@@ -23,7 +23,7 @@ import yaml
 try:
     ENGINE_VERSION = version("techlead-os")
 except PackageNotFoundError:  # running from a checkout with no install
-    ENGINE_VERSION = "0.9.0"
+    ENGINE_VERSION = "0.10.0"
 
 
 def _find_engine_root() -> Path:
@@ -51,7 +51,8 @@ def engine_path(*parts: str) -> Path:
     if not p.exists():
         sys.exit(
             f"engine file not found: {p}\n"
-            "  run tos from the engine checkout (uv run tos-…), or set $TOS_ENGINE_ROOT to it"
+            "  run the engine's commands from its checkout (uv run lint, uv run doctor, …),"
+            " or set $TOS_ENGINE_ROOT to it"
         )
     return p
 
@@ -228,7 +229,7 @@ _warned_timezones: set[str] = set()
 def load_timezone(name: str) -> dt.tzinfo | None:
     """`name` as a tzinfo, or None when it is not an IANA zone this machine knows.
 
-    Reports rather than raises: tos-doctor turns the None into a warning row, the
+    Reports rather than raises: `uv run doctor` turns the None into a warning row, the
     write helpers into a fallback.
     """
     try:
@@ -326,7 +327,7 @@ def trust_tier(fm: dict) -> str:
 # ----------------------------------------------------------------------------- cli
 def main(argv) -> int:
     if argv and argv[0] not in ("--show",):
-        print("usage: tos-config [--show]", file=sys.stderr)
+        print("usage: uv run config [--show]", file=sys.stderr)
         return 2
     cfg = load_config()
     print(f"config:   {cfg['_path']}")

@@ -2,6 +2,22 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.10.0 — 2026-09-08
+
+**`tos-` now means "Claude Code slash command" and nothing else: the eight console scripts drop the prefix.**
+
+- The CLI is bare verbs — `uv run config`, `init`, `lint`, `new`, `log`, `index`, `verify-mark`, `doctor`.
+  The prefix was added in 0.6.0 so `/tos-init` would not collide with Claude Code's own `/init`; the scripts
+  live behind `uv run` in the project's own `.venv` and never had that collision, so they carried it only by
+  imitation — and `uv run tos-lint` sitting next to `/tos-lint` made two different surfaces look like one.
+- The eleven slash commands and the `.claude/commands/tos-*.md` filenames are unchanged, as are the package
+  (`tos`), the distribution (`techlead-os`), `$TOS_CONFIG`, `$TOS_ENGINE_ROOT` and `~/.config/tos/`.
+- A hard rename with no aliases: run `uv sync` and the old names are gone. Because `lint` or `doctor` alone
+  no longer says which tool it is, prose and usage strings always write a script as `uv run <name>`. Note that
+  `log` shadows macOS's `/usr/bin/log` inside an activated `.venv`; going through `uv run` is unaffected.
+- `tests/test_scripts.py` holds the two surfaces apart, the way `test_commands.py` already did for the slash
+  commands: no entry point may wear the prefix, and each one must have a row in the README's install table.
+
 ## 0.9.0 — 2026-09-02
 
 **A Project or Initiative can say where the work actually lives — the channel, the epic, the page, the RFC —

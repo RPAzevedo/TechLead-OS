@@ -1,4 +1,4 @@
-"""tos-verify-mark: actor rules, gates, and text-level frontmatter safety."""
+"""`uv run verify-mark`: actor rules, gates, and text-level frontmatter safety."""
 from zoneinfo import ZoneInfo
 
 from conftest import config_today
@@ -148,7 +148,7 @@ def with_verified(bare, block):
 
 
 def test_the_single_mapping_form_becomes_a_list(bare, capsys):
-    """OKF allows `verified: { by, at }` and docs/design.md shows it; tos-verify-mark is now the
+    """OKF allows `verified: { by, at }` and docs/design.md shows it; `uv run verify-mark` is now the
     only way an entry is ever written, so it has to extend that page without a hand edit."""
     page = with_verified(bare, "verified: { by: process:cross-check, at: 2026-01-01T09:00:00+10:00 }")
     assert verify_mark.main(["concepts/widget.md", "--by", "human:test", "--human-confirmed"]) == 0
