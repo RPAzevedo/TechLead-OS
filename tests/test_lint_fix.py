@@ -1,4 +1,4 @@
-"""tos-lint --fix repairs only the mechanical findings, idempotently."""
+"""`uv run lint --fix` repairs only the mechanical findings, idempotently."""
 from tos import lint as tos_lint
 from tos import new_page
 

@@ -1,4 +1,4 @@
-"""tos-index adds or refreshes a page's line in its directory index."""
+"""`uv run index` adds or refreshes a page's line in its directory index."""
 from tos import index_add, new_page
 
 
@@ -8,7 +8,7 @@ def idx_text(root, d="concepts"):
 
 def test_defaults_come_from_the_page_frontmatter(bare, capsys):
     assert new_page.main(["Concept", "widget", "--title", "Widget", "--description", "A widget."]) == 0
-    # wipe the line tos-new wrote, then restore it from the page itself
+    # wipe the line `uv run new` wrote, then restore it from the page itself
     idx = bare / "wiki" / "concepts" / "index.md"
     idx.write_text("\n".join(ln for ln in idx_text(bare).splitlines() if "widget" not in ln) + "\n", encoding="utf8")
     assert index_add.main(["concepts/widget.md"]) == 0

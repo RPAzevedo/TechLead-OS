@@ -1,4 +1,4 @@
-"""tos-new creates registry-conformant pages from the templates."""
+"""`uv run new` creates registry-conformant pages from the templates."""
 import datetime as dt
 from zoneinfo import ZoneInfo
 
@@ -41,7 +41,7 @@ def test_source_gets_a_date_prefix_and_a_null_stale_after(bare, capsys):
 def test_a_new_project_or_initiative_carries_no_pointer_keys(bare, capsys):
     """The pointer keys ship commented out, so a fresh page carries none of them and lints clean.
 
-    A live `slack: "#channel"` in the template would survive tos-new, which fills only title,
+    A live `slack: "#channel"` in the template would survive `uv run new`, which fills only title,
     description, generated and stale_after, and every new page would open with a finding.
     """
     for t, d in (("Project", "delivery/projects"), ("Initiative", "delivery/initiatives")):

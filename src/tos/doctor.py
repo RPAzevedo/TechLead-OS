@@ -1,6 +1,6 @@
-"""tos-doctor — the onboarding checklist, report-only.
+"""`uv run doctor` — the onboarding checklist, report-only.
 
-    uv run tos-doctor [--json]
+    uv run doctor [--json]
 
 Checks the config, the data root's layout, engine/config drift, the vault
 files, the data repository, the config's MCP connector names against

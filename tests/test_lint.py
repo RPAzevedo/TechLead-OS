@@ -1,4 +1,4 @@
-"""End-to-end lint behaviour over a real bundle built by tos-init."""
+"""End-to-end lint behaviour over a real bundle built by `uv run init`."""
 import re
 from pathlib import Path
 

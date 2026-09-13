@@ -196,7 +196,7 @@ def log_add(log_path: Path, label: str, text: str, date: dt.date, dry: bool = Fa
     if label not in LOG_LABELS:
         raise ValueError(f"label `{label}` is not one of {sorted(LOG_LABELS)}")
     if not log_path.exists():
-        raise FileNotFoundError(f"{log_path} is missing — run tos-init first")
+        raise FileNotFoundError(f"{log_path} is missing — run /tos-init first")
     bullet = f"* **{label}**: {text}"
     lines = log_path.read_text(encoding="utf8").rstrip("\n").split("\n")
     headings = [(i, pc.parse_date(ln[3:].strip())) for i, ln in enumerate(lines) if ln.startswith("## ")]
@@ -257,7 +257,7 @@ def append_verified_entry(text: str, by: str, at: str) -> str:
     """Append `- { by, at }` to the page's `verified`, whatever shape the key is in.
 
     OKF allows a list of mappings or a single mapping — `common.verified_entries()` reads
-    both and docs/design.md shows both — and tos-verify-mark is now the only way an entry is
+    both and docs/design.md shows both — and `uv run verify-mark` is now the only way an entry is
     ever written, so a conforming page it could not extend would need exactly the hand edit
     CLAUDE.md §0 forbids. A single mapping, flow or block, becomes a one-item list with its
     text carried over verbatim, so key order, extra keys and comments survive. Raises

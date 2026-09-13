@@ -1,6 +1,6 @@
-"""tos-verify-mark — append a `verified` entry to a page, guardrails enforced.
+"""`uv run verify-mark` — append a `verified` entry to a page, guardrails enforced.
 
-    uv run tos-verify-mark <wiki-relative-page.md> --by <actor>
+    uv run verify-mark <wiki-relative-page.md> --by <actor>
                            [--at <ISO-8601>] [--promote] [--human-confirmed] [--dry-run]
 
 Actor rules (CLAUDE.md §5, guardrail 2):
@@ -33,7 +33,7 @@ def main(argv) -> int:
     if not err:
         argv, at, err = _flag(argv, "--at")
     if err or len(argv) != 1 or not by:
-        print(err or "usage: tos-verify-mark <wiki-relative-page.md> --by <actor> [--at ISO-8601] "
+        print(err or "usage: uv run verify-mark <wiki-relative-page.md> --by <actor> [--at ISO-8601] "
                      "[--promote] [--human-confirmed] [--dry-run]", file=sys.stderr)
         return 2
     cfg = pc.load_config()

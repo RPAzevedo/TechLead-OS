@@ -4,7 +4,7 @@ You are the maintenance agent for a personal knowledge OS. This repository is th
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
 
-Engine version: **0.9.0** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `tos-config`, `tos-init`, `tos-lint` and the bookkeeping helpers — `tos-new`, `tos-log`, `tos-index`, `tos-verify-mark`, `tos-doctor` — on `uv run`. The helpers own the canonical formats: create a page with `tos-new`, append a log bullet with `tos-log`, add or refresh an index entry with `tos-index`; never hand-write what a script writes.
+Engine version: **0.10.0** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `config`, `init`, `lint` and the bookkeeping helpers — `new`, `log`, `index`, `verify-mark`, `doctor` — on `uv run`. They are bare verbs: the `tos-` prefix belongs to the slash commands alone, so always write a script as `uv run <name>` and never on its own. The helpers own the canonical formats: create a page with `uv run new`, append a log bullet with `uv run log`, add or refresh an index entry with `uv run index`; never hand-write what a script writes.
 
 ## 0. First, read the config
 
@@ -16,7 +16,7 @@ Before any operation:
 4. Let `ACTOR` = `data.actor` (the human, e.g. `human:rafael`), `TZ` = `data.timezone`. Your own actor string is `claude-code/<model-id>` with the model you are actually running as.
 5. If `engine` in the config differs from the engine version above, say so once; continue unless the difference is a major version.
 
-Run `uv run tos-config` to print the resolved config if you need to check it.
+Run `uv run config` to print the resolved config if you need to check it.
 
 ## 1. The two trees
 
@@ -25,7 +25,8 @@ ENGINE (this repo)                  DATA (data.root, from the config)
 CLAUDE.md, CHANGELOG.md             raw/inbox/     drop zone; pull.md lists pointers
 pyproject.toml, uv.lock             raw/notes/     the human's notes, moved here after ingest — immutable
 .claude/commands/*.md               raw/pinned/    verbatim copies made only on request (--pin) — immutable
-schema/types.md, templates/, vault/ raw/metrics/   query snapshots kept by metric feeds — immutable
+schema/ (types.md, templates/,      raw/metrics/   query snapshots kept by metric feeds — immutable
+  vault/, examples/)
 src/tos/ (common, bundle, init,     raw/assets/    images
   lint, and the §0 helpers)
 tests/, docs/                       wiki/          the OKF v0.2 bundle: index.md, log.md, domain dirs
@@ -86,7 +87,7 @@ Conventions:
 Each has a command file in `.claude/commands/` with the full procedure. Summary and invariants:
 
 ### 4.1 `/tos-init` — create the data root from the config
-Creates `DATA` with the layout in §1, every directory's `index.md`, the bundle-root `index.md` with `okf_version: "0.2"`, `log.md` with a `Creation` entry, installs `Home.md` and `.obsidian/` from `schema/vault/`, optionally the example pages from `schema/examples/`, and initialises a git repository in `DATA`. Re-running only re-installs vault files and reports engine/config drift. Implemented by `src/tos/init.py`; the command runs `uv run tos-init`.
+Creates `DATA` with the layout in §1, every directory's `index.md`, the bundle-root `index.md` with `okf_version: "0.2"`, `log.md` with a `Creation` entry, installs `Home.md` and `.obsidian/` from `schema/vault/`, optionally the example pages from `schema/examples/`, and initialises a git repository in `DATA`. Re-running only re-installs vault files and reports engine/config drift. Implemented by `src/tos/init.py`; the command runs `uv run init`.
 
 ### 4.2 `/tos-pull <pointer> [--pin]` — read a source through a connector
 A pointer is a URL, a Slack permalink, a Confluence page, a Google Doc, a JQL query, a repository path, or a feed name from the config. You:
@@ -101,17 +102,17 @@ For what `/tos-pull` just read, or every file in `raw/inbox/` (not `pull.md`), o
 1. Write or update `wiki/sources/<date>-<slug>.md` (type Source): a summary, the load-bearing lines quoted as short excerpts, and a `sources` entry with the pointer as `resource`, `title`, `author`, and the source's own `last_modified` or version. For a note from the inbox, `resource` is its path under `raw/notes/` after the move.
 2. Extract what the registry recognises — concepts, project and initiative updates, objectives from an OKR document, RFCs and decisions, system facts, questions — and create or update those pages from their templates (typically 5–15 touches). Internal updates go into an existing page's timeline, not new pages; on a Project that means *Status*, *Next*, *Risks* or *Decisions*, never its *Weekly log*, which only `/tos-weekly --apply` writes.
 3. Footnote every new claim to a `sources[].id`. On contradiction with an existing page, add to that page's *Open questions* instead of overwriting.
-4. New pages come from `uv run tos-new`, which computes `generated`, `status: draft` and `stale_after` from the registry; on a hand-updated page set `generated` yourself. Never write `verified`.
-5. Update every affected `index.md` (`uv run tos-index <path>`); append the operation's line with `uv run tos-log`; move an inbox note to `raw/notes/`; commit `DATA` with the log line as the message.
+4. New pages come from `uv run new`, which computes `generated`, `status: draft` and `stale_after` from the registry; on a hand-updated page set `generated` yourself. Never write `verified`.
+5. Update every affected `index.md` (`uv run index <path>`); append the operation's line with `uv run log`; move an inbox note to `raw/notes/`; commit `DATA` with the log line as the message.
 
 ### 4.4 `/tos-query <question>` — answer from the wiki
 Read `wiki/index.md` → the relevant directory indexes → candidate frontmatter → bodies. Never walk the whole bundle. Answer with links to the pages used and, per page, its tier and date ("human-reviewed 2026-08-26", "unverified, written by the agent 2026-08-25", "stale since 2026-08-01"). Exclude `deprecated` pages unless asked. If the answer is reusable, file it as a `Synthesis` (draft) and log `* **Query**: "…" → [Synthesis](syntheses/….md)`.
 
 ### 4.5 `/tos-lint` — health check
-Run `uv run tos-lint` (deterministic: conformance, trust fields, stale and expiring, changed-since-verified, old drafts, RFCs stuck in draft, unticked System standards, project fields and priorities, connector pointers, weekly-log format and currency, objective fields and linkage, broken links, orphans, index coverage, log format). Then the agent pass: contradictions, claims without a source, missing cross-references, gaps worth a `Question`, the people/stakeholder content policy (§5) including a Weekly log's *Notes*, contradictions between a weekly entry and the page's live sections, and **source drift** — for each Source page whose `sources[].resource` is a connector URL in scope, compare the recorded `last_modified` with the live one and list "changed since read". Output goes into the next Review page; mechanical repairs (index entries, link repairs) are `uv run tos-lint --fix`, nothing judgement-shaped, and log `* **Lint**: …`. Lint adds no `verified` entries.
+Run `uv run lint` (deterministic: conformance, trust fields, type and directory against the registry, required headings, provenance (source resources, footnote ids), stale and expiring, changed-since-verified, old drafts, RFCs stuck in draft, unticked System standards, project fields and priorities, connector pointers, weekly-log format and currency, objective fields and linkage, broken links, orphans, index coverage, log format). Then the agent pass: contradictions, claims without a source, missing cross-references, gaps worth a `Question`, the people/stakeholder content policy (§5) including a Weekly log's *Notes*, contradictions between a weekly entry and the page's live sections, and **source drift** — for each Source page whose `sources[].resource` is a connector URL in scope, compare the recorded `last_modified` with the live one and list "changed since read". Output goes into the next Review page; mechanical repairs (index entries, link repairs) are `uv run lint --fix`, nothing judgement-shaped, and log `* **Lint**: …`. Lint adds no `verified` entries.
 
 ### 4.6 `/tos-verify <page> | --queue` — the human promotes a page
-Show the diff since the last verification (git). On the human's explicit "yes": `uv run tos-verify-mark <path> --by <ACTOR> --human-confirmed --promote` (the entry is appended; `draft → stable` only if the type's gate allows), log `* **Verify**: …`, commit. On "no": fix what they say is wrong; the page stays draft. **Never run this on your own initiative, never write a `human:` verification any other way, and never pass `--human-confirmed` outside this command.**
+Show the diff since the last verification (git). On the human's explicit "yes": `uv run verify-mark <path> --by <ACTOR> --human-confirmed --promote` (the entry is appended; `draft → stable` only if the type's gate allows), log `* **Verify**: …`, commit. On "no": fix what they say is wrong; the page stays draft. **Never run this on your own initiative, never write a `human:` verification any other way, and never pass `--human-confirmed` outside this command.**
 
 ### 4.7 `/tos-weekly [--apply]` — the Monday tick
 Run lint, then write `wiki/reviews/<ISO-week>.md` (type Review) opening with **Projects — ranked portfolio**: every active project in `priority` order, with its role, stage, trust tier, rank movement since last week, and the week's entry drafted from the log, the week's sources and git — then ingested this week; verify queue (top `review.verify_queue` unverified pages by inbound links, recency, domain weight team > design > systems > delivery > learning); re-pull queue from source drift; expiring pages (refresh / extend / deprecate); checkpoints passed; RFCs awaiting a decision; systems due for review; questions; lint findings; engine proposals. Active Projects are left out of the verify, expiry and checkpoint queues — they surface in their portfolio rows instead. The human answers inline (an unanswered row means: entry accepted, rank kept, no verify); `--apply` appends each accepted entry to its project's *Weekly log* and carries it into the live sections — adding what it reports, striking only what it resolves, never dropping a live item the entry was silent about — writing nothing at all for a week with no movement — the control answers like `rank` and `verify` are not movement — so a quiet project keeps its verification, and is safe to re-run after a partial failure, renumbers `priority`, reorders the projects index, and executes the other answers, logging each as its own label. Engine proposals the human accepts are applied in this repository and recorded in `CHANGELOG.md` — never in the data log.

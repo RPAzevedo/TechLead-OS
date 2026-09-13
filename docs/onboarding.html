@@ -459,7 +459,7 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.7.0 · Phase 1</p>
+    <p class="eyebrow">Onboarding · engine 0.10.0 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: five setup steps in about half an hour, a forty-five-minute first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
     <p class="meta"><span><b>Engine</b> wherever you clone it (<code>$TOS_ENGINE</code>)</span><span><b>Data root</b> wherever you choose (<code>$TOS_DATA</code>), named in the config</span><span><b>Setup</b> ~30 min, then a 45-min first loop</span><span><b>Acceptance</b> two weeks</span></p>
@@ -541,16 +541,16 @@
       <p class="part">1 · The engine</p>
       <h2>Clone it wherever you like</h2>
       <p class="scen-meta"><span class="chip phase1">4 minutes</span><span class="chip">$TOS_ENGINE</span></p>
-      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, 0.5.4 is this page, 0.6.0 gave every command the <code>/tos-</code> prefix, and 0.7.0 made Project the first-class entity with a weekly log and a ranked portfolio. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
+      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, 0.5.4 is this page, 0.6.0 gave every command the <code>/tos-</code> prefix, 0.7.0 made Project the first-class entity with a weekly log and a ranked portfolio, 0.8.0 turned the bookkeeping writes into scripts and added <code>uv run doctor</code>, 0.9.0 gave Project and Initiative their connector pointers, and 0.10.0 took the <code>tos-</code> prefix back off the scripts, leaving it to the slash commands. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>git clone git@github.com:RPAzevedo/TechLead-OS.git ~/code/techlead-os   <span class="cm"># or any directory you prefer</span>
 cd ~/code/techlead-os
 export TOS_ENGINE="$(git rev-parse --show-toplevel)"   <span class="cm"># already have a checkout? cd into it and run this line alone</span>
 
-git log --oneline          <span class="cm"># newest first; the top line is 0.7.0, the history starts at 0.5.0</span>
+git log --oneline          <span class="cm"># newest first; the top line is 0.10.0, the history starts at 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 uv --version               <span class="cm"># brew install uv if this is missing</span>
-uv sync                    <span class="cm"># creates .venv, installs PyYAML and the tos-* commands</span></code></pre>
-      <p>That last step is the whole installation. It puts three commands behind <code>uv run</code>: <code>tos-config</code> (print the resolved config), <code>tos-init</code> (create the data root) and <code>tos-lint</code> (the deterministic half of <code>/tos-lint</code>). Every snippet below reaches them as <code>uv run --directory "$TOS_ENGINE" tos-…</code>, which runs from whatever directory you happen to be in.</p>
+uv sync                    <span class="cm"># creates .venv, installs PyYAML and the engine's commands</span></code></pre>
+      <p>That last step is the whole installation. It puts eight commands behind <code>uv run</code>: <code>config</code> (print the resolved config), <code>init</code> (create the data root), <code>lint</code> (the deterministic half of <code>/tos-lint</code>), <code>doctor</code> (the onboarding checklist), and the four bookkeeping helpers the agent calls for you — <code>new</code>, <code>log</code>, <code>index</code> and <code>verify-mark</code>. They are bare verbs — the <code>tos-</code> prefix belongs to the slash commands alone — so every snippet below reaches them as <code>uv run --directory "$TOS_ENGINE" &lt;name&gt;</code>, which runs from whatever directory you happen to be in.</p>
       <div class="callout">
         <p class="label">Two variables, for this page only</p>
         <p><code>$TOS_ENGINE</code> is the engine checkout; <code>$TOS_DATA</code>, set in step 2, is the data root. The engine reads neither — it reads <code>$TOS_CONFIG</code>, or <code>~/.config/tos/config.yaml</code>, and takes the data root from that. They exist so the commands here are the commands you actually type. A new terminal forgets them: put both <code>export</code> lines in <code>~/.zshrc</code> if you would rather not re-run them.</p>
@@ -569,11 +569,11 @@ cp "$TOS_ENGINE"/config.example.yaml ~/.config/tos/config.yaml
 open -e ~/.config/tos/config.yaml</code></pre>
       <p>Edit four things and leave the rest. <code>data.root</code>: the example ships the placeholder <code>~/CHANGE_ME/techlead-os-data</code>, so replace it — the data root can go anywhere the policy check allows and need not sit next to the engine. <code>data.actor</code>, the actor string that will appear in every verification you make. <code>data.timezone</code>. And the Phase 1 connector scopes, the Confluence spaces and Google Drive folders the agent may read from. Leave <code>rollout.phase: 1</code>. Then tell this page the same path and check what the engine resolved:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>export TOS_DATA=~/techlead-os-data      <span class="cm"># the same path you just wrote into data.root</span>
-uv run --directory "$TOS_ENGINE" tos-config</code></pre>
+uv run --directory "$TOS_ENGINE" config</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code>config:   /Users/you/.config/tos/config.yaml
-engine:   0.7.0 (config says 0.7)
+engine:   0.10.0 (config says 0.10)
 engine root: /Users/you/code/techlead-os
 data:     /Users/you/techlead-os-data  exists=False
 actor:    human:you
@@ -588,7 +588,7 @@ phase:    1</code></pre>
       <h2>Created by <code>/tos-init</code>, never by hand</h2>
       <p class="scen-meta"><span class="chip phase1">2 minutes</span><span class="chip">creates $TOS_DATA</span></p>
       <p>Run the initialiser with the examples. It creates <code>raw/</code> and <code>wiki/</code> with every directory's <code>index.md</code>, the bundle-root index with <code>okf_version: "0.2"</code>, <code>log.md</code> with its first entry, <code>raw/inbox/pull.md</code>, the Obsidian files, eleven example pages plus one example note, and a git repository with a first commit.</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code></pre>
+<pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" init --with-examples</code></pre>
       <div class="answer">
         <p class="from">expected output (abridged)</p>
 <pre class="inline"><code>data root: /Users/you/techlead-os-data (created)
@@ -597,11 +597,11 @@ created: raw/inbox/pull.md
 created: wiki/index.md … (26 index files) … wiki/log.md
 vault: Home.md · .obsidian/app.json · .obsidian/community-plugins.json
 example: raw/notes/example-leadership-meeting-notes.md
-example: wiki/systems/example-asset-search.md … (10 pages)
+example: wiki/concepts/example-alert-budget.md … wiki/systems/example-asset-search.md (11 pages)
 git: repository initialised and first commit made</code></pre>
       </div>
       <p>Then run the deterministic lint once, before any real content, so you know what a clean report looks like:</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" tos-lint</code></pre>
+<pre class="wrap"><div class="code-title">terminal</div><code>uv run --directory "$TOS_ENGINE" lint</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline wrap"><code># Lint — 2026-08-31
@@ -620,7 +620,7 @@ git: repository initialised and first commit made</code></pre>
       <h2>Open the data root as the vault</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">plugin: Dataview</span></p>
       <p>Obsidian → <em>Open folder as vault</em> → your data root. <code>echo "$TOS_DATA"</code> prints the path; ⌘⇧G in the file dialog takes a typed one. Not the engine: the vault is the data. The settings <code>/tos-init</code> installed are already in place: markdown links rather than wikilinks, relative link paths, attachments in <code>raw/assets/</code>, so anything you write by hand in a note will link the way the agent's pages do.</p>
-      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Three of its nine queries have something to show on day one: <em>Portfolio</em> lists the example project, <em>Unverified, newest first</em> lists nine pages — it leaves out the weekly Review and the active project, which answers for its own trust in the portfolio — and <em>Open questions</em> lists the example Question. The other six are empty, and that is the right answer rather than a fault: <em>Systems due for review</em> looks fourteen days ahead and the example System does not expire for ninety, <em>RFCs stuck in draft</em> wants a draft a fortnight old, and nothing has yet expired, been verified, or passed a checkpoint. Home.md is an alarm panel; on a fresh vault almost all of it is quiet. If <em>every</em> table is empty, the first one included, Dataview is not enabled; if they show errors, see §10.</p>
+      <p>Install Dataview: Settings → Community plugins → turn off Restricted mode → Browse → Dataview → Install → Enable. Then open <code>Home.md</code>. Five of its eleven queries have something to show on day one: <em>Portfolio</em> lists the example project, <em>OKRs this quarter</em> the example team objective, <em>Where the work lives</em> the example project's and initiative's pointers, <em>Unverified, newest first</em> lists nine pages — it leaves out the weekly Review and the active project, which answers for its own trust in the portfolio — and <em>Open questions</em> lists the example Question. The other six are empty, and that is the right answer rather than a fault: <em>Systems due for review</em> looks fourteen days ahead and the example System does not expire for ninety, <em>RFCs stuck in draft</em> wants a draft a fortnight old, and nothing has yet expired, been verified, sat in draft for a fortnight, or passed a checkpoint. Home.md is an alarm panel; on a fresh vault almost all of it is quiet. If <em>every</em> table is empty, the first one included, Dataview is not enabled; if they show errors, see §10.</p>
       <p>Open <code>wiki/index.md</code> and follow a link or two. That top-down path, root index → directory index → page, is the one the agent takes for every query.</p>
     </section>
 
@@ -685,7 +685,7 @@ EOF</code></pre>
 &gt; /tos-verify --queue         <span class="cm"># verify what you would quote; skip the rest</span></code></pre>
       <p>What to look for in the answers: every page cited with a tier and a date; the RFC page unverified and your review notes marked as yours; the System page's <em>Operational standards</em> ticked or unticked with footnotes; nothing stated without a source. If an answer states something with no citation, that is an engine bug; note it for the weekly review's <em>Engine proposals</em>. What to look for in the data root afterwards: the four pointer lines gone from <code>pull.md</code>, your note moved to <code>raw/notes/</code> untouched, under today's date in <code>wiki/log.md</code> an <em>Ingest</em> for the note and a <em>Pull</em> with its <em>Ingest</em> for each of the four pointers, each of those its own commit in <code>git log</code>, and nothing at all under <code>raw/pinned/</code>, because you did not ask for a pin.</p>
       <p>The other three commands are quieter than that makes them sound, and deliberately so — only a change to the wiki earns a line. A <code>/tos-query</code> logs and commits when the answer was reusable enough to file as a Synthesis; a query that merely answers you leaves no trace, so do not expect three lines for three questions. <code>/tos-lint</code> without <code>--fix</code> writes its findings into this week's Review page and neither logs nor commits, so expect an uncommitted change in the data root after it. <code>/tos-verify --queue</code> logs and commits once per page you said yes to, and nothing for the ones you skipped.</p>
-      <p>Then remove the examples, so the wiki is yours: <code>uv run --directory "$TOS_ENGINE" tos-init --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
+      <p>Then remove the examples, so the wiki is yours: <code>uv run --directory "$TOS_ENGINE" init --remove-examples</code>. Keep them a few more days if you want a second reference for what a good page looks like.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -699,7 +699,7 @@ EOF</code></pre>
           <tbody>
             <tr><td>Day 1</td><td>Steps 1–6.</td><td>Five Source pages, three cited answers, a clean lint apart from what you left unticked.</td></tr>
             <tr><td>Days 2–5, end of day</td><td>Notes into <code>raw/inbox/</code>, pointers into <code>pull.md</code>; <code>/tos-ingest</code> then <code>/tos-pull</code>. Two <code>/tos-query</code> during the day, whenever you would have searched.</td><td>Each day's log entries; pages accumulating under the domains you actually work in; answers that name their tiers.</td></tr>
-            <tr><td>Monday (day 8)</td><td><code>/tos-weekly</code>; answer the page inline in Obsidian; <code>/tos-weekly --apply</code>.</td><td>A verify queue of five, a re-pull queue if any Doc changed, expiring pages with a choice each, RFCs awaiting you, systems due, questions; one log line per action after apply.</td></tr>
+            <tr><td>Monday (day 8)</td><td><code>/tos-weekly</code>; answer the page inline in Obsidian; <code>/tos-weekly --apply</code>.</td><td>The ranked project portfolio with each project's week drafted, then a verify queue of five, a re-pull queue if any Doc changed, expiring pages with a choice each, RFCs awaiting you, systems due, questions; one log line per action after apply.</td></tr>
             <tr><td>Days 9–12</td><td>Same daily rhythm. Before any meeting about a project, the S3 brief from the scenarios page — which is a <code>/tos-query</code> and works in Phase 1, not the Phase 3 <code>/tos-brief</code> — then <code>/tos-verify --queue</code>.</td><td>The first time a brief flags something unverified that you would otherwise have quoted.</td></tr>
             <tr><td>Monday (day 15)</td><td>Second <code>/tos-weekly</code>. Then the verdict: read the two review pages and the <em>Engine proposals</em> sections.</td><td>At least two or three proposals worth applying — a heading that keeps being needed, a type that was never used, a guardrail that got in the way. Those become the engine's next release.</td></tr>
           </tbody>
@@ -744,9 +744,9 @@ EOF</code></pre>
           <thead><tr><th>You see</th><th>Cause</th><th>Do</th></tr></thead>
           <tbody>
             <tr><td><code>config not found: …</code></td><td>No config at the default path and <code>$TOS_CONFIG</code> unset.</td><td>Step 2. The message names the file to copy.</td></tr>
-            <tr><td><code>config at … has no data.root</code></td><td>The YAML is malformed or <code>data:</code> was removed.</td><td>Compare with <code>config.example.yaml</code>; indentation is two spaces.</td></tr>
-            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>uv run --directory "$TOS_ENGINE" tos-config</code>, then <code>/tos-init</code>.</td></tr>
-            <tr><td><code>command not found: tos-lint</code></td><td>The engine is not installed.</td><td><code>cd "$TOS_ENGINE" &amp;&amp; uv sync</code>, and invoke through <code>uv run</code>.</td></tr>
+            <tr><td><code>config at … has no data.root</code></td><td><code>data:</code> or <code>data.root</code> is missing or empty. Malformed YAML reports <code>config at … is not valid YAML</code> instead, with the line.</td><td>Compare with <code>config.example.yaml</code>; indentation is two spaces.</td></tr>
+            <tr><td>The agent says the data root does not exist</td><td>Step 3 not run, or <code>data.root</code> points elsewhere.</td><td><code>uv run --directory "$TOS_ENGINE" config</code>, then <code>/tos-init</code>.</td></tr>
+            <tr><td><code>Failed to spawn: `lint`</code>, or <code>command not found: lint</code></td><td><code>--directory</code> does not point at the engine checkout, or the script was typed bare instead of through <code>uv run</code>.</td><td>Check <code>echo "$TOS_ENGINE"</code>, run <code>cd "$TOS_ENGINE" &amp;&amp; uv sync</code>, and invoke it as <code>uv run --directory "$TOS_ENGINE" lint</code>.</td></tr>
             <tr><td><code>cd: no such file or directory</code>, or <code>--directory</code> with an empty path</td><td>A new terminal: <code>$TOS_ENGINE</code> and <code>$TOS_DATA</code> last only for the session that set them.</td><td>Re-run the two <code>export</code> lines from §1 and §2, or put them in <code>~/.zshrc</code>.</td></tr>
             <tr><td><code>frontmatter is not valid YAML</code> in a lint report</td><td>A page's frontmatter really is malformed — an unclosed <code>[</code>, an unquoted value containing <code>: </code>, a stray line.</td><td>Open the page at the line named and fix it. Lint exits 1 until it parses; OKF requires it.</td></tr>
             <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>tos-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
@@ -769,8 +769,9 @@ EOF</code></pre>
       <h2>Print this half-page</h2>
       <ul class="checklist">
         <li>Policy check done: summaries and excerpts of company material may live in the data root, at the path I chose.</li>
-        <li><code>uv sync</code> ran in the engine checkout; <code>$TOS_ENGINE</code> and <code>$TOS_DATA</code> are set; <code>~/.config/tos/config.yaml</code> exists; <code>uv run --directory "$TOS_ENGINE" tos-config</code> resolves the data root, actor and phase 1.</li>
-        <li><code>uv run --directory "$TOS_ENGINE" tos-init --with-examples</code> ran; <code>… tos-lint</code> reports 0 conformance errors and the one intended finding.</li>
+        <li><code>uv sync</code> ran in the engine checkout; <code>$TOS_ENGINE</code> and <code>$TOS_DATA</code> are set; <code>~/.config/tos/config.yaml</code> exists; <code>uv run --directory "$TOS_ENGINE" config</code> resolves the data root, actor and phase 1.</li>
+        <li><code>uv run --directory "$TOS_ENGINE" init --with-examples</code> ran; <code>… lint</code> reports 0 conformance errors and the one intended finding.</li>
+        <li><code>uv run --directory "$TOS_ENGINE" doctor</code> reports every check <code>ok</code>, or a <code>warn</code> I understand — usually a connector name <code>claude mcp list</code> does not show.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
         <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
         <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
@@ -780,7 +781,7 @@ EOF</code></pre>
         <li>Monday: <code>/tos-weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v0.5), the engine (0.7.0) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
+      <p class="footer-note">Companion to the design (v0.5), the engine (0.10.0) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
     </section>
   </main>
 </div>

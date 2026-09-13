@@ -1,7 +1,7 @@
 ---
 type: Objective
 title: Example — Faster, safer reviews (team OKR)
-description: Example Objective page — the team OKR the review-bot pilot advances; delete with tos-init --remove-examples.
+description: Example Objective page — the team OKR the review-bot pilot advances; delete with uv run init --remove-examples.
 tags: [example, objective, okr]
 level: team
 team: search-services

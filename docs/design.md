@@ -153,8 +153,8 @@ The OKF bundle root is `wiki/`, not the data root. That keeps `raw/` (notes, pin
     │   └── vault/                 # Home.md and .obsidian/ defaults that /init installs into data.root
     └── src/tos/
         ├── common.py              # config, strict YAML, frontmatter, dates
-        ├── lint.py                # deterministic checks; no LLM        → tos-lint
-        ├── init.py                # creates the data root layout        → tos-init
+        ├── lint.py                # deterministic checks; no LLM        → uv run lint
+        ├── init.py                # creates the data root layout        → uv run init
         └── metrics/               # run.py (executor), attest.py (attester), one script per metric
 
 ### The config file

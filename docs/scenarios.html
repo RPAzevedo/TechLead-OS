@@ -424,11 +424,10 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Scenarios · companion to the design (v0.5) and engine 0.5.3</p>
-    <p class="eyebrow">Commands on this page are the pre-0.6.0 names: engine 0.6.0 renamed <code>/init</code>, <code>/pull</code>, <code>/ingest</code> and the rest to <code>/tos-init</code>, <code>/tos-pull</code>, <code>/tos-ingest</code>. The procedures are unchanged.</p>
+    <p class="eyebrow">Scenarios · companion to the design (v0.5) and engine 0.10.0</p>
     <h1>TechLead OS in Practice</h1>
     <p class="lede">Eight situations from a lead engineer's week, and what the system does in each: what you type, what the agent reads and writes, what comes back, and why you can trust it. Every scenario marked Phase 1 works with the engine as installed; the two that need a connector you don't have yet say so, and show the version that works today.</p>
-    <p class="meta"><span><b>For</b> Rafael</span><span><b>Pages used</b> the eleven examples <code>/init --with-examples</code> installs</span><span><b>Times</b> what you spend, not the agent</span></p>
+    <p class="meta"><span><b>For</b> Rafael</span><span><b>Pages used</b> the eleven examples <code>/tos-init --with-examples</code> installs</span><span><b>Times</b> what you spend, not the agent</span></p>
   </header>
 
   <nav class="toc" aria-label="Contents">
@@ -464,11 +463,11 @@
       <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">about 10 minutes of yours</span><span class="chip">connectors: Google Docs or Confluence</span></p>
       <p><strong>Trigger.</strong> The media team shares <em>RFC: Media pipeline v2</em>, a Google Doc, and asks for your review. It replaces the nightly batch pipeline with an event-driven one, and asset search consumes its output.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>Paste the Doc URL into <code>raw/inbox/pull.md</code>. Type your first impressions into a note in <code>raw/inbox/</code>, three lines are enough. Run <code>/pull</code>.</p></div>
+        <div class="step"><p class="who">You</p><p>Paste the Doc URL into <code>raw/inbox/pull.md</code>. Type your first impressions into a note in <code>raw/inbox/</code>, three lines are enough. Run <code>/tos-pull</code>.</p></div>
         <div class="step"><p class="who">Agent</p><p>Checks the Doc is inside the <code>gdocs</code> scope; fetches it read-only. Writes a <code>Source</code> page with a summary, the load-bearing lines as excerpts, and the Doc's modified time. Creates <code>design/rfcs/media-pipeline-v2.md</code> as the entry point: <code>resource</code> → the Doc, options, your notes under <em>Review notes</em>, a <em>Standards check</em>, outcome pending. Links it from <code>systems/asset-search.md</code>. Files a <code>Question</code> if ownership of reconciliation is unclear. Indexes, logs, commits.</p></div>
         <div class="step"><p class="who">You get</p><p>An RFC page you can annotate, a query you can ask, and a line on Monday's review under <em>Design — awaiting your decision</em> with the due date.</p></div>
       </div>
-<pre><div class="code-title">terminal — after /pull</div><code>/query what does media pipeline v2 change for the systems we own, and what does it not address?</code></pre>
+<pre><div class="code-title">terminal — after /tos-pull</div><code>/tos-query what does media pipeline v2 change for the systems we own, and what does it not address?</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p>Media pipeline v2 replaces the nightly batch rebuild with event-driven writes into the search index. Asset search consumes that index directly, so two things become your concern: how partial events are reconciled before the index is queried, and how a bad batch of events is rolled back. The RFC addresses data retention but not observability or rollback, and it does not say who owns reconciliation.</p>
@@ -480,7 +479,7 @@
         </ul>
       </div>
       <h3>Why you can trust it</h3>
-      <p>Your review notes are yours and say so; everything else on the RFC page is the agent's reading of the Doc, footnoted to the Source page, and marked unverified until you <code>/verify</code> it. The Source page recorded the Doc's modified time, so if the authors edit it before Friday, Monday's drift check reports "changed since read" and queues a re-pull. The canonical RFC stays in the Doc (decision D10); the wiki page is an entry point, never a copy.</p>
+      <p>Your review notes are yours and say so; everything else on the RFC page is the agent's reading of the Doc, footnoted to the Source page, and marked unverified until you <code>/tos-verify</code> it. The Source page recorded the Doc's modified time, so if the authors edit it before Friday, Monday's drift check reports "changed since read" and queues a re-pull. The canonical RFC stays in the Doc (decision D10); the wiki page is an entry point, never a copy.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -490,11 +489,11 @@
       <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">3 minutes</span><span class="chip">no connector needed</span></p>
       <p><strong>Trigger.</strong> 9:27. Stand-up is at 9:30 and you were in meetings all of yesterday afternoon.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>One query, the same one every day, so it is a habit and not a prompt: <code>/query stand-up</code> with the question below.</p></div>
+        <div class="step"><p class="who">You</p><p>One query, the same one every day, so it is a habit and not a prompt: <code>/tos-query stand-up</code> with the question below.</p></div>
         <div class="step"><p class="who">Agent</p><p>Reads yesterday's and today's entries in <code>log.md</code> and the pages they touched; then every Project and Initiative page's <em>Status</em>, <em>Next</em> and <code>next_checkpoint</code>; System <em>KTLO</em> sections; open Question pages. Composes four short lists and cites each line.</p></div>
         <div class="step"><p class="who">You get</p><p>A stand-up card: changed, blocked, decisions needed, checkpoints this week. Thirty seconds to read.</p></div>
       </div>
-<pre><div class="code-title">terminal</div><code>/query stand-up: what changed since yesterday on our projects and systems, what is blocked, what needs a decision from me, which checkpoints fall this week?</code></pre>
+<pre><div class="code-title">terminal</div><code>/tos-query stand-up: what changed since yesterday on our projects and systems, what is blocked, what needs a decision from me, which checkpoints fall this week?</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p><strong>Changed.</strong> The media pipeline v2 RFC was ingested with your review notes; asset search gained a KTLO item for the noisy latency alert. <strong>Blocked.</strong> Extending the review-bot pilot waits on the vendor evaluation decision, which is still a proposal. <strong>Needs you.</strong> Two: the vendor-evaluation decision (draft since Tuesday), and the RFC review (due Friday). <strong>Checkpoints this week.</strong> Review-bot pilot, Thursday.</p>
@@ -506,7 +505,7 @@
         </ul>
       </div>
       <h3>Why you can trust it, and where it stops</h3>
-      <p>It only knows what was ingested. A good stand-up card is the return on yesterday's five-minute <code>/ingest</code> of your notes; a teammate's remark in Slack that you never captured is not in it, until the Slack connector arrives in Phase 3. Jira board state is Phase 2 too, so today this covers what you recorded, which for a lead's stand-up is usually the part that matters: decisions, blockers and dates. Each line carries its tier, so "changed since verified" on the System page tells you the KTLO item is the agent's reading of the incident report, not something you have confirmed.</p>
+      <p>It only knows what was ingested. A good stand-up card is the return on yesterday's five-minute <code>/tos-ingest</code> of your notes; a teammate's remark in Slack that you never captured is not in it, until the Slack connector arrives in Phase 3. Jira board state is Phase 2 too, so today this covers what you recorded, which for a lead's stand-up is usually the part that matters: decisions, blockers and dates. Each line carries its tier, so "changed since verified" on the System page tells you the KTLO item is the agent's reading of the incident report, not something you have confirmed.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -516,15 +515,15 @@
       <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">10 minutes before, 5 after</span><span class="chip">no connector needed</span></p>
       <p><strong>Trigger.</strong> 14:00, review of the review-bot pilot with the Product Trio and Security. You want status, the pending decision, the risks, what each stakeholder has actually said, and to not be caught quoting something the agent guessed.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>Ask for the brief. Verify the two pages it flags. After the meeting, drop your notes into <code>raw/inbox/</code> and run <code>/ingest</code>.</p></div>
+        <div class="step"><p class="who">You</p><p>Ask for the brief. Verify the two pages it flags. After the meeting, drop your notes into <code>raw/inbox/</code> and run <code>/tos-ingest</code>.</p></div>
         <div class="step"><p class="who">Agent</p><p>Before: reads the Project page, its linked Decision, the Initiative's <em>Timeline</em> and <em>Stakeholders</em>, open Questions, and the Source pages behind them for the actual words. Flags which of these are unverified. After: updates <em>Status</em> and <em>Next</em>, records the decision's outcome, moves the checkpoint, files the new question, logs, commits.</p></div>
         <div class="step"><p class="who">You get</p><p>A one-page brief with a "verify before you quote" line; after the meeting, pages that already say what was agreed.</p></div>
       </div>
-<pre><div class="code-title">terminal — 13:30</div><code>/query brief me for the review-bot pilot meeting: status, decisions pending, risks, open questions, and what each stakeholder has said, with quotes where we have them</code></pre>
+<pre><div class="code-title">terminal — 13:30</div><code>/tos-query brief me for the review-bot pilot meeting: status, decisions pending, risks, open questions, and what each stakeholder has said, with quotes where we have them</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p><strong>Status.</strong> Pilot running in one team; extension to two more is gated on a proposed decision to evaluate vendor X first. <strong>Pending.</strong> That decision, proposed Tuesday, not yet accepted. <strong>Risks.</strong> A vendor product makes the in-house bot redundant. <strong>Open.</strong> Who owns the evaluation harness — nobody could say. <strong>Stakeholders.</strong> Security: "wants the data-handling brief before the pilot extends" (leadership notes, 28 Aug). Product Trio: no recorded position.</p>
-        <p><strong>Verify before you quote:</strong> the decision page and the Initiative's stakeholder line are unverified. <code>/verify --queue</code> will offer both first.</p>
+        <p><strong>Verify before you quote:</strong> the decision page and the Initiative's stakeholder line are unverified. <code>/tos-verify --queue</code> will offer both first.</p>
         <ul class="cites">
           <li>delivery/projects/review-bot-pilot.md — <span class="tier human">human-reviewed</span> 2026-08-29</li>
           <li>design/decisions/evaluate-vendor-before-extending-pilot.md — <span class="tier">unverified</span></li>
@@ -532,12 +531,12 @@
           <li>sources/2026-08-28-leadership-meeting-notes.md — <span class="tier machine">machine-confirmed</span></li>
         </ul>
       </div>
-<pre><div class="code-title">terminal — 13:34, two minutes</div><code>/verify --queue
+<pre><div class="code-title">terminal — 13:34, two minutes</div><code>/tos-verify --queue
 → design/decisions/evaluate-vendor-before-extending-pilot.md: diff shown … verify? <b>yes</b>
-   verified by human:rafael · status stays draft (a proposed decision is stable only once accepted)
+   verified by human:rafael · status: stable (the page is reviewed; the decision it records is still proposed)
 → delivery/initiatives/ai-assisted-code-review-rollout.md: diff shown … verify? <b>yes</b>
    verified by human:rafael · status: stable</code></pre>
-<pre><div class="code-title">terminal — 15:10, after the meeting</div><code>/ingest
+<pre><div class="code-title">terminal — 15:10, after the meeting</div><code>/tos-ingest
 * **Ingest**: [Review-bot pilot meeting, 2026-09-02](sources/2026-09-02-review-bot-pilot-meeting.md) — touched 5 pages (1 new)
   projects/review-bot-pilot.md            Status, Next, next_checkpoint → 2026-09-16
   decisions/evaluate-vendor-…             Outcome: accepted; two-week evaluation
@@ -555,7 +554,7 @@
       <p class="scen-meta"><span class="chip phase3">Phase 3 for the connector</span><span class="chip phase1">works now by pasting</span><span class="chip">5 minutes</span></p>
       <p><strong>Trigger.</strong> You are back from two days of workshops. <code>#team-search</code> and <code>#incidents</code> have a hundred and forty messages between them, and somewhere in there are three questions only you can answer.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>Phase 3: <code>/pull "#team-search, last 2 days"</code>, named channels only. Today: copy the threads you care about into a note in <code>raw/inbox/</code> and run <code>/ingest</code>; the rest of the scenario is identical.</p></div>
+        <div class="step"><p class="who">You</p><p>Phase 3: <code>/tos-pull "#team-search, last 2 days"</code>, named channels only. Today: copy the threads you care about into a note in <code>raw/inbox/</code> and run <code>/tos-ingest</code>; the rest of the scenario is identical.</p></div>
         <div class="step"><p class="who">Agent</p><p>Summarises each thread into a Source page with excerpts and permalinks, never a copy of the thread. Updates Initiative timelines, System incidents and (Phase 3) Stakeholder positions. Then lists what is <em>awaiting you</em>: questions addressed to you or about your systems with no reply from you, requests from stakeholders, decisions someone is waiting on; each with its permalink and a draft reply you can paste. It never posts.</p></div>
         <div class="step"><p class="who">You get</p><p>A short list of what needs you, with drafts. You answer in Slack yourself.</p></div>
       </div>
@@ -579,11 +578,11 @@
       <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">5 minutes, then Monday</span><span class="chip">connector: Confluence</span></p>
       <p><strong>Trigger.</strong> The search-latency alert fired repeatedly on Wednesday night; on Thursday the incident report is in Confluence. As system owner you have to escalate the alert-budget breach and make sure the fix does not get lost.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>Paste the Confluence URL into <code>pull.md</code>; <code>/pull</code>. Later, one question.</p></div>
+        <div class="step"><p class="who">You</p><p>Paste the Confluence URL into <code>pull.md</code>; <code>/tos-pull</code>. Later, one question.</p></div>
         <div class="step"><p class="who">Agent</p><p>Source page with the report's key lines. On <code>systems/asset-search.md</code>: unticks the alert-budget item under <em>Operational standards</em> with a footnote, adds the KTLO item, a timeline line, and the incident to <em>Runbooks &amp; links</em>. Updates the <em>Alert budget</em> concept. Files a Question if the cause is unresolved. Lint now reports one unticked standard; Monday's <em>Systems</em> section carries it as an escalation prompt.</p></div>
         <div class="step"><p class="who">You get</p><p>A System page that is current, an escalation you cannot forget, and a quarter's worth of incident history on demand.</p></div>
       </div>
-<pre><div class="code-title">terminal — Friday</div><code>/query what do we know about latency incidents on asset search this quarter, and what changed after each?</code></pre>
+<pre><div class="code-title">terminal — Friday</div><code>/tos-query what do we know about latency incidents on asset search this quarter, and what changed after each?</code></pre>
       <div class="answer">
         <p class="from">answer</p>
         <p>Two incidents. 30 July: p95 latency exceeded the SLO for 40 minutes after a bad index rebuild; the rebuild job gained a validation step. 2 September: the latency alert fired repeatedly for three days and breached the alert budget; the on-call attributes it to thresholds set before the index migration, not a regression, and asked for a KTLO item to retune the alert, which is filed but not yet scheduled. One open question: whether the p95 SLO itself should change.</p>
@@ -608,7 +607,7 @@
       <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">1 minute</span><span class="chip">no connector needed</span></p>
       <p><strong>Trigger.</strong> An engineer who joined last month asks why the pilot extension was gated on a vendor evaluation. Six weeks ago you could have answered from memory; today you want the answer to be the record, not your recollection of it.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p><code>/query why did we decide to evaluate vendor X before extending the review-bot pilot?</code></p></div>
+        <div class="step"><p class="who">You</p><p><code>/tos-query why did we decide to evaluate vendor X before extending the review-bot pilot?</code></p></div>
         <div class="step"><p class="who">Agent</p><p>Reads the Decision page: <em>Context</em>, the three <em>Options</em>, the <em>Decision</em>, <em>Consequences</em>, <em>Standards applied</em>; the Source behind it for the words; the Initiative timeline for what happened since.</p></div>
         <div class="step"><p class="who">You get</p><p>The rationale with the alternatives that were rejected, dated and tiered. If it is human-reviewed, you can forward it as is.</p></div>
       </div>
@@ -632,11 +631,17 @@
       <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">30 minutes</span><span class="chip">drift check needs the connectors</span></p>
       <p><strong>Trigger.</strong> Monday 8:30. The agent ran over the weekend; the review page is waiting.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p><code>/weekly</code> if it has not run; open <code>reviews/2026-W37.md</code> in Obsidian; answer inline with <code>→</code>; <code>/weekly --apply</code>.</p></div>
-        <div class="step"><p class="who">Agent</p><p>Runs lint (script, then the agent pass with source drift), builds the verify queue (five, ranked), the re-pull queue, expiries, checkpoints passed, RFCs awaiting a decision, systems due, open questions, engine proposals. Writes the page. On <code>--apply</code>, executes every answer, logs each as its own label, commits; accepted engine proposals go to the engine repo and its changelog, not the log.</p></div>
+        <div class="step"><p class="who">You</p><p><code>/tos-weekly</code> if it has not run; open <code>reviews/2026-W37.md</code> in Obsidian; answer inline with <code>→</code>; <code>/tos-weekly --apply</code>.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Runs lint (script, then the agent pass with source drift), ranks the active projects into the portfolio with each one's week drafted, builds the verify queue (five, ranked), the re-pull queue, expiries, checkpoints passed, RFCs awaiting a decision, systems due, open questions, engine proposals. Writes the page. On <code>--apply</code>, appends each accepted week to its project's weekly log, renumbers the priorities, executes every other answer, logs each as its own label, commits; accepted engine proposals go to the engine repo and its changelog, not the log.</p></div>
         <div class="step"><p class="who">You get</p><p>Ten to fifteen decisions, none of which you had to assemble, and a wiki that is still trustworthy next Monday.</p></div>
       </div>
-<pre><div class="code-title">wiki/reviews/2026-W37.md — answered inline</div><code># Verify queue (5 of 9 unverified, ranked by inbound links and domain)
+<pre><div class="code-title">wiki/reviews/2026-W37.md — answered inline</div><code># Projects — ranked portfolio
+## 1. [Review-bot pilot](../delivery/projects/review-bot-pilot.md) — lead · pilot · human-reviewed 2026-08-31 · checkpoint 2026-09-04 passed
+- **Progress**: second team onboarded; the vendor evaluation is half done.
+- **Blockers &amp; support needed**: security sign-off for the vendor trial, from the platform lead.
+→ <span class="hl">checkpoint 2026-09-16</span>
+
+# Verify queue (5 of 9 unverified, ranked by inbound links and domain)
 - [x] systems/asset-search.md — changed since your review on 2026-08-26            → <span class="hl">verified</span>
 - [x] design/decisions/evaluate-vendor-before-extending-pilot.md — accepted 09-02  → <span class="hl">verified · stable</span>
 - [ ] design/rfcs/media-pipeline-v2.md — review sent Friday, outcome pending        → <span class="hl">skip until the authors reply</span>
@@ -647,10 +652,10 @@
 - design/rfcs/media-pipeline-v2.md — the Doc has 3 revisions since it was read     → <span class="hl">re-pull</span>
 
 # Expiring (refresh / extend / deprecate)
-- delivery/projects/eval-harness.md — stale since 2026-09-05                        → <span class="hl">deprecate: folded into the pilot</span>
+- delivery/projects/eval-harness.md (paused) — stale since 2026-09-05               → <span class="hl">deprecate: folded into the pilot</span>
 
-# Checkpoints passed
-- delivery/projects/review-bot-pilot.md — 2026-09-04                                → <span class="hl">move to 2026-09-16</span>
+# Checkpoints passed (initiatives)
+- none
 
 # Engine proposals (applied in the engine repo; CHANGELOG, not this log)
 - Incident reports keep yielding "alert thresholds" facts with no home.
@@ -663,10 +668,10 @@
     <section id="update">
       <p class="part">S8 · Team and stakeholders</p>
       <h2>A stakeholder wants an update</h2>
-      <p class="scen-meta"><span class="chip phase3">Phase 3 — /brief</span><span class="chip phase1">works now with /query and an edit</span><span class="chip">10 minutes</span></p>
+      <p class="scen-meta"><span class="chip phase3">Phase 3 — /tos-brief</span><span class="chip phase1">works now with /tos-query and an edit</span><span class="chip">10 minutes</span></p>
       <p><strong>Trigger.</strong> Security asks, by Friday, for the team's position on data handling in the review-bot pilot. You want to send something accurate in their terms, and nothing that rests on a guess.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>Phase 3: <code>/brief security --topic "review-bot pilot data handling"</code>. Today: the same request through <code>/query</code>, then edit and send.</p></div>
+        <div class="step"><p class="who">You</p><p>Phase 3: <code>/tos-brief security --topic "review-bot pilot data handling"</code>. Today: the same request through <code>/tos-query</code>, then edit and send.</p></div>
         <div class="step"><p class="who">Agent</p><p>Selects only pages that are human-reviewed, fresh and not deprecated. Drafts in the audience's terms, with the rationale. Lists what it excluded and why. Files the draft as a Synthesis with <code>audience: security</code>.</p></div>
         <div class="step"><p class="who">You get</p><p>A draft you can send, and a list of what would have to be verified for the next one to say more.</p></div>
       </div>
@@ -681,16 +686,16 @@
         </ul>
       </div>
       <h3>Why you can trust it</h3>
-      <p>Guardrail 7 in <code>CLAUDE.md</code>: a brief draws on human-reviewed, fresh pages and names what it left out. Until <code>/brief</code> is enabled in Phase 3, a <code>/query</code> answer gives you the same content with tiers, and the edit you make before sending is the gate you apply by hand.</p>
+      <p>Guardrail 7 in <code>CLAUDE.md</code>: a brief draws on human-reviewed, fresh pages and names what it left out. Until <code>/tos-brief</code> is enabled in Phase 3, a <code>/tos-query</code> answer gives you the same content with tiers, and the edit you make before sending is the gate you apply by hand.</p>
     </section>
 
     <!-- ================================================================ -->
     <section id="later">
       <p class="part">9 · Waiting on a later phase</p>
       <h2>Four more, once their connectors and types exist</h2>
-      <p><strong>Sprint boundary (Phase 2).</strong> The sprint-report feed pulls the Jira snapshot; <code>/sprint</code> writes the goal beside what shipped, three numbers with receipts from <code>/measure</code>, deviations with proposed corrective actions, retro notes turned into Playbook proposals, next sprint's goals under the quarter's Objectives. Forty-five minutes, starting from a page instead of a blank Jira report.</p>
+      <p><strong>Sprint boundary (Phase 2).</strong> The sprint-report feed pulls the Jira snapshot; <code>/tos-sprint</code> writes the goal beside what shipped, three numbers with receipts from <code>/tos-measure</code>, deviations with proposed corrective actions, retro notes turned into Playbook proposals, next sprint's goals under the quarter's Objectives. Forty-five minutes, starting from a page instead of a blank Jira report.</p>
       <p><strong>Preparing a 1:1 (Phase 3).</strong> Monday's review lists each report's last thread and open agreed actions, from their Person page and nothing else, and only if that page is human-reviewed. Two minutes per person, and the page holds only what your own notes said.</p>
-      <p><strong>Refreshing a technical vision (Phase 4).</strong> The Vision page's <em>Signals watched</em> section cites the radar; the quarterly retro asks you to re-read the plan against what the signals said and what shipped, and <code>/brief</code> socialises the result.</p>
+      <p><strong>Refreshing a technical vision (Phase 4).</strong> The Vision page's <em>Signals watched</em> section cites the radar; the quarterly retro asks you to re-read the plan against what the signals said and what shipped, and <code>/tos-brief</code> socialises the result.</p>
       <p><strong>A mentoring plan (Phase 4).</strong> A Learning Path with <code>owner</code> set to a report: goal, sequence, exit criteria they agreed, progress; prepared with the same loop and reviewed with the same gate.</p>
     </section>
 
@@ -698,8 +703,8 @@
     <section id="habits">
       <p class="part">10 · The four habits</p>
       <h2>What these scenarios rest on</h2>
-      <p>Every scenario above is a return on one of four small habits, and none works without them. <strong>End of day, five minutes:</strong> notes into <code>raw/inbox/</code>, <code>/ingest</code>; the stand-up card is only as good as this. <strong>Pointers as you meet them:</strong> an RFC, a report, a page, into <code>pull.md</code> the moment you see it, not when you need it. <strong>Verify what you will quote:</strong> <code>/verify --queue</code> before a meeting, five on Monday; the tiers do the rest. <strong>Monday, thirty minutes:</strong> the review page, answered inline, applied. Skip the first and the wiki goes quiet; skip the third and it fills with the agent's guesses wearing the look of records; skip the fourth and expiry stops meaning anything. The design's promise, Karpathy's, is that the bookkeeping is no longer yours; these four are what remains.</p>
-      <p class="footer-note">Scenarios reuse the example pages installed by <code>/init --with-examples</code> (<code>/tos-init</code> from engine 0.6.0); names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.5.3) and the design page (v0.5).</p>
+      <p>Every scenario above is a return on one of four small habits, and none works without them. <strong>End of day, five minutes:</strong> notes into <code>raw/inbox/</code>, <code>/tos-ingest</code>; the stand-up card is only as good as this. <strong>Pointers as you meet them:</strong> an RFC, a report, a page, into <code>pull.md</code> the moment you see it, not when you need it. <strong>Verify what you will quote:</strong> <code>/tos-verify --queue</code> before a meeting, five on Monday; the tiers do the rest. <strong>Monday, thirty minutes:</strong> the review page, answered inline, applied. Skip the first and the wiki goes quiet; skip the third and it fills with the agent's guesses wearing the look of records; skip the fourth and expiry stops meaning anything. The design's promise, Karpathy's, is that the bookkeeping is no longer yours; these four are what remains.</p>
+      <p class="footer-note">Scenarios reuse the example pages installed by <code>/tos-init --with-examples</code>; names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.10.0) and the design page (v0.5).</p>
     </section>
   </main>
 </div>

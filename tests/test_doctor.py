@@ -1,5 +1,6 @@
-"""tos-doctor reports, never dies where it should report."""
+"""`uv run doctor` reports, never dies where it should report."""
 import json
+import re
 
 from tos import doctor
 
@@ -9,6 +10,7 @@ def test_healthy_bundle_passes(bare, capsys, monkeypatch):
     assert doctor.main([]) == 0
     out = capsys.readouterr().out
     assert "ok    config" in out
+    assert "ok    engine" in out  # the fixture's config matches this engine: no drift note
     assert "`claude mcp list` unavailable" in out  # a skip note, not a crash
 
 
@@ -30,8 +32,9 @@ def test_missing_data_root_fails(tmp_path, capsys, monkeypatch):
 
 def test_engine_drift_and_connectors_are_warnings_not_failures(bare, capsys, monkeypatch):
     cfg_path = bare.parent / "config.yaml"
-    cfg_path.write_text(cfg_path.read_text(encoding="utf8").replace('engine: "0.9"', 'engine: "0.5"')
-                        + "connectors:\n  confluence:\n    provider: mcp:atlassian\n", encoding="utf8")
+    text, n = re.subn(r'^engine: "[^"]*"$', 'engine: "0.5"', cfg_path.read_text(encoding="utf8"), flags=re.M)
+    assert n == 1, "the fixture config has no engine line to age"
+    cfg_path.write_text(text + "connectors:\n  confluence:\n    provider: mcp:atlassian\n", encoding="utf8")
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: "some-other-server: npx foo\n")
     assert doctor.main(["--json"]) == 0
     rows = {r["check"]: r for r in json.loads(capsys.readouterr().out)}
