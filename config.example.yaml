@@ -24,9 +24,8 @@ connectors:
   md:
     provider: filesystem
     scope: { repos: [] }               # e.g. ["~/code/asset-search"] — local repos read straight off disk
-  gdocs:                               # enabled from phase 1 once you add folders
+  gdocs:                               # phase 1; no scope — any Doc your Google account can open
     provider: mcp:google-drive
-    scope: { folders: [] }
   jira:                                # phase 2
     provider: mcp:atlassian
     scope: { projects: [], boards: [] }

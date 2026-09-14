@@ -12,7 +12,10 @@ Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a dat
   stays in this file.
 - Everything that cited the old design now cites v1.0: `CLAUDE.md`, `README.md`, the metrics README, the onboarding
   and scenarios pages, and the four phase-gated command files, whose refusal now points at §9, where the rollout
-  lives. No behaviour change and no data migration.
+  lives.
+- `gdocs` drops its folder scope: `/tos-pull` reads any Google Doc your account can open, like `web`. It is still
+  phase 1, read-only and limited to what you point at; a `scope: { folders: [...] }` left in a config is ignored.
+  No data migration.
 
 ## 0.10.0 — 2026-09-08
 
