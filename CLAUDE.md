@@ -4,7 +4,7 @@ You are the maintenance agent for a personal knowledge OS. This repository is th
 
 The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design-v1.0.html`; this file is the operating manual.
 
-Engine version: **0.10.1** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `config`, `init`, `lint` and the bookkeeping helpers — `new`, `log`, `index`, `verify-mark`, `doctor` — on `uv run`. They are bare verbs: the `tos-` prefix belongs to the slash commands alone, so always write a script as `uv run <name>` and never on its own. The helpers own the canonical formats: create a page with `uv run new`, append a log bullet with `uv run log`, add or refresh an index entry with `uv run index`; never hand-write what a script writes.
+Engine version: **0.10.2** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `config`, `init`, `lint` and the bookkeeping helpers — `new`, `log`, `index`, `verify-mark`, `doctor` — on `uv run`. They are bare verbs: the `tos-` prefix belongs to the slash commands alone, so always write a script as `uv run <name>` and never on its own. The helpers own the canonical formats: create a page with `uv run new`, append a log bullet with `uv run log`, add or refresh an index entry with `uv run index`; never hand-write what a script writes.
 
 ## 0. First, read the config
 
@@ -133,7 +133,7 @@ Run lint, then write `wiki/reviews/<ISO-week>.md` (type Review) opening with **P
 9. Read `index.md` first, frontmatter second, bodies last.
 10. Propose engine changes in the weekly review; change this repository only when the human accepts, and record it in `CHANGELOG.md`.
 11. Connectors are read-only and used only by `/tos-pull`, the cross-check pass and the drift check. Never post, comment, react, transition or edit in any connected system. `.claude/settings.json` denies the write-capable tools of the connectors this engine names, so the rule is enforced and not merely instructed; add the names your own MCP servers expose when you wire one up.
-12. Pull only what the human pointed at or a named feed in the config; never DMs; never outside the config's scope. Nothing verbatim unless pinned or needed for a receipt.
+12. Pull only what the human pointed at or a named feed in the config; never DMs; never outside a connector's scope where the config gives it one (`web` and `gdocs` have none: a Google Doc is readable whenever the human's account can open it). Nothing verbatim unless pinned or needed for a receipt.
 13. Never write the config file. Never write to the engine during a data operation.
 14. `wiki/log.md` records data changes only.
 

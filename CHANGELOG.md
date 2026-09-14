@@ -2,6 +2,15 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.10.2 — 2026-09-14
+
+**A Google Doc is readable whenever your account can open it: `gdocs` drops its folder scope.**
+
+- `/tos-pull` no longer checks a Doc against `connectors.gdocs.scope.folders`; like `web`, `gdocs` is checked for
+  the rollout phase only. A Doc your account cannot open is reported as a failed fetch, not worked around.
+- Still phase 1, still read-only, still only what you point at; guardrail 12 now says the scope binds where the
+  config gives a connector one. A `scope: { folders: [...] }` left in a config is ignored. No data migration.
+
 ## 0.10.1 — 2026-09-14
 
 **One design document again: `docs/design-v1.0.html` replaces the v0.5 proposal and describes the engine that runs.**
@@ -12,10 +21,7 @@ Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a dat
   stays in this file.
 - Everything that cited the old design now cites v1.0: `CLAUDE.md`, `README.md`, the metrics README, the onboarding
   and scenarios pages, and the four phase-gated command files, whose refusal now points at §9, where the rollout
-  lives.
-- `gdocs` drops its folder scope: `/tos-pull` reads any Google Doc your account can open, like `web`. It is still
-  phase 1, read-only and limited to what you point at; a `scope: { folders: [...] }` left in a config is ignored.
-  No data migration.
+  lives. No behaviour change and no data migration.
 
 ## 0.10.0 — 2026-09-08
 

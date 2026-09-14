@@ -290,7 +290,7 @@ pre.long { break-inside: auto; orphans: 4; widows: 4; }   /* taller than a sheet
 </head>
 <body>
 <div class="print-bar">
-  <span>TechLead OS · design v1.0 · engine 0.10.1 · A4 portrait · use your browser's print dialog for page numbers</span>
+  <span>TechLead OS · design v1.0 · engine 0.10.2 · A4 portrait · use your browser's print dialog for page numbers</span>
   <button type="button" onclick="window.print()">Print / Save as PDF</button>
 </div>
 <div class="sheet">
@@ -298,7 +298,7 @@ pre.long { break-inside: auto; orphans: 4; widows: 4; }   /* taller than a sheet
 <p class="eyebrow">Design record · v1.0 <span class="status">draft — awaiting human:rafael</span></p>
 <h1>TechLead OS</h1>
 <p class="lede">A personal operating system for a lead engineer: Karpathy's LLM Wiki loop on Google's Open Knowledge Format v0.2 page contract, weighted by the Level 5 role. An engine of instructions, a data root of markdown, one config file joining them. Obsidian to read it, Claude Code to maintain it, git underneath.</p>
-<p class="meta"><span><b>For</b> Rafael</span><span><b>Scope</b> delivery · team &amp; stakeholders · systems · design · learning</span><span><b>Sources</b> Confluence · Google Docs · MD docs · web, then Jira and Slack</span><span><b>State</b> phase 1 in daily use · engine 0.10.1</span></p>
+<p class="meta"><span><b>For</b> Rafael</span><span><b>Scope</b> delivery · team &amp; stakeholders · systems · design · learning</span><span><b>Sources</b> Confluence · Google Docs · MD docs · web, then Jira and Slack</span><span><b>State</b> phase 1 in daily use · engine 0.10.2</span></p>
 </header>
 <nav aria-label="Contents" class="toc-print"><p class="toc-label">Contents</p><ol><li><span class="n">0</span><a href="#summary">What this is<span class="sub">In one screen</span></a></li><li><span class="n">1</span><a href="#architecture">Two trees, one bundle, two actors<span class="sub">Architecture</span></a></li><li><span class="n">2</span><a href="#contract">Every page says who wrote it, who checked it, when it expires<span class="sub">The page contract</span></a></li><li><span class="n">3</span><a href="#types">Twenty types, eleven in phase 1<span class="sub">Page types</span></a></li><li><span class="n">4</span><a href="#loops">Eleven operations over a layer of scripts<span class="sub">Operations</span></a></li><li><span class="n">5</span><a href="#week">One weekend in, one review out<span class="sub">A Monday, concretely</span></a></li><li><span class="n">6</span><a href="#domains">Five rhythms, one per heading of the role<span class="sub">The domains</span></a></li><li><span class="n">7</span><a href="#tooling">Obsidian reads, Claude Code writes, git remembers<span class="sub">Tooling</span></a></li><li><span class="n">8</span><a href="#guardrails">What the agent never does<span class="sub">Guardrails</span></a></li><li><span class="n">9</span><a href="#rollout">What runs, and what is next<span class="sub">State and roadmap</span></a></li><li><span class="n">10</span><a href="#decisions">The calls this design rests on<span class="sub">Decisions</span></a></li><li><span class="n">11</span><a href="#sources">What this is grounded in<span class="sub">Sources</span></a></li></ol><div class="cover-note">
 <div><h4>How to read this</h4><p>§0–1 are the shape of the system; §2–4 are the spec — contract, types, operations; §5–7 show it running; §8–10 are the rules, the state and the calls behind them. Five minutes: §0, Fig. 2, Fig. 3, §9.</p></div>
@@ -892,7 +892,7 @@ LIMIT 10
 <li>Read <code>index.md</code> first, frontmatter second, bodies last.</li>
 <li>Propose engine changes in the weekly review; change the engine only when the human accepts, and record it in <code>CHANGELOG.md</code>.</li>
 <li>Connectors are read-only and used only by pull, the cross-check pass and the drift check. Never post, comment, react, transition or edit in any connected system — and the harness denies those tools, so this is enforced rather than promised.</li>
-<li>Pull only what the human pointed at or a named feed in the config; never DMs; never outside the config's scope. Nothing verbatim unless pinned or needed for a receipt.</li>
+<li>Pull only what the human pointed at or a named feed in the config; never DMs; never outside a connector's scope where the config gives it one (<code>web</code> and <code>gdocs</code> have none: a Google Doc is readable whenever the human's account can open it). Nothing verbatim unless pinned or needed for a receipt.</li>
 <li>Never write the config file. Never write to the engine during a data operation.</li>
 <li><code>wiki/log.md</code> records data changes only. An engine change is never a log entry; a data migration caused by one is, labelled <code>Migration</code> with the engine version.</li>
 </ol>
