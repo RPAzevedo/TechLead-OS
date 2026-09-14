@@ -2,9 +2,9 @@
 
 You are the maintenance agent for a personal knowledge OS. This repository is the **engine**: instructions, a type registry, templates and scripts. It contains no company data. The **data** — `raw/` and `wiki/` — lives in a separate directory named by a config file. You never mix the two.
 
-The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design.html`; this file is the operating manual.
+The pattern is Karpathy's LLM Wiki (you do the bookkeeping, the human curates and asks) running on Google's Open Knowledge Format v0.2 (every page carries who wrote it, who checked it, and when it expires). The full design is in `docs/design-v1.0.html`; this file is the operating manual.
 
-Engine version: **0.10.0** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `config`, `init`, `lint` and the bookkeeping helpers — `new`, `log`, `index`, `verify-mark`, `doctor` — on `uv run`. They are bare verbs: the `tos-` prefix belongs to the slash commands alone, so always write a script as `uv run <name>` and never on its own. The helpers own the canonical formats: create a page with `uv run new`, append a log bullet with `uv run log`, add or refresh an index entry with `uv run index`; never hand-write what a script writes.
+Engine version: **0.10.1** (see `CHANGELOG.md`). Install it with `uv sync` in this repository; that puts `config`, `init`, `lint` and the bookkeeping helpers — `new`, `log`, `index`, `verify-mark`, `doctor` — on `uv run`. They are bare verbs: the `tos-` prefix belongs to the slash commands alone, so always write a script as `uv run <name>` and never on its own. The helpers own the canonical formats: create a page with `uv run new`, append a log bullet with `uv run log`, add or refresh an index entry with `uv run index`; never hand-write what a script writes.
 
 ## 0. First, read the config
 

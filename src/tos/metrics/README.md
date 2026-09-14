@@ -6,4 +6,4 @@ Not part of the thin slice. When phase 2 is built this directory gets:
 - `attest.py` — the attester: deterministic code that checks the receipt's hashes against the `Attested Computation` page and the snapshot file, and the parameters against the declared ones.
 - one script per metric (e.g. `sprint_completion.py`).
 
-Design: docs/design.html §3 "Numbers are attested, not remembered" and decision D9.
+Design: docs/design-v1.0.html §2 "Freshness, and numbers", and the "Attested numbers" row of the decisions in §10.

@@ -257,7 +257,7 @@ def append_verified_entry(text: str, by: str, at: str) -> str:
     """Append `- { by, at }` to the page's `verified`, whatever shape the key is in.
 
     OKF allows a list of mappings or a single mapping — `common.verified_entries()` reads
-    both and docs/design.md shows both — and `uv run verify-mark` is now the only way an entry is
+    both — and `uv run verify-mark` is now the only way an entry is
     ever written, so a conforming page it could not extend would need exactly the hand edit
     CLAUDE.md §0 forbids. A single mapping, flow or block, becomes a one-item list with its
     text carried over verbatim, so key order, extra keys and comments survive. Raises

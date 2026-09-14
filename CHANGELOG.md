@@ -2,6 +2,18 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.10.1 — 2026-09-14
+
+**One design document again: `docs/design-v1.0.html` replaces the v0.5 proposal and describes the engine that runs.**
+
+- `docs/design.html` and `docs/design.md` are gone. Both were the v0.5 proposal, written before any code existed and
+  kept as hand-maintained mirrors with no generator, so every release since had left them further behind. The v1.0
+  record covers what phase 1 does today and what phases 2–4 and the cross-check pass will add; the engine's history
+  stays in this file.
+- Everything that cited the old design now cites v1.0: `CLAUDE.md`, `README.md`, the metrics README, the onboarding
+  and scenarios pages, and the four phase-gated command files, whose refusal now points at §9, where the rollout
+  lives. No behaviour change and no data migration.
+
 ## 0.10.0 — 2026-09-08
 
 **`tos-` now means "Claude Code slash command" and nothing else: the eight console scripts drop the prefix.**
