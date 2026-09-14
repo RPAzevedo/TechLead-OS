@@ -11,7 +11,8 @@ import re
 
 import pytest
 
-from tos.common import ENGINE_ROOT
+from tos.common import ENGINE_ROOT, load_yaml
+from tos.doctor import tool_prefix
 
 SETTINGS = json.loads((ENGINE_ROOT / ".claude" / "settings.json").read_text(encoding="utf8"))
 DENY = SETTINGS["permissions"]["deny"]
@@ -43,3 +44,16 @@ def test_the_readme_documents_every_server_the_list_guards():
     assert SAFETY, "README.md has no `## Connector safety` section"
     missing = sorted(s for s in servers() if f"`{s}`" not in SAFETY.group(1))
     assert not missing, f"guarded but undocumented: {missing}"
+
+
+def test_every_example_connector_that_can_write_is_guarded():
+    """The example config is what gets copied, and a provider the list does not name has no write gate.
+
+    `mcp:google-drive` shipped that way until 0.11.0. fetch has no write tools to deny; trello —
+    phase 4, its server never seen — is the one connector left unguarded, which is why it stays gated.
+    """
+    connectors = load_yaml((ENGINE_ROOT / "config.example.yaml").read_text(encoding="utf8"))["connectors"]
+    unguarded = sorted(n for n, c in connectors.items()
+                       if str((c or {}).get("provider", "")).startswith("mcp:")
+                       and tool_prefix(c["provider"][4:]) not in servers())
+    assert unguarded == ["trello", "web"]

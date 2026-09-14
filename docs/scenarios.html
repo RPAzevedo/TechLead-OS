@@ -424,9 +424,9 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Scenarios · companion to the design (v1.0) and engine 0.10.2</p>
+    <p class="eyebrow">Scenarios · companion to the design (v1.0) and engine 0.11.0</p>
     <h1>TechLead OS in Practice</h1>
-    <p class="lede">Eight situations from a lead engineer's week, and what the system does in each: what you type, what the agent reads and writes, what comes back, and why you can trust it. Every scenario marked Phase 1 works with the engine as installed; the two that need a connector you don't have yet say so, and show the version that works today.</p>
+    <p class="lede">Eight situations from a lead engineer's week, and what the system does in each: what you type, what the agent reads and writes, what comes back, and why you can trust it. Every scenario marked Phase 1 works with the engine as installed; the one that needs a later-phase command says so, and shows the version that works today.</p>
     <p class="meta"><span><b>For</b> Rafael</span><span><b>Pages used</b> the eleven examples <code>/tos-init --with-examples</code> installs</span><span><b>Times</b> what you spend, not the agent</span></p>
   </header>
 
@@ -460,11 +460,11 @@
     <section id="rfc">
       <p class="part">S1 · Design</p>
       <h2>An RFC lands, and you have to review it by Friday</h2>
-      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">about 10 minutes of yours</span><span class="chip">connectors: Google Docs or Confluence</span></p>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">about 10 minutes of yours</span><span class="chip">connectors: Google Drive or Confluence</span></p>
       <p><strong>Trigger.</strong> The media team shares <em>RFC: Media pipeline v2</em>, a Google Doc, and asks for your review. It replaces the nightly batch pipeline with an event-driven one, and asset search consumes its output.</p>
       <div class="flow">
         <div class="step"><p class="who">You</p><p>Paste the Doc URL into <code>raw/inbox/pull.md</code>. Type your first impressions into a note in <code>raw/inbox/</code>, three lines are enough. Run <code>/tos-pull</code>.</p></div>
-        <div class="step"><p class="who">Agent</p><p>Checks <code>gdocs</code> is enabled for the phase — it has no scope, so any Doc you can open will do — and fetches it read-only. Writes a <code>Source</code> page with a summary, the load-bearing lines as excerpts, and the Doc's modified time. Creates <code>design/rfcs/media-pipeline-v2.md</code> as the entry point: <code>resource</code> → the Doc, options, your notes under <em>Review notes</em>, a <em>Standards check</em>, outcome pending. Links it from <code>systems/asset-search.md</code>. Files a <code>Question</code> if ownership of reconciliation is unclear. Indexes, logs, commits.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Reads the Doc through <code>gdrive</code>, read-only and with your own permissions — any Doc you can open will do. Writes a <code>Source</code> page with a summary, the load-bearing lines as excerpts, and the Doc's modified time. Creates <code>design/rfcs/media-pipeline-v2.md</code> as the entry point: <code>resource</code> → the Doc, options, your notes under <em>Review notes</em>, a <em>Standards check</em>, outcome pending. Links it from <code>systems/asset-search.md</code>. Files a <code>Question</code> if ownership of reconciliation is unclear. Indexes, logs, commits.</p></div>
         <div class="step"><p class="who">You get</p><p>An RFC page you can annotate, a query you can ask, and a line on Monday's review under <em>Design — awaiting your decision</em> with the due date.</p></div>
       </div>
 <pre><div class="code-title">terminal — after /tos-pull</div><code>/tos-query what does media pipeline v2 change for the systems we own, and what does it not address?</code></pre>
@@ -505,7 +505,7 @@
         </ul>
       </div>
       <h3>Why you can trust it, and where it stops</h3>
-      <p>It only knows what was ingested. A good stand-up card is the return on yesterday's five-minute <code>/tos-ingest</code> of your notes; a teammate's remark in Slack that you never captured is not in it, until the Slack connector arrives in Phase 3. Jira board state is Phase 2 too, so today this covers what you recorded, which for a lead's stand-up is usually the part that matters: decisions, blockers and dates. Each line carries its tier, so "changed since verified" on the System page tells you the KTLO item is the agent's reading of the incident report, not something you have confirmed.</p>
+      <p>It only knows what was ingested. A good stand-up card is the return on yesterday's five-minute <code>/tos-ingest</code> of your notes; a teammate's remark in Slack is in it only if you pulled that channel, and Jira board state only if you pulled the board's JQL, so on most mornings this covers what you recorded, which for a lead's stand-up is usually the part that matters: decisions, blockers and dates. Each line carries its tier, so "changed since verified" on the System page tells you the KTLO item is the agent's reading of the incident report, not something you have confirmed.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -551,11 +551,11 @@
     <section id="slack">
       <p class="part">S4 · Team and stakeholders</p>
       <h2>Slack, two days behind</h2>
-      <p class="scen-meta"><span class="chip phase3">Phase 3 for the connector</span><span class="chip phase1">works now by pasting</span><span class="chip">5 minutes</span></p>
+      <p class="scen-meta"><span class="chip phase1">Phase 1 — works now</span><span class="chip">5 minutes</span></p>
       <p><strong>Trigger.</strong> You are back from two days of workshops. <code>#team-search</code> and <code>#incidents</code> have a hundred and forty messages between them, and somewhere in there are three questions only you can answer.</p>
       <div class="flow">
-        <div class="step"><p class="who">You</p><p>Phase 3: <code>/tos-pull "#team-search, last 2 days"</code>, named channels only. Today: copy the threads you care about into a note in <code>raw/inbox/</code> and run <code>/tos-ingest</code>; the rest of the scenario is identical.</p></div>
-        <div class="step"><p class="who">Agent</p><p>Summarises each thread into a Source page with excerpts and permalinks, never a copy of the thread. Updates Initiative timelines, System incidents and (Phase 3) Stakeholder positions. Then lists what is <em>awaiting you</em>: questions addressed to you or about your systems with no reply from you, requests from stakeholders, decisions someone is waiting on; each with its permalink and a draft reply you can paste. It never posts.</p></div>
+        <div class="step"><p class="who">You</p><p><code>/tos-pull "#team-search, last 2 days"</code>, then the same for <code>#incidents</code>, then ask what is awaiting you.</p></div>
+        <div class="step"><p class="who">Agent</p><p>Checks each is a channel your account can read and not a DM, then summarises each channel window into a Source page with excerpts and permalinks, never a copy of the thread. Updates Initiative timelines, System incidents and (Phase 3) Stakeholder positions. Then lists what is <em>awaiting you</em>: questions addressed to you or about your systems with no reply from you, requests from stakeholders, decisions someone is waiting on; each with its permalink and a draft reply you can paste. It never posts.</p></div>
         <div class="step"><p class="who">You get</p><p>A short list of what needs you, with drafts. You answer in Slack yourself.</p></div>
       </div>
       <div class="answer">
@@ -568,7 +568,7 @@
         </ul>
       </div>
       <h3>Why you can trust it, and what it will not do</h3>
-      <p>The pull rule is the guardrail: named channels and threads only, never DMs, never a post, and a Source page holds your reading of a thread rather than the thread, so the vault carries no verbatim Slack. Remarks about people are not recorded; work content is. The drafts are drafts: the agent cannot reply for you, and the design keeps it that way. Until the connector is wired in Phase 3, pasting the threads into a note gives you the same "awaiting you" list, minus the permalinks.</p>
+      <p>The pull rule is the guardrail: only the channels and threads you point at, never DMs, never a post, and a Source page holds your reading of a thread rather than the thread, so the vault carries no verbatim Slack. Remarks about people are not recorded; work content is. The drafts are drafts: the agent cannot reply for you — the harness denies Slack's posting tools — and the design keeps it that way. Today you ask for the "awaiting you" list after the pull; Phase 3 builds it into the procedure.</p>
     </section>
 
     <!-- ================================================================ -->
@@ -692,7 +692,7 @@
     <!-- ================================================================ -->
     <section id="later">
       <p class="part">9 · Waiting on a later phase</p>
-      <h2>Four more, once their connectors and types exist</h2>
+      <h2>Four more, once their commands and types exist</h2>
       <p><strong>Sprint boundary (Phase 2).</strong> The sprint-report feed pulls the Jira snapshot; <code>/tos-sprint</code> writes the goal beside what shipped, three numbers with receipts from <code>/tos-measure</code>, deviations with proposed corrective actions, retro notes turned into Playbook proposals, next sprint's goals under the quarter's Objectives. Forty-five minutes, starting from a page instead of a blank Jira report.</p>
       <p><strong>Preparing a 1:1 (Phase 3).</strong> Monday's review lists each report's last thread and open agreed actions, from their Person page and nothing else, and only if that page is human-reviewed. Two minutes per person, and the page holds only what your own notes said.</p>
       <p><strong>Refreshing a technical vision (Phase 4).</strong> The Vision page's <em>Signals watched</em> section cites the radar; the quarterly retro asks you to re-read the plan against what the signals said and what shipped, and <code>/tos-brief</code> socialises the result.</p>
@@ -704,7 +704,7 @@
       <p class="part">10 · The four habits</p>
       <h2>What these scenarios rest on</h2>
       <p>Every scenario above is a return on one of four small habits, and none works without them. <strong>End of day, five minutes:</strong> notes into <code>raw/inbox/</code>, <code>/tos-ingest</code>; the stand-up card is only as good as this. <strong>Pointers as you meet them:</strong> an RFC, a report, a page, into <code>pull.md</code> the moment you see it, not when you need it. <strong>Verify what you will quote:</strong> <code>/tos-verify --queue</code> before a meeting, five on Monday; the tiers do the rest. <strong>Monday, thirty minutes:</strong> the review page, answered inline, applied. Skip the first and the wiki goes quiet; skip the third and it fills with the agent's guesses wearing the look of records; skip the fourth and expiry stops meaning anything. The design's promise, Karpathy's, is that the bookkeeping is no longer yours; these four are what remains.</p>
-      <p class="footer-note">Scenarios reuse the example pages installed by <code>/tos-init --with-examples</code>; names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.10.2) and the design record (v1.0).</p>
+      <p class="footer-note">Scenarios reuse the example pages installed by <code>/tos-init --with-examples</code>; names, dates and quotes are illustrative. Commands and tiers follow the engine's <code>CLAUDE.md</code> (0.11.0) and the design record (v1.0).</p>
     </section>
   </main>
 </div>

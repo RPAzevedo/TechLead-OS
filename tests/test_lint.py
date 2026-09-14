@@ -812,10 +812,3 @@ def test_an_rfc_pointer_is_not_an_inbound_link(bare, capsys):
     out = capsys.readouterr().out
     assert "## pointers" not in out, out
     assert "design/rfcs/some-rfc.md` has no inbound link" in out
-
-
-def test_recording_a_pointer_is_not_gated_by_the_connector_phase(bare, capsys):
-    """The fixture config is phase 1; slack is a phase-3 connector. Only /tos-pull cares."""
-    project(bare, "phase-one", pointers='slack: "#team-search"\n')
-    tos_lint.main(["--today", "2026-02-01"])
-    assert findings(capsys, "pointers") == []

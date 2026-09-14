@@ -1,6 +1,6 @@
 # Roadmap — tos-engine
 
-Engine work only; data changes never appear here. The planned sections below are ordered, not numbered: 0.6.0 went on a command rename nobody had planned, and a numbered plan that reshuffles every time that happens tells the reader less than the order does. Each phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29, last revised 2026-09-14; the engine is at 0.10.2 (0.5.1 was the rename to TechLead OS; 0.5.2 packaged it and made malformed YAML a conformance error; 0.5.3 fixed the Home.md dashboard and the setup docs; 0.5.4 made the setup paths portable; 0.6.0 prefixed the commands with `tos-`; 0.7.0 made Project the first-class entity and moved Objective to phase 1; 0.7.1–0.7.3 denied the connectors' write tools and fixed the two defects phase 2 would have hit; 0.8.0 turned the bookkeeping writes — page creation, log bullets, index entries, verified entries — into scripts, gave lint `--fix` and a registry-wide headings check, and added `uv run doctor`; 0.9.0 gave Project and Initiative their four connector pointers — the Slack channel, the Jira epic, the Confluence page, the RFC — and Initiative its first lint block; 0.10.0 took `tos-` back off the CLI, leaving it to the slash commands alone; 0.10.1 replaced the v0.5 design proposal with the v1.0 design record; 0.10.2 dropped the Google Drive folder scope, so any Doc your account can open is readable).
+Engine work only; data changes never appear here. The planned sections below are ordered, not numbered: 0.6.0 went on a command rename nobody had planned, and a numbered plan that reshuffles every time that happens tells the reader less than the order does. Each phase is built before its `rollout.phase` is raised in the config. Recorded 2026-08-29, last revised 2026-09-14; the engine is at 0.11.0 (0.5.1 was the rename to TechLead OS; 0.5.2 packaged it and made malformed YAML a conformance error; 0.5.3 fixed the Home.md dashboard and the setup docs; 0.5.4 made the setup paths portable; 0.6.0 prefixed the commands with `tos-`; 0.7.0 made Project the first-class entity and moved Objective to phase 1; 0.7.1–0.7.3 denied the connectors' write tools and fixed the two defects phase 2 would have hit; 0.8.0 turned the bookkeeping writes — page creation, log bullets, index entries, verified entries — into scripts, gave lint `--fix` and a registry-wide headings check, and added `uv run doctor`; 0.9.0 gave Project and Initiative their four connector pointers — the Slack channel, the Jira epic, the Confluence page, the RFC — and Initiative its first lint block; 0.10.0 took `tos-` back off the CLI, leaving it to the slash commands alone; 0.10.1 replaced the v0.5 design proposal with the v1.0 design record; 0.10.2 dropped the Google Drive folder scope, so any Doc your account can open is readable; 0.11.0 dropped every other connector scope and phase, so Confluence, Google Drive, Jira and Slack read whatever your account can and only writes are gated).
 
 ## Next — what the fortnight teaches
 
@@ -21,16 +21,16 @@ Does not depend on the fortnight; could start at any time.
 - How an `Attested Computation` page names its computation, executor and attester. The template asks for a relative path to `src/tos/metrics/`, which resolves only when the data root sits at a fixed distance from the engine, and `data.root` may live anywhere. A module reference such as `tos.metrics.run` resolves wherever the engine is installed, and the receipt's `computation_sha256` already pins which version ran; the template changes with the decision.
 - The sprint-report feed: writes JSON snapshots to `raw/metrics/jira/`, actor `process:pull-sprint-report`.
 - `/tos-measure` and `/tos-sprint` procedures; sprint goals drafted against the (now phase-1) Objective pages; `Home.md` additions.
-- Then, in the config: Jira scope, the feed uncommented, `rollout.phase: 2`.
+- Then, in the config: the feed uncommented, `rollout.phase: 2`.
 
-## Phase 3 — team and Slack
+## Phase 3 — team and stakeholders
 
 - `/tos-brief` procedure (human-reviewed, fresh pages only; exclusions listed; filed as a Synthesis with `audience`).
-- Slack pull: named channels only, thread and digest pointers, the "awaiting you" list with draft replies; never a post.
+- The Slack "awaiting you" list with draft replies, built into the procedure rather than asked for after a pull (the connector itself reads from phase 1 since 0.11.0); never a post.
 - Person and Stakeholder handling; the people policy as a check in lint's agent pass.
 - Comms-due and 1:1 sections in the weekly.
 - `src/tos/export_bundle.py` — lifts `team/playbooks/` out as a conformant OKF bundle with its own index and log (decision D14: the team gets the engine and a bundle, not a shared data root).
-- Then: Slack channels in scope, the policy re-read, `rollout.phase: 3`.
+- Then: the policy re-read, `rollout.phase: 3`.
 
 ## Phase 4 — vision, learning, radar
 

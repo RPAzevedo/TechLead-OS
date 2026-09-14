@@ -40,7 +40,7 @@ Ordinary frontmatter keys; OKF consumers must not reject unknown keys.
 | `quarter` | Objective | `YYYY-Qn`, e.g. 2026-Q3 |
 | `next_checkpoint` | Project, Initiative | `YYYY-MM-DD`; the weekly review flags it once passed |
 | `slack` | Project, Initiative | the one Slack channel this work lives in, quoted — `"#team-search"`; unquoted, YAML reads the `#` as a comment and the value is empty. Further channels go in the body |
-| `jira` | Project, Initiative | the initiative or epic issue key, e.g. `ABC-123`; resolved by the human's Jira site, which the config does not name until phase 2 |
+| `jira` | Project, Initiative | the initiative or epic issue key, e.g. `ABC-123`; resolved by the human's own Jira site |
 | `confluence` | Project, Initiative | the one Confluence page for this work, as an https URL |
 | `rfc` | Project, Initiative | the RFC this work implements: an https URL, or a relative path to an RFC page in this bundle |
 | `superseded_by` | Decision, RFC | relative link to the page that replaced it |
@@ -50,7 +50,7 @@ Ordinary frontmatter keys; OKF consumers must not reject unknown keys.
 
 A row of this table carries no `|` of its own: the type table above is parsed by splitting on `|`, and a three-column row with three pipes in it yields six cells and registers as a type. Write "or" and `·`; `\|` does not escape.
 
-The four pointer fields say where work lives, which is not the same as reading it: a `slack` value is legal in phase 1 though the slack connector is phase 3. Only `/tos-pull` obeys a connector's phase and its scope.
+The four pointer fields say where work lives, which is not the same as reading it: only `/tos-pull` reads one.
 
 ## Projects and objectives
 

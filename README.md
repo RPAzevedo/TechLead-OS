@@ -1,6 +1,6 @@
 # TechLead OS (tos) — engine
 
-Engine version **0.10.2** (see `CHANGELOG.md`).
+Engine version **0.11.0** (see `CHANGELOG.md`).
 
 The engine half of a personal knowledge OS for a lead engineer: Karpathy's LLM Wiki loop (the agent does the bookkeeping, you curate and ask) running on Google's Open Knowledge Format v0.2 (every page says who wrote it, who checked it, when it expires). This repository holds instructions, a type registry, templates and scripts, and **no company data**. The data — `raw/` and `wiki/` — lives in a separate directory named by a config file.
 
@@ -106,7 +106,8 @@ config reaches their phase.
 Guardrail 11 says connectors are read-only. `.claude/settings.json` enforces it: `permissions.deny` lists the
 write-capable tools of the Google Drive, Slack and Atlassian servers — creating, updating, sharing, trashing,
 posting, commenting, transitioning — so the harness refuses the call rather than trusting the agent to decline.
-Reads are untouched, so `/tos-pull` works as before.
+Reads are untouched and, since 0.11.0, unscoped: every connector reads whatever your own account can, so this list
+is the one gate between the agent and a connected system.
 
 Permission rules match a tool by its exact name, and MCP tool names are `mcp__<server>__<tool>`, where `<server>`
 is whatever you called the server in Claude Code. **A name that matches nothing is silently ignored** — it raises no
@@ -123,11 +124,12 @@ is not.
 against a live server, and the two Atlassian servers above were observed on one — but only their *read* tools were
 seen directly. Every write-tool name here is inferred from the server's own vocabulary, which is the same kind of
 assumption that made the 0.7.1 entries inert. After wiring a connector, ask Claude Code which tools that server
-exposes, and add any this list misses.
+exposes, and add any this list misses. Slack and Jira are readable from phase 1 since 0.11.0, and no Slack server has
+been observed at all, so check those two first.
 
 ## Quickstart
 
-1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then replace the `CHANGE_ME` placeholders in `data.root` (anywhere you like — it need not sit next to the engine) and `data.actor`, and set `data.timezone` and the connector scopes you have. It holds no secrets. `uv run config` prints what the engine resolved.
+1. **Config.** `mkdir -p ~/.config/tos && cp config.example.yaml ~/.config/tos/config.yaml`, then replace the `CHANGE_ME` placeholders in `data.root` (anywhere you like — it need not sit next to the engine) and `data.actor`, and set `data.timezone` and, if you read markdown from local repositories, `connectors.md.scope.repos`. Confluence, Google Drive, Jira, Slack and the web have no scope: they read whatever your own account can. It holds no secrets. `uv run config` prints what the engine resolved.
 2. **Data root.** `uv run --directory <this repo> init --with-examples` (or `/tos-init --with-examples` inside Claude Code). Open `data.root` in Obsidian as a vault and install the Dataview plugin so `Home.md` works.
 3. **Claude Code.** Start it in this directory so `CLAUDE.md` loads, and grant it the data root: `claude --add-dir <data.root>`. To stop repeating the flag, put the absolute path in `permissions.additionalDirectories` in `.claude/settings.local.json` — untracked and per-machine, so it does not exist until you write it. Connectors are MCP servers configured in Claude Code; the config's `connectors.<name>.provider` must match their names.
 4. **First loop.** Drop a note into `raw/inbox/`, run `/tos-ingest`; paste a Confluence or web URL into `raw/inbox/pull.md`, run `/tos-pull`; ask `/tos-query <question>`; run `/tos-lint`; on Monday, `/tos-weekly`, answer inline, `/tos-weekly --apply`.
@@ -135,10 +137,10 @@ exposes, and add any this list misses.
 
 ## Development Phases
 
-`rollout.phase` in the config gates connectors and commands:
-1. documents (Confluence, web, markdown, Docs);
-2. Jira, `/tos-sprint`, `/tos-measure`;
-3. Slack, the team domain, `/tos-brief`;
+`rollout.phase` in the config gates commands and page types, not reads: every connector but Trello is readable from phase 1.
+1. delivery, design and systems, from Confluence, Google Drive, Jira, Slack, the web and markdown;
+2. `/tos-sprint`, `/tos-measure`, the Jira metric feeds;
+3. the team domain, `/tos-brief`;
 4. Trello (personal), visions, learning, radar, `/tos-retro`.
 
 Phases 2–4 are designed ([docs/design-v1.0.html §9](docs/design-v1.0.html)) but not yet built; the gated commands say so.
