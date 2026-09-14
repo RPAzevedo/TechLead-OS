@@ -46,6 +46,18 @@ def test_the_readme_documents_every_server_the_list_guards():
     assert not missing, f"guarded but undocumented: {missing}"
 
 
+@pytest.mark.parametrize("server", ["slack", "claude_ai_Slack"])
+def test_slack_entries_carry_the_prefix_its_servers_use(server):
+    """Slack's official server and the reference one both name their tools `slack_*`.
+
+    Until 0.11.0 the list denied `mcp__slack__send_message` and its like, which match no Slack
+    server: every Slack entry was inert while the prefix check above still counted it as guarded.
+    """
+    tools = [m.group("tool") for e in DENY for m in [ENTRY_RE.match(e)] if m and m.group("server") == server]
+    assert "slack_send_message" in tools
+    assert all(t.startswith("slack_") for t in tools), [t for t in tools if not t.startswith("slack_")]
+
+
 def test_every_example_connector_that_can_write_is_guarded():
     """The example config is what gets copied, and a provider the list does not name has no write gate.
 

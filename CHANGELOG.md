@@ -19,7 +19,9 @@ phase 1. Only writes are gated.**
   by `.claude/settings.json`, now the one gate on a connected system — confirm its Slack and Atlassian entries
   against your install. The example config's Drive provider was `mcp:google-drive`, which no deny entry named; it is
   now `mcp:claude_ai_Google_Drive`, the server the Drive entries were verified against, and a test fails if an
-  example provider that can write goes unguarded.
+  example provider that can write goes unguarded. The Slack entries named tools without the `slack_` prefix both
+  Slack servers use, so none was in force; they now list the write tools Slack publishes for its official server
+  and those of the reference server, and a test holds the prefix.
 - In your config: rename `gdocs` to `gdrive`, check its provider is a server the deny list names, delete the `scope`
   under confluence, jira and slack, and set `engine: "0.11"`. Until then they are ignored, not obeyed, and `uv run doctor` names each one. No data migration.
 

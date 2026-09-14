@@ -106,13 +106,15 @@ def test_one_guarded_server_does_not_clear_an_unguarded_one(bare, capsys, monkey
     assert "notes" in rows["deny list"]["detail"]  # names the connector that would use it
 
 
-def test_a_gdocs_key_is_reported_as_renamed(bare, capsys, monkeypatch):
-    connectors(bare, "connectors:\n  gdocs:\n    provider: mcp:claude_ai_Google_Drive\n")
+def test_a_gdocs_key_is_reported_as_renamed_with_its_scope(bare, capsys, monkeypatch):
+    """Straight from 0.10.1, `gdocs` may still carry its folder scope: one pass names both."""
+    connectors(bare, "connectors:\n  gdocs:\n    provider: mcp:claude_ai_Google_Drive\n    scope: { folders: [] }\n")
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: None)
     assert doctor.main(["--json"]) == 0
     rows = {r["check"]: r for r in json.loads(capsys.readouterr().out)}
     assert rows["connectors"]["status"] == "warn"
     assert "`gdocs` is `gdrive`" in rows["connectors"]["detail"]
+    assert "`gdocs.scope`" in rows["connectors"]["detail"]
 
 
 def test_a_scope_is_reported_everywhere_but_md(bare, capsys, monkeypatch):

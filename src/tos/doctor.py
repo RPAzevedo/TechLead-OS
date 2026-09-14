@@ -143,7 +143,9 @@ def main(argv) -> int:
     leftover = []
     if "gdocs" in connectors:
         leftover.append("`gdocs` is `gdrive` since 0.11.0 — still read as gdrive; rename the key")
-    leftover += [f"`{n}.scope` is ignored since 0.11.0 — delete it" for n in ("confluence", "gdrive", "jira", "slack")
+    # gdocs too: straight from 0.10.1 it may still carry its folder scope, and renaming the
+    # mapping wholesale would carry that into gdrive for a second doctor run to find
+    leftover += [f"`{n}.scope` is ignored — delete it" for n in ("confluence", "gdocs", "gdrive", "jira", "slack")
                  if isinstance(connectors.get(n), dict) and "scope" in connectors[n]]
     if leftover:
         c.add("connectors", "warn", "; ".join(leftover))

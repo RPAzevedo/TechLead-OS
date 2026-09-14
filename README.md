@@ -122,8 +122,10 @@ is not.
 
 **Confirm it against your own install rather than trusting this list.** The Google Drive entries were verified
 against a live server, and the two Atlassian servers above were observed on one — but only their *read* tools were
-seen directly. Every write-tool name here is inferred from the server's own vocabulary, which is the same kind of
-assumption that made the 0.7.1 entries inert. After wiring a connector, ask Claude Code which tools that server
+seen directly. The Slack names come from the tool list Slack publishes for its official server and from the archived
+reference server: both prefix every tool `slack_`, which the list lacked until 0.11.0, so not one Slack entry was in
+force. The other write-tool names are inferred from the server's own vocabulary, the same kind of assumption that
+made the 0.7.1 entries inert. After wiring a connector, ask Claude Code which tools that server
 exposes, and add any this list misses. Slack and Jira are readable from phase 1 since 0.11.0, and no Slack server has
 been observed at all, so check those two first.
 
