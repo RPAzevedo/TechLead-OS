@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechLead OS — print companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* TechLead OS — print companion. Single visual world: ink on paper. */
+@page { size: A4; margin: 18mm 16mm 20mm; }
+
+:root {
+  --paper: #FFFFFF;
+  --ink: #1B2530;
+  --ink-2: #3C4A56;
+  --muted: #5F6E7A;
+  --rule: #C9D1D6;
+  --rule-soft: #E3E8EB;
+  --accent: #1F7A76;
+  --accent-ink: #145F5C;
+  --accent-soft: #E1F0EF;
+  --warn: #8F6212;
+  --stale: #A63A3A;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body: "Literata", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html { background: #E7EAEC; }
+body {
+  margin: 0;
+  background: #E7EAEC;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 10.5pt;
+  line-height: 1.5;
+  font-optical-sizing: auto;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+a { color: var(--accent-ink); text-decoration: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* On screen: show the document as A4 sheets with a print bar. In print: just the document. */
+.print-bar {
+  max-width: 210mm;
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.print-bar button {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.print-bar button:hover { background: var(--ink-2); border-color: var(--ink-2); }
+.sheet {
+  max-width: 210mm;
+  margin: 12px auto 48px;
+  background: var(--paper);
+  padding: 18mm 16mm 20mm;
+  box-shadow: 0 2px 14px rgba(27, 37, 48, 0.14);
+}
+@media print {
+  html, body { background: var(--paper); }
+  .print-bar { display: none; }
+  .sheet { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+}
+
+/* ---------- header ---------- */
+header.doc { margin: 0 0 8mm; padding-bottom: 5mm; border-bottom: 1px solid var(--ink); }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 8.5pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+.eyebrow .status {
+  display: inline-block;
+  padding: 0 7px;
+  border: 1px solid var(--warn);
+  color: var(--warn);
+  border-radius: 999px;
+  margin-left: 6px;
+}
+h1 {
+  font-family: var(--display);
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 30pt;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  text-wrap: balance;
+}
+.lede { font-size: 12.5pt; line-height: 1.45; color: var(--ink-2); margin: 0 0 12px; text-wrap: pretty; }
+.meta { font-family: var(--mono); font-size: 8.5pt; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; }
+.meta b { color: var(--ink-2); font-weight: 500; }
+
+/* ---------- contents (print) ---------- */
+.toc-print { margin: 0 0 10mm; break-inside: avoid; }
+.toc-print .toc-label { font-family: var(--mono); font-size: 8.5pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.toc-print ol { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 28px; font-size: 10pt; }
+.toc-print li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; padding: 2px 0; break-inside: avoid; }
+.toc-print .n { font-family: var(--mono); font-size: 8.5pt; color: var(--muted); padding-top: 2px; }
+.toc-print a { color: var(--ink); }
+.toc-print .sub { display: block; font-size: 8.5pt; color: var(--muted); }
+
+/* ---------- sections ---------- */
+section { margin: 0 0 9mm; }
+.part { font-family: var(--mono); font-size: 8.5pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 0 0 5px; break-after: avoid; }
+h2 {
+  break-inside: avoid;
+  font-family: var(--display);
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 18pt;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 0 0 10px;
+  text-wrap: balance;
+  break-after: avoid;
+}
+h3 { break-inside: avoid; font-family: var(--display); font-weight: 500; font-size: 12.5pt; line-height: 1.25; margin: 16px 0 6px; text-wrap: balance; break-after: avoid; }
+h4 { font-family: var(--mono); font-weight: 500; font-size: 8.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 12px 0 5px; break-after: avoid; }
+p { margin: 0 0 9px; text-wrap: pretty; orphans: 3; widows: 3; }
+p.lead-in { break-after: avoid; }
+ul, ol { margin: 0 0 9px; padding-left: 18px; }
+li { margin: 0 0 3px; orphans: 3; widows: 3; }
+li::marker { color: var(--muted); }
+strong { font-weight: 600; }
+code {
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+  font-size: 0.86em;
+  border: 1px solid var(--rule-soft);
+  border-radius: 3px;
+  padding: 0 0.3em;
+  color: var(--ink);
+}
+pre {
+  margin: 0 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 8.6pt;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  break-inside: avoid;
+}
+pre code { border: 0; padding: 8px 11px 10px; font-size: inherit; display: block; }
+.code-title { font-family: var(--mono); font-size: 8pt; color: var(--muted); padding: 6px 11px 0; letter-spacing: 0.02em; }
+.cm { color: var(--muted); }
+.k { color: var(--accent-ink); }
+.hl { font-weight: 500; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; background: var(--accent-soft); }
+
+blockquote.quote { margin: 0 0 12px; padding: 2px 0 2px 14px; border-left: 2px solid var(--accent); color: var(--ink-2); font-style: italic; break-inside: avoid; }
+blockquote.quote p { margin: 0 0 4px; }
+blockquote.quote cite { font-style: normal; font-family: var(--mono); font-size: 8pt; color: var(--muted); }
+
+/* ---------- callouts ---------- */
+.callout { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px; padding: 9px 13px; margin: 0 0 12px; break-inside: avoid; }
+.callout .label { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 5px; }
+.callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+.callout.warn { border-left-color: var(--warn); }
+.callout.warn .label { color: var(--warn); }
+
+/* ---------- tables ---------- */
+.table-wrap { margin: 0 0 12px; border: 1px solid var(--rule); border-radius: 3px; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt; line-height: 1.4; table-layout: fixed; }
+th, td { text-align: left; vertical-align: top; padding: 5px 8px; border-bottom: 1px solid var(--rule-soft); overflow-wrap: anywhere; }
+th { white-space: nowrap; font-family: var(--mono); font-weight: 500; font-size: 7.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule); }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+tbody tr:last-child td { border-bottom: 0; }
+td.mono, .mono { font-family: var(--mono); font-size: 8.5pt; }
+td.mono { overflow-wrap: normal; }
+td.num { font-variant-numeric: tabular-nums; }
+.table-wrap.wide col.c-type { width: 12%; }
+.table-wrap.wide col.c-from { width: 7%; }
+.table-wrap.wide col.c-dir { width: 16%; }
+.table-wrap.wide col.c-what { width: 37%; }
+.table-wrap.wide col.c-hor { width: 10%; }
+.table-wrap.wide col.c-gate { width: 18%; }
+td .headings { display: block; margin-top: 3px; font-size: 8pt; color: var(--muted); }
+td .headings b { font-weight: 500; color: var(--ink-2); }
+/* the comparison table: give the first column its natural width */
+.table-wrap.cmp col.c1 { width: 16%; }
+.table-wrap.cmp col.c2 { width: 28%; }
+.table-wrap.cmp col.c3 { width: 28%; }
+.table-wrap.cmp col.c4 { width: 28%; }
+.table-wrap.cad col.k1 { width: 20%; }
+.table-wrap.cad col.k2 { width: 15%; }
+.table-wrap.cad col.k3 { width: 53%; }
+.table-wrap.cad col.k4 { width: 12%; }
+
+/* ---------- tier chips ---------- */
+.tier { display: inline-block; font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.04em; padding: 0 6px; border-radius: 999px; border: 1px solid var(--ink-2); color: var(--ink-2); white-space: nowrap; vertical-align: 1px; }
+.tier.machine { border-color: var(--accent); color: var(--accent-ink); }
+.tier.human { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.tier.stale { border-color: var(--stale); color: var(--stale); }
+.tier.draft { border-color: var(--warn); color: var(--warn); }
+
+/* ---------- figures ---------- */
+figure { margin: 6px 0 14px; break-inside: avoid; }
+figure svg { display: block; width: 100%; height: auto; color: var(--ink); font-family: var(--mono); }
+figure .box { fill: var(--paper); stroke: currentColor; stroke-width: 1.2; }
+figure .box-soft { fill: #F1F4F5; stroke: currentColor; stroke-width: 1.2; }
+figure .box-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.8; }
+figure .box-dash { fill: none; stroke: var(--muted); stroke-width: 1.1; stroke-dasharray: 5 4; }
+figure .ln { fill: none; stroke: currentColor; stroke-width: 1.2; }
+figure .ln-acc { fill: none; stroke: var(--accent); stroke-width: 2; }
+figure .ln-dash { fill: none; stroke: currentColor; stroke-width: 1.1; stroke-dasharray: 4 4; }
+figure .ln-stale { fill: none; stroke: var(--stale); stroke-width: 1.2; stroke-dasharray: 4 4; }
+figure .mk { fill: currentColor; }
+figure .mk-acc { fill: var(--accent); }
+figure .mk-stale { fill: var(--stale); }
+figure text { fill: currentColor; font-size: 12px; }
+figure text.t { font-family: var(--display); font-weight: 500; font-size: 14px; }
+figure text.s { fill: var(--muted); font-size: 11px; }
+figure text.l { font-size: 11px; }
+figure text.acc { fill: var(--accent-ink); }
+figure text.stale { fill: var(--stale); }
+figcaption { font-size: 9pt; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+/* ---------- decisions ---------- */
+.decision { display: grid; grid-template-columns: 36px 1fr; gap: 0 10px; padding: 10px 0 12px; border-top: 1px solid var(--rule); break-inside: avoid; }
+.decision:last-of-type { border-bottom: 1px solid var(--rule); }
+.decision .id { font-family: var(--mono); font-weight: 500; font-size: 9.5pt; color: var(--accent); padding-top: 3px; }
+.decision h3 { margin: 0 0 4px; font-size: 12pt; }
+.decision p { margin: 0 0 5px; font-size: 10pt; }
+.decision .rec { color: var(--ink-2); }
+.decision .rec b { font-weight: 600; color: var(--ink); }
+.decision .decided { border-left: 3px solid var(--accent); padding-left: 10px; margin-top: 6px; color: var(--ink); }
+.decision .decided b { font-weight: 600; color: var(--accent-ink); }
+.answer { display: grid; grid-template-columns: 64px 1fr; gap: 8px; margin-top: 8px; }
+.answer .lbl { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+.answer .lines { display: grid; gap: 0; }
+.answer .line { height: 9mm; border-bottom: 1px solid var(--rule); }
+
+/* ---------- key/value spec ---------- */
+dl.spec { display: grid; grid-template-columns: 84px 1fr; gap: 4px 12px; margin: 0 0 12px; font-size: 10pt; }
+dl.spec dt { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+dl.spec dd { margin: 0; }
+dl.spec dd p { margin: 0 0 4px; }
+dl.spec dd ol { margin: 0; }
+
+.phases { display: grid; gap: 6px; margin: 0 0 12px; }
+.phase { display: grid; grid-template-columns: 84px 1fr; gap: 10px; padding: 7px 11px; border: 1px solid var(--rule); border-radius: 3px; break-inside: avoid; }
+.phase .when { font-family: var(--mono); font-size: 8pt; color: var(--muted); padding-top: 2px; }
+.phase p { margin: 0; font-size: 10pt; }
+.phase p b { font-weight: 600; }
+
+.sources-list { padding-left: 0; list-style: none; }
+.sources-list li { padding: 6px 0; border-top: 1px solid var(--rule-soft); font-size: 10pt; break-inside: avoid; }
+.sources-list li:last-child { border-bottom: 1px solid var(--rule-soft); }
+.sources-list a { color: var(--ink); font-weight: 600; }
+.sources-list a::after { content: attr(href); display: block; font-family: var(--mono); font-size: 8pt; font-weight: 400; color: var(--accent-ink); overflow-wrap: anywhere; }
+.sources-list .who { font-family: var(--mono); font-size: 8pt; color: var(--muted); display: block; margin-top: 2px; }
+
+.footer-note { font-family: var(--mono); font-size: 8pt; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 10px; }
+
+/* ---------- page-break plan ---------- */
+.pb { break-before: page; }
+pre.long { break-inside: auto; orphans: 4; widows: 4; }   /* taller than a sheet: split it rather than strand a blank page */
+
+/* ---------- cover note ---------- */
+.cover-note { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 8mm 0 6mm; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 3px; break-inside: avoid; }
+.cover-note h4 { margin: 0 0 5px; }
+.cover-note p { margin: 0; font-size: 9.5pt; color: var(--ink-2); }
+
+</style>
+</head>
+<body>
+<div class="print-bar">
+  <span>TechLead OS · design v1.0 · engine 0.10.1 · A4 portrait · use your browser's print dialog for page numbers</span>
+  <button type="button" onclick="window.print()">Print / Save as PDF</button>
+</div>
+<div class="sheet">
+<header class="doc">
+<p class="eyebrow">Design record · v1.0 <span class="status">draft — awaiting human:rafael</span></p>
+<h1>TechLead OS</h1>
+<p class="lede">A personal operating system for a lead engineer: Karpathy's LLM Wiki loop on Google's Open Knowledge Format v0.2 page contract, weighted by the Level 5 role. An engine of instructions, a data root of markdown, one config file joining them. Obsidian to read it, Claude Code to maintain it, git underneath.</p>
+<p class="meta"><span><b>For</b> Rafael</span><span><b>Scope</b> delivery · team &amp; stakeholders · systems · design · learning</span><span><b>Sources</b> Confluence · Google Docs · MD docs · web, then Jira and Slack</span><span><b>State</b> phase 1 in daily use · engine 0.10.1</span></p>
+</header>
+<nav aria-label="Contents" class="toc-print"><p class="toc-label">Contents</p><ol><li><span class="n">0</span><a href="#summary">What this is<span class="sub">In one screen</span></a></li><li><span class="n">1</span><a href="#architecture">Two trees, one bundle, two actors<span class="sub">Architecture</span></a></li><li><span class="n">2</span><a href="#contract">Every page says who wrote it, who checked it, when it expires<span class="sub">The page contract</span></a></li><li><span class="n">3</span><a href="#types">Twenty types, eleven in phase 1<span class="sub">Page types</span></a></li><li><span class="n">4</span><a href="#loops">Eleven operations over a layer of scripts<span class="sub">Operations</span></a></li><li><span class="n">5</span><a href="#week">One weekend in, one review out<span class="sub">A Monday, concretely</span></a></li><li><span class="n">6</span><a href="#domains">Five rhythms, one per heading of the role<span class="sub">The domains</span></a></li><li><span class="n">7</span><a href="#tooling">Obsidian reads, Claude Code writes, git remembers<span class="sub">Tooling</span></a></li><li><span class="n">8</span><a href="#guardrails">What the agent never does<span class="sub">Guardrails</span></a></li><li><span class="n">9</span><a href="#rollout">What runs, and what is next<span class="sub">State and roadmap</span></a></li><li><span class="n">10</span><a href="#decisions">The calls this design rests on<span class="sub">Decisions</span></a></li><li><span class="n">11</span><a href="#sources">What this is grounded in<span class="sub">Sources</span></a></li></ol><div class="cover-note">
+<div><h4>How to read this</h4><p>§0–1 are the shape of the system; §2–4 are the spec — contract, types, operations; §5–7 show it running; §8–10 are the rules, the state and the calls behind them. Five minutes: §0, Fig. 2, Fig. 3, §9.</p></div>
+<div><h4>Where it stands</h4><p>Phase 1 runs daily on documents. Phase 2 (Jira, attested numbers), phase 3 (team, Slack, briefs) and phase 4 (vision, learning, radar) are designed here and refused by their commands until the config's <code>rollout.phase</code> raises them.</p></div>
+</div></nav>
+<main>
+<!-- ================================================================ -->
+<section class="pb" id="summary">
+<p class="part">0 · In one screen</p>
+<h2>What this is</h2>
+<p>You curate sources and ask questions; the agent does the bookkeeping. That is Karpathy's division of labour, and it is what lets a knowledge base survive a busy quarter. The catch with an agent-written wiki is trust: after three months you cannot tell which pages a person checked, which are guesses, and which quietly expired. OKF v0.2 answers exactly that, with five frontmatter fields and one page type for numbers.</p>
+<p>So the system is small: <strong>an engine of instructions and scripts, a data root of markdown fed through read-only connectors, one config file joining them, one page contract, twenty page types, eleven operations, a weekly tick and a sprint tick.</strong> Karpathy supplies the loop and the habit of reading the index first; OKF supplies the trust signals and the reserved shapes that make a bundle conformant. The Level 5 role description supplies the weights: which types exist, which pages must be human-reviewed before anything is built on them, and what Monday asks you.</p>
+<p class="lead-in">Every page in the wiki, including this one, opens with the same header:</p>
+<pre><div class="code-title">techlead-os-design.md — its own OKF frontmatter</div><code>---
+<span class="k">type</span>: Design
+<span class="k">title</span>: TechLead OS
+<span class="k">description</span>: A lead engineer's personal OS — the LLM Wiki loop on the OKF v0.2 contract.
+<span class="k">tags</span>: [personal-os, llm-wiki, okf, obsidian, claude-code, lead-engineer]
+<span class="k">sources</span>:
+  - id: karpathy-llm-wiki
+    resource: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+    title: LLM Wiki
+    author: Andrej Karpathy
+  - id: okf-spec
+    resource: https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
+    title: Open Knowledge Format — SPEC.md (v0.2)
+    author: Google Cloud
+  - id: role-lead-engineer
+    resource: ../raw/notes/2026-08-29-leadengineer.md
+    title: Engineer Level 5 (Lead Engineer) — role description
+    author: Envato
+<span class="k">generated</span>: { by: claude-code/claude-opus-5, at: 2026-09-14T13:03:54+10:00 }
+<span class="cm"># verified: (none yet — unverified until human:rafael reviews it)</span>
+<span class="k">status</span>: draft
+<span class="k">stale_after</span>: 2026-12-14
+---</code></pre>
+<p>Read the header and you know how much to trust the body: an agent wrote it, nobody has checked it, it stops being current in December. That is the whole idea, applied to every page about a system you own, a decision you are accountable for, a stakeholder's position or a report's growth — and to this page, whose phase-1 half describes an engine that runs and whose later phases are still a proposal.</p>
+</section>
+<!-- ================================================================ -->
+<section id="architecture">
+<p class="part">1 · Architecture</p>
+<h2>Two trees, one bundle, two actors</h2>
+<figure>
+<svg aria-label="Three layers between two actors, fed by connectors: you point at sources and drop notes; the agent fetches through connectors, reads raw, writes the wiki, appends pins and metric snapshots to raw, and is governed by the schema which you and the agent co-evolve; you verify wiki pages." role="img" viewbox="0 0 760 380">
+<defs>
+<marker id="ar" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk" d="M0,0 L10,5 L0,10 z"></path></marker>
+<marker id="ar-acc" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk-acc" d="M0,0 L10,5 L0,10 z"></path></marker>
+</defs>
+<!-- connectors -->
+<rect class="box" height="38" rx="4" width="360" x="200" y="8"></rect>
+<text class="t" text-anchor="middle" x="380" y="24">connectors</text>
+<text class="s" text-anchor="middle" x="380" y="39">Slack · Docs · Confluence · Jira · Trello · MD · web</text>
+<path class="ln" d="M 100 80 V 27 H 198" marker-end="url(#ar)"></path>
+<text class="l" text-anchor="middle" x="149" y="21">points</text>
+<path class="ln" d="M 660 80 V 27 H 562" marker-end="url(#ar)"></path>
+<text class="l" text-anchor="middle" x="611" y="21">fetches</text>
+<!-- actors -->
+<rect class="box-soft" height="280" rx="4" width="120" x="40" y="80"></rect>
+<text class="t" text-anchor="middle" x="100" y="106">You</text>
+<text class="s" text-anchor="middle" x="100" y="124">human:rafael</text>
+<text class="s" text-anchor="middle" x="100" y="340">Obsidian</text>
+<rect class="box-soft" height="280" rx="4" width="120" x="600" y="80"></rect>
+<text class="t" text-anchor="middle" x="660" y="106">Agent</text>
+<text class="s" text-anchor="middle" x="660" y="124">claude-code/&lt;id&gt;</text>
+<text class="s" text-anchor="middle" x="660" y="340">Claude Code</text>
+<!-- layers -->
+<rect class="box" height="56" rx="4" width="260" x="250" y="90"></rect>
+<text class="t" text-anchor="middle" x="380" y="113">raw/</text>
+<text class="s" text-anchor="middle" x="380" y="132">notes · pins · metric snapshots</text>
+<rect class="box-acc" height="96" rx="4" width="260" x="250" y="176"></rect>
+<text class="t" text-anchor="middle" x="380" y="202">wiki/</text>
+<text class="s" text-anchor="middle" x="380" y="221">the OKF bundle · index.md · log.md</text>
+<text class="s" text-anchor="middle" x="380" y="238">delivery · team · systems · design</text>
+<text class="s" text-anchor="middle" x="380" y="255">learning · radar · concepts · sources</text>
+<rect class="box" height="56" rx="4" width="260" x="250" y="300"></rect>
+<text class="t" text-anchor="middle" x="380" y="323">CLAUDE.md + schema/</text>
+<text class="s" text-anchor="middle" x="380" y="342">contract · type registry · templates</text>
+<!-- arrows: raw -->
+<line class="ln" marker-end="url(#ar)" x1="160" x2="248" y1="110" y2="110"></line>
+<text class="l" text-anchor="middle" x="204" y="102">drops notes</text>
+<line class="ln" marker-end="url(#ar)" x1="510" x2="598" y1="106" y2="106"></line>
+<text class="l" text-anchor="middle" x="554" y="98">reads</text>
+<line class="ln-dash" marker-end="url(#ar)" x1="600" x2="512" y1="132" y2="132"></line>
+<text class="s" text-anchor="middle" x="554" y="150">pins, metrics</text>
+<!-- arrows: wiki -->
+<line class="ln" marker-end="url(#ar)" x1="600" x2="512" y1="208" y2="208"></line>
+<text class="l" text-anchor="middle" x="555" y="186">writes pages</text>
+<text class="l" text-anchor="middle" x="555" y="200">+ index, log</text>
+<line class="ln" marker-end="url(#ar)" x1="250" x2="162" y1="208" y2="208"></line>
+<text class="l" text-anchor="middle" x="205" y="200">reads, asks</text>
+<line class="ln-acc" marker-end="url(#ar-acc)" x1="160" x2="248" y1="254" y2="254"></line>
+<text class="l acc" text-anchor="middle" x="204" y="246">verifies</text>
+<!-- arrows: schema -->
+<line class="ln" marker-end="url(#ar)" x1="510" x2="598" y1="328" y2="328"></line>
+<text class="l" text-anchor="middle" x="554" y="320">governs</text>
+<line class="ln" marker-end="url(#ar)" marker-start="url(#ar)" x1="162" x2="248" y1="328" y2="328"></line>
+<text class="l" text-anchor="middle" x="205" y="320">co-evolve</text>
+</svg>
+<figcaption>Fig. 1 — Who writes where. You point at sources and drop notes; the agent fetches through connectors and writes what it read into <code>wiki/</code> as Source pages, keeping a verbatim copy in <code>raw/</code> only for a pin or a metric snapshot. You never hand-edit <code>wiki/</code> except through <code>/tos-verify</code>. The schema is the one place both of you write, and it lives in its own tree (Fig. 2).</figcaption>
+</figure>
+<h3>Engine and data are separate trees</h3>
+<p>Karpathy's three layers are raw, wiki and schema. The first two are data: they are about your work, they contain company material, they grow every day. The third is machinery: it says how the agent behaves, contains nothing about your company, and changes when you change your mind about the method. So they are two repositories. The <strong>engine</strong> holds <code>CLAUDE.md</code>, the commands, the type registry, the templates and the scripts; you could publish it, or hand it to a colleague to run over their own data. The <strong>data root</strong> holds <code>raw/</code>, <code>wiki/</code> and the Obsidian vault files, privately, in company-approved storage. A <strong>config file</strong>, one per installation and never committed, joins them.</p>
+<figure>
+<svg aria-label="Two trees: the data root (raw, wiki with index and log, and engine-installed vault files) and the engine repository (CLAUDE.md, commands, schema, scripts, CHANGELOG). A config file at the bottom points at the data root, is read first by the engine, and holds the connector scopes and feeds." role="img" viewbox="0 0 760 310">
+<defs>
+<marker id="ar4" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk" d="M0,0 L10,5 L0,10 z"></path></marker>
+</defs>
+<!-- data tree -->
+<rect class="box-dash" height="214" rx="6" width="345" x="20" y="16"></rect>
+<text class="t" x="34" y="38">data root</text>
+<text class="s" x="34" y="54">private repo · company storage · the Obsidian vault</text>
+<rect class="box" height="56" rx="4" width="150" x="34" y="70"></rect>
+<text class="t" text-anchor="middle" x="109" y="93">raw/</text>
+<text class="s" text-anchor="middle" x="109" y="111">notes · pins · metrics</text>
+<rect class="box-acc" height="140" rx="4" width="150" x="200" y="70"></rect>
+<text class="t" text-anchor="middle" x="275" y="93">wiki/</text>
+<text class="s" text-anchor="middle" x="275" y="111">the OKF bundle</text>
+<text class="s" text-anchor="middle" x="275" y="128">index.md</text>
+<text class="s" text-anchor="middle" x="275" y="150">log.md</text>
+<text class="s" text-anchor="middle" x="275" y="165">data changes only</text>
+<text class="s" text-anchor="middle" x="275" y="195">domains · shared dirs</text>
+<rect class="box-soft" height="70" rx="4" width="150" x="34" y="140"></rect>
+<text class="t" text-anchor="middle" x="109" y="163">Home.md · .obsidian/</text>
+<text class="s" text-anchor="middle" x="109" y="181">installed by /tos-init</text>
+<text class="s" text-anchor="middle" x="109" y="196">engine-owned, unlogged</text>
+<!-- engine tree -->
+<rect class="box-dash" height="214" rx="6" width="345" x="395" y="16"></rect>
+<text class="t" x="409" y="38">engine</text>
+<text class="s" x="409" y="54">git repo · no company data · shareable</text>
+<rect class="box" height="66" rx="4" width="317" x="409" y="70"></rect>
+<text class="t" text-anchor="middle" x="567" y="93">CLAUDE.md · .claude/commands/</text>
+<text class="s" text-anchor="middle" x="567" y="111">schema/ — types, templates, vault defaults</text>
+<text class="s" text-anchor="middle" x="567" y="126">src/tos/ — lint, init, helpers</text>
+<rect class="box" height="60" rx="4" width="317" x="409" y="150"></rect>
+<text class="t" text-anchor="middle" x="567" y="173">CHANGELOG.md</text>
+<text class="s" text-anchor="middle" x="567" y="191">engine changes only · git history</text>
+<!-- config -->
+<rect class="box-acc" height="44" rx="4" width="290" x="235" y="258"></rect>
+<text class="t" text-anchor="middle" x="380" y="276">config.yaml</text>
+<text class="s" text-anchor="middle" x="380" y="293">per installation · untracked · no secrets</text>
+<path class="ln" d="M 235 280 H 190 V 232" marker-end="url(#ar4)"></path>
+<text class="l" text-anchor="end" x="182" y="262">data.root</text>
+<path class="ln" d="M 525 280 H 567 V 232" marker-end="url(#ar4)"></path>
+<text class="l" x="575" y="262">read first</text>
+<text class="s" text-anchor="middle" x="380" y="248">connectors: providers · scopes · feeds</text>
+</svg>
+<figcaption>Fig. 2 — Two trees, one join. The engine never contains company data; the data root never contains instructions. The config file is the only thing that knows where both are, and the only file the agent never writes.</figcaption>
+</figure>
+<h3>The two trees</h3>
+<p>The OKF bundle root is <code>wiki/</code>, not the data root: that keeps <code>raw/</code> — notes, pins and metric snapshots, none of which carry a <code>type</code> — out of the conformance rule, and lets <code>team/playbooks/</code> be lifted out later as a bundle of its own. Obsidian opens the data root as its vault; Claude Code runs in the engine and is granted the data root as an additional working directory.</p>
+<pre><div class="code-title">&lt;data.root&gt;/ — the Obsidian vault, a private git repo</div><code>&lt;data.root&gt;/
+├── Home.md, .obsidian/        <span class="cm"># dashboard and viewer settings, installed by /tos-init; engine-owned</span>
+├── raw/                       <span class="cm"># layer 1 — read, never edited</span>
+│   ├── inbox/                 <span class="cm"># drop zone: notes and clips — and pull.md, a list of pointers</span>
+│   ├── notes/                 <span class="cm"># your notes, moved here after ingest; immutable</span>
+│   ├── pinned/                <span class="cm"># verbatim copies you asked for (--pin); immutable</span>
+│   ├── metrics/               <span class="cm"># query snapshots an attested number is computed over</span>
+│   └── assets/                <span class="cm"># images</span>
+└── wiki/                      <span class="cm"># layer 2 — the OKF v0.2 bundle, agent-owned</span>
+    ├── index.md, log.md       <span class="cm"># okf_version lives here; one timeline for the bundle</span>
+    ├── delivery/              <span class="cm"># projects/, initiatives/, objectives/, metrics/</span>
+    ├── team/                  <span class="cm"># team.md, people/, stakeholders/, playbooks/</span>
+    ├── systems/               <span class="cm"># one page per system; metrics/; ktlo-roadmap.md</span>
+    ├── design/                <span class="cm"># rfcs/, decisions/, visions/</span>
+    ├── learning/              <span class="cm"># paths/, drills/</span>
+    └── concepts/ sources/ syntheses/ radar/ questions/ reviews/   <span class="cm"># shared</span></code></pre>
+<pre><div class="code-title">tos-engine/ — layer 3, a git repo you could publish</div><code>tos-engine/
+├── CLAUDE.md                  <span class="cm"># the schema; first instruction: read the config</span>
+├── CHANGELOG.md, docs/        <span class="cm"># engine changes only — never the data log</span>
+├── config.example.yaml        <span class="cm"># copy to ~/.config/tos/config.yaml</span>
+├── .claude/commands/          <span class="cm"># one file per operation (§4)</span>
+├── .claude/settings.json      <span class="cm"># the connectors' write tools, denied (§7)</span>
+├── schema/                    <span class="cm"># types.md · templates/ · examples/ · vault/</span>
+├── src/tos/                   <span class="cm"># common, bundle, init, lint, and the write helpers (§4)</span>
+└── tests/                     <span class="cm"># pytest: the contract, every shipped page, init → lint</span></code></pre>
+<h3>The config file</h3>
+<p>One file per installation, in YAML, outside both repositories at <code>~/.config/tos/config.yaml</code>. It names the data root, the rollout phase, each connector's provider and scope, the feeds allowed to run unattended, and the review thresholds. It holds no credentials: connector auth belongs to the MCP server configuration, and the one script that could ever need a token is given the <em>name</em> of an environment variable. The engine never writes this file. If it is missing or unreadable, every operation stops and says so; if it names a data root that does not exist, every operation except <code>/tos-init</code> — whose job is to create that root — does the same.</p>
+<pre><div class="code-title">~/.config/tos/config.yaml</div><code><span class="k">engine</span>: "0.10"                          <span class="cm"># version this config was written for; drift is reported, not enforced</span>
+<span class="k">data</span>:
+  root: ~/work/tos-data                  <span class="cm"># raw/, wiki/, Home.md, .obsidian/ live here</span>
+  timezone: Australia/Melbourne          <span class="cm"># every date the engine writes comes from here, not the host</span>
+  actor: human:rafael                    <span class="cm"># the human actor in every verified entry</span>
+<span class="k">rollout</span>:
+  phase: 1                               <span class="cm"># 1 documents · 2 Jira + sprint · 3 team + Slack · 4 vision + radar</span>
+<span class="k">connectors</span>:
+  confluence: { provider: mcp:atlassian, scope: { spaces: ["ENG", "PDLC"] } }
+  gdocs:      { provider: mcp:google-drive, scope: { folders: ["Engineering/RFCs"] } }
+  md:         { provider: filesystem, scope: { repos: ["~/code/asset-search"] } }
+  web:        { provider: mcp:fetch }
+  jira:       { provider: mcp:atlassian, scope: { projects: [], boards: [] } }      <span class="cm"># phase 2</span>
+  slack:      { provider: mcp:slack, scope: { channels: [], dms: false } }          <span class="cm"># phase 3</span>
+<span class="k">feeds</span>: {}                              <span class="cm"># the only pulls that run without a pointer; none in phase 1</span>
+<span class="k">review</span>:
+  weekly_day: monday
+  verify_queue: 5                        <span class="cm"># how many pages Monday may ask you to verify</span>
+  draft_age_days: 14                     <span class="cm"># lint flags drafts older than this</span>
+  expiring_days: 7                       <span class="cm"># lint flags pages expiring within this window</span>
+  weekly_log_grace_days: 16              <span class="cm"># an active project silent longer than this is a finding</span></code></pre>
+<h3>Two logs, one rule</h3>
+<p><code>wiki/log.md</code> records changes to the data and nothing else: pulls, ingests, filed answers, briefs, measurements, lint fixes, verifications, reviews, deprecations. Engine changes — a new type, a reworded guardrail, a rewritten command — go to the engine's <code>CHANGELOG.md</code>. The one crossing is a migration: when an engine change forces a change to the data, that is a data change, logged as <code>Migration</code> with the engine version.</p>
+<h3>You point, the agent fetches — and keeps your reading, not the source</h3>
+<p>A pointer is a Confluence page, a Google Doc, a repository path, a web URL, and from later phases a JQL query or a Slack permalink — given in chat or listed in <code>raw/inbox/pull.md</code>. Nothing is crawled on the agent's initiative; a short list of named feeds in the config may run on a schedule as <code>process:*</code> actors. Fetching is cheap, so the discipline matters: a channel digest is one source, not two hundred messages, and index-first navigation only holds if the wiki grows at the pace of your curation.</p>
+<p>What lands in the wiki is your <em>reading</em> of a source — a <code>Source</code> page with a summary, the load-bearing lines quoted as short excerpts so the page carries its own evidence, and an OKF <code>sources</code> entry pointing back at the original with its own modified time or version. Copying the source instead would put verbatim company material, and remarks people make in Slack, into a local git history forever, for the sake of a re-read the connector can do on demand. The data root keeps verbatim material in exactly three cases: your own notes; a copy you explicitly pin, because the source may vanish or a decision rests on its wording at a date; and the query snapshots an attested number must be reproducible over. Two consequences: drift is measured against the recorded <code>last_modified</code>, and a Source page for a thread since deleted is exactly as good as its excerpts — which is why they are quoted.</p>
+<p>Every directory under <code>wiki/</code> carries its own <code>index.md</code> in OKF's list form, and the agent navigates top-down: root index → directory index → candidate frontmatter → only then bodies. A page that is not indexed does not exist.</p>
+</section>
+<!-- ================================================================ -->
+<section id="contract">
+<p class="part">2 · The page contract</p>
+<h2>Every page says who wrote it, who checked it, and when it expires</h2>
+<p class="lead-in">OKF requires one field, <code>type</code>. TechLead OS requires the full v0.2 trust family on top of it, because the agent writes most pages and you need to filter by tier at a glance:</p>
+<pre><div class="code-title">wiki/systems/asset-search.md</div><code>---
+<span class="k">type</span>: System                           <span class="cm"># OKF: required; from schema/types.md</span>
+<span class="k">title</span>: Asset search
+<span class="k">description</span>: The search service behind marketplace browse.
+<span class="k">resource</span>: https://github.com/example-org/asset-search
+<span class="k">tags</span>: [system, search, owned]
+<span class="k">owner</span>: human:rafael                    <span class="cm"># extension field — owner of record</span>
+<span class="k">sources</span>:                               <span class="cm"># OKF v0.2 provenance family</span>
+  - id: ops-review-2026-08
+    resource: ../../raw/notes/2026-08-21-asset-search-ops-review.md
+    title: Asset search — operational review, August
+    author: human:rafael
+  - id: incident-2026-07-30
+    resource: https://example.atlassian.net/wiki/spaces/ENG/pages/9128/Incident+report
+    title: Incident report — search latency
+    last_modified: 2026-07-31T09:00:00+10:00   <span class="cm"># drift is measured against this</span>
+<span class="k">generated</span>: { by: claude-code/claude-opus-5, at: 2026-08-25T09:12:00+10:00 }
+<span class="k">verified</span>:
+  - { by: human:rafael, at: 2026-08-26T08:40:00+10:00 }
+<span class="k">status</span>: stable                         <span class="cm"># draft | stable | deprecated — always explicit</span>
+<span class="k">stale_after</span>: 2026-11-25                <span class="cm"># generated.at + the type's horizon (System: 90 d)</span>
+---
+# Operational standards
+- [x] On-call rota and escalation path documented[^ops-review-2026-08]
+- [ ] Alert budget within target — breached 2026-07-30[^incident-2026-07-30]
+
+[^ops-review-2026-08]: Asset search — operational review, August
+[^incident-2026-07-30]: Incident report — search latency</code></pre>
+<p>Two properties of that block are contract rather than convention. <b>It must parse:</b> frontmatter is read with a real YAML parser and anything malformed is a conformance error that fails the lint run — <code>tags: [a, b</code> does not quietly lose a line. And <b>a value that looks like a comment is one</b>: <code>slack: #team-search</code> parses to nothing, which is why every pointer field in §3 is written quoted.</p>
+<h3>Trust tiers, and what moves a page between them</h3>
+<figure>
+<svg aria-label="Trust ladder: the agent's write lands a page as unverified; a cross-check pass by a process actor promotes it to machine-confirmed; a verify by human:rafael promotes it to human-reviewed; a meaningful edit after the last verification drops it back to unverified; a passed stale_after flags the page in any tier." role="img" viewbox="0 0 760 275">
+<defs>
+<marker id="ar2" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk" d="M0,0 L10,5 L0,10 z"></path></marker>
+<marker id="ar2-acc" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk-acc" d="M0,0 L10,5 L0,10 z"></path></marker>
+</defs>
+<!-- entry -->
+<text class="l" x="20" y="34">agent writes: generated { by, at }</text>
+<text class="s" x="20" y="49">status: draft · no verified key</text>
+<line class="ln" marker-end="url(#ar2)" x1="95" x2="95" y1="58" y2="108"></line>
+<!-- tiers -->
+<rect class="box" height="70" rx="4" width="150" x="20" y="110"></rect>
+<text class="t" text-anchor="middle" x="95" y="139">unverified</text>
+<text class="s" text-anchor="middle" x="95" y="159">the default</text>
+<rect class="box" height="70" rx="4" width="150" x="305" y="110"></rect>
+<text class="t" text-anchor="middle" x="380" y="139">machine-confirmed</text>
+<text class="s" text-anchor="middle" x="380" y="159">verified by process:*</text>
+<rect class="box-acc" height="70" rx="4" width="150" x="590" y="110"></rect>
+<text class="t" text-anchor="middle" x="665" y="139">human-reviewed</text>
+<text class="s" text-anchor="middle" x="665" y="159">verified by human:*</text>
+<!-- promotions -->
+<line class="ln" marker-end="url(#ar2)" x1="170" x2="303" y1="145" y2="145"></line>
+<text class="l" text-anchor="middle" x="237" y="118">process:cross-check</text>
+<text class="s" text-anchor="middle" x="237" y="132">re-reads the source</text>
+<line class="ln-acc" marker-end="url(#ar2-acc)" x1="455" x2="588" y1="145" y2="145"></line>
+<text class="l acc" text-anchor="middle" x="522" y="118">/tos-verify</text>
+<text class="s" text-anchor="middle" x="522" y="132">human:rafael</text>
+<!-- demotion -->
+<path class="ln-dash" d="M 665 180 V 215 H 95 V 182" marker-end="url(#ar2)"></path>
+<text class="s" text-anchor="middle" x="380" y="209">meaningful edit after the last verified.at → back to unverified</text>
+<!-- staleness -->
+<line class="ln-stale" x1="20" x2="740" y1="258" y2="258"></line>
+<text class="stale" text-anchor="middle" x="380" y="250">today ≥ stale_after → flagged stale, whatever the tier</text>
+</svg>
+<figcaption>Fig. 3 — The trust ladder. Only two things promote a page, and both are separate passes from the one that wrote it. Verification is dated, so an edit after it is not silently trusted.</figcaption>
+</figure>
+<ul>
+<li><strong>The writer never verifies.</strong> Ingest sets <code>generated</code> and nothing else. <span class="tier machine">machine-confirmed</span> comes from a separate pass (<code>process:cross-check</code>) that re-fetches the source and judges whether the page is still faithful to it. <span class="tier human">human-reviewed</span> comes only from you. The rule is enforced, not instructed: every <code>verified</code> entry is appended by one script, which refuses the agent's own actor outright and refuses a <code>human:</code> actor unless the verify command passes <code>--human-confirmed</code>. <b>The middle tier is empty today</b> — the script accepts <code>process:*</code>, but the cross-check pass is not built (§9).</li>
+<li><strong>Verification is dated.</strong> If <code>generated.at</code> is later than the newest <code>verified[].at</code>, the page is reported as changed since verification and answers treat it as <span class="tier">unverified</span> again.</li>
+<li><strong>Status is explicit.</strong> OKF treats a missing <code>status</code> as <code>stable</code>, so an agent-written page always writes <code>draft</code> until it earns the gate in §3. <code>deprecated</code> replaces deletion: the page stays, says what superseded it, and drops out of answers unless asked for.</li>
+</ul>
+<h3>Freshness, and numbers</h3>
+<p><code>stale_after</code> is an absolute date, computed at write time from the type's horizon: a Signal expires in a month, a System's ownership review in a quarter, a Concept in a year. Staleness is orthogonal to trust — a human-reviewed Project still goes <span class="tier stale">stale</span> after thirty days of silence, which is the point. When a page expires the weekly review asks for one of three answers: <em>refresh</em>, <em>extend</em> or <em>deprecate</em>. Active Projects are the exception: they expire constantly, so their expiry is reported in the portfolio row you read every Monday rather than in a queue you would learn to skip, and their silence is measured separately by <code>weekly_log_grace_days</code>.</p>
+<p>A number is different from a claim. An LLM that "remembers" last sprint's completion rate is what OKF's <code>Attested Computation</code> type exists to prevent: the page binds a sanctioned computation to declared parameters, an executor that returns a receipt, and a deterministic attester that confirms the computation which ran is the one bound to the page. The agent supplies parameter values and nothing else. The fetch and the compute are deliberately split — the feed writes query results to an immutable snapshot under <code>raw/metrics/</code>, and the computation runs over that file — so the receipt can carry the hash of both, and a failing attestation is refused rather than footnoted. A number appears in a review or a brief with its receipt, or it does not appear.</p>
+<h3>Actors and timestamps</h3>
+<p>OKF's three actor forms, verbatim: <code>human:rafael</code>; <code>claude-code/&lt;model-id&gt;</code>, filled in with the model actually running; <code>process:okf-lint</code>, <code>process:cross-check</code>, <code>process:weekly-review</code>, <code>process:pull-&lt;feed&gt;</code> for scripted passes. Timestamps are ISO-8601 with the offset of <code>data.timezone</code> — from the config, never the host clock, or a runner in UTC stamps the wrong offset and counts a horizon from the wrong calendar day.</p>
+</section>
+<!-- ================================================================ -->
+<section id="types">
+<p class="part">3 · Page types</p>
+<h2>Twenty types, eleven in phase 1</h2>
+<p>OKF leaves <code>type</code> producer-defined. This registry is the merge of Karpathy's four page kinds with the responsibilities the role description names: <em>From</em> is the rollout phase in which the type first appears, <em>Horizon</em> feeds <code>stale_after</code>, <em>Stable requires</em> is the gate before <code>status: stable</code>, and types marked ◦ are optional. The table is a copy — <code>schema/types.md</code> is the registry the engine parses, and the page creator and the linter read it rather than this page.</p>
+<div class="table-wrap wide">
+<table><colgroup><col class="c-type"/><col class="c-from"/><col class="c-dir"/><col class="c-what"/><col class="c-hor"/><col class="c-gate"/></colgroup>
+
+<thead><tr><th>Type</th><th>From</th><th>Lives in</th><th>What it is</th><th>Horizon</th><th>Stable requires</th></tr></thead>
+<tbody>
+<tr><td class="mono">Source</td><td class="mono">P1</td><td class="mono">sources/</td><td>One page per source read: summary, the load-bearing lines as short excerpts, provenance pointing at the original. For most sources, the only copy the wiki holds.<span class="headings"><b>Headings </b>Summary · Key claims · Relevance · Open questions</span></td><td class="num">— (record)</td><td><span class="tier machine">machine-confirmed</span></td></tr>
+<tr><td class="mono">Concept</td><td class="mono">P1</td><td class="mono">concepts/</td><td>An idea, technique, standard or term, explained and linked to where it shows up in your systems.<span class="headings"><b>Headings </b>Definition · How it works · Where it shows up · Open questions</span></td><td class="num">365 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Decision</td><td class="mono">P1</td><td class="mono">design/<wbr/>decisions/</td><td>ADR-style record for the team's technical and process decisions. <code>draft</code> = proposed, <code>stable</code> = accepted, <code>deprecated</code> = superseded (<code>superseded_by</code>).<span class="headings"><b>Headings </b>Context · Options · Decision · Consequences · Standards applied</span></td><td class="num">— (record)</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">RFC</td><td class="mono">P1</td><td class="mono">design/<wbr/>rfcs/</td><td>A proposal under review, yours or a dependent team's. Entry point to the canonical document via <code>resource</code>; holds the options, who weighed in, and the standards check. <code>draft</code> = in review, <code>stable</code> = accepted, <code>deprecated</code> = rejected or superseded.<span class="headings"><b>Headings </b>Summary · Options · Review notes · Standards check · Outcome</span></td><td class="num">30 d while draft, then —</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Project</td><td class="mono">P1</td><td class="mono">delivery/<wbr/>projects/</td><td>Something the team delivers, and the components that have to come together to form it — the entity the week is organised around (D17). Fields: <code>owner</code>, <code>role</code> (lead or support, independent of who owns it), <code>stage</code> (discovery, build, pilot, rollout, paused, done), <code>priority</code> (written only by the Monday tick), <code>next_checkpoint</code>, <code>resource</code>. Pointers: <code>slack</code>, <code>jira</code>, <code>confluence</code>, <code>rfc</code>.<span class="headings"><b>Headings </b>Problem · Expected impact · Status · Components &amp; owners · Next · Risks · Decisions · Weekly log</span></td><td class="num">30 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Initiative</td><td class="mono">P1</td><td class="mono">delivery/<wbr/>initiatives/</td><td>A cross-functional effort, or a company moving part you must track. Fields: <code>owner</code>, <code>stage</code>, <code>next_checkpoint</code>. Pointers: <code>slack</code>, <code>jira</code>, <code>confluence</code>, <code>rfc</code>.<span class="headings"><b>Headings </b>Problem statement · Status · Timeline · Stakeholders · Dependencies · My stance · Open questions</span></td><td class="num">30 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">System</td><td class="mono">P1</td><td class="mono">systems/</td><td>A system you own or support. <code>resource</code> → repo and dashboards; <code>owner</code>; the System Owner expectations as a dated checklist; KTLO items.<span class="headings"><b>Headings </b>Purpose · Ownership · Operational standards · KTLO · Dependencies · Runbooks &amp; links</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Question</td><td class="mono">P1</td><td class="mono">questions/</td><td>The ambiguity register: something the wiki cannot answer yet, or an ambiguity you have to clarify for others.<span class="headings"><b>Headings </b>Question · What we know · Who can resolve it · Resolution</span></td><td class="num">60 d</td><td>—</td></tr>
+<tr><td class="mono">Synthesis</td><td class="mono">P1</td><td class="mono">syntheses/</td><td>Overviews, comparisons, theses, briefs; the KTLO roadmap and the radar overview; where good query answers get filed back. Field: <code>audience</code> for briefs.<span class="headings"><b>Headings </b>Claim · Evidence · Counterpoints · What would change my mind</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Review</td><td class="mono">P1</td><td class="mono">reviews/</td><td>Weekly and sprint review pages, generated, with your answers written inline.<span class="headings"><b>Headings </b>generated sections, §5</span></td><td class="num">— (record)</td><td>—</td></tr>
+<tr><td class="mono">Objective</td><td class="mono">P1</td><td class="mono">delivery/<wbr/>objectives/</td><td>A company or team OKR for the quarter, so several teams' objectives can sit side by side; projects link the one they advance from <em>Expected impact</em>, and sprint goals link back to it. Fields: <code>level</code> (company or team), <code>team</code> (a slug, required at team level), <code>quarter</code> (<code>YYYY-Qn</code>). Quarter-prefixed slugs.<span class="headings"><b>Headings </b>Objective · Key results · Sprint goals · Status</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Attested Computation</td><td class="mono">P2</td><td class="mono">delivery/<wbr/>metrics/<wbr/> systems/<wbr/>metrics/</td><td>OKF's own type: a sanctioned query for a delivery or system metric the agent can run and cite but not edit (§2).<span class="headings"><b>Headings </b>Computation · Examples</span></td><td class="num">180 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Person</td><td class="mono">P3</td><td class="mono">team/<wbr/>people/</td><td>A report: role, growth focus, ownership delegated, agreed actions, the running 1:1 thread. Strict content policy (§8).<span class="headings"><b>Headings </b>Role · Growth focus · Ownership delegated · Agreed actions · Thread</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Stakeholder</td><td class="mono">P3</td><td class="mono">team/<wbr/>stakeholders/</td><td>A partner outside the team — Product Trio, Customer Success, Legal, Security, principals, architects: needs, positions on live initiatives, communication cadence, last contact.<span class="headings"><b>Headings </b>Role &amp; needs · Positions · Cadence &amp; last contact · Thread</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Playbook</td><td class="mono">P3</td><td class="mono">team/<wbr/>playbooks/</td><td>How we do X: delivery standards, PDLC responsibilities, engineering practices. Designed to be lifted out and shared with the team.<span class="headings"><b>Headings </b>When to use · Steps · Examples · Anti-patterns</span></td><td class="num">180 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Vision</td><td class="mono">P4</td><td class="mono">design/<wbr/>visions/</td><td>A technical vision for an area of influence and the logical plan to reach it, aligned to business outcomes.<span class="headings"><b>Headings </b>Vision · Principles · Plan · Business alignment · Signals watched</span></td><td class="num">180 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Learning Path</td><td class="mono">P4</td><td class="mono">learning/<wbr/>paths/</td><td>A goal, why it matters, the sequence, exit criteria, progress. Field: <code>owner</code> — you, or a report you mentor.<span class="headings"><b>Headings </b>Goal · Sequence · Exit criteria · Progress</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Signal</td><td class="mono">P4</td><td class="mono">radar/<wbr/>signals/</td><td>One external observation that bears on a vision or an initiative: a release, benchmark, market move.<span class="headings"><b>Headings </b>What happened · Why it matters to us · Links</span></td><td class="num">30 d</td><td>—</td></tr>
+<tr><td class="mono">Team ◦</td><td class="mono">P4</td><td class="mono">team/<wbr/>team.md</td><td>The team itself: mission, members, rituals, current focus.<span class="headings"><b>Headings </b>Mission · People · Rituals · Focus</span></td><td class="num">90 d</td><td><span class="tier human">human-reviewed</span></td></tr>
+<tr><td class="mono">Drill ◦</td><td class="mono">P4</td><td class="mono">learning/<wbr/>drills/</td><td>Retrieval-practice prompts derived from a Concept. Field: <code>review_due</code>.<span class="headings"><b>Headings </b>Questions · Answers</span></td><td class="num">by review_due</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout">
+<p class="label">Extension fields, and the four that say where the work lives</p>
+<p>Everything the registry adds to OKF is an ordinary frontmatter key — <code>owner</code>, <code>role</code>, <code>stage</code>, <code>priority</code>, <code>next_checkpoint</code>, <code>level</code>, <code>team</code>, <code>quarter</code>, <code>superseded_by</code>, <code>audience</code>, <code>review_due</code>, <code>pinned</code>, and the four pointers <code>slack</code>, <code>jira</code>, <code>confluence</code>, <code>rfc</code>. OKF consumers must tolerate unknown keys, so the bundle stays conformant and Dataview can query them directly. Relationships stay as links in the body: links are untyped, and the sentence says what kind of link it is. The exception is <code>Attested Computation</code>, whose fields are OKF's own and are used as specified.</p>
+<p>A Project or Initiative may name where its work lives — the channel, the epic, the page, the RFC — one canonical pointer each, further ones body links. Four rules keep that cheap. <b>Never required:</b> the check reports shape and only when the key is present, so no page is non-conformant for lacking one. <b>Shipped commented out,</b> so a new page carries no live placeholder. <b>Quoted, or absent</b> — <code>#</code> starts a YAML comment. And <b>a pointer is not a link:</b> a relative <code>rfc</code> resolves like a body link but is deliberately not counted as an inbound one, because the orphan check exists to make you link the page from a section a reader passes through. Recording where work lives is also not reading it: a <code>slack</code> pointer is legal in phase 1, while only the pull command obeys a connector's phase and scope.</p>
+</div>
+</section>
+<!-- ================================================================ -->
+<section id="loops">
+<p class="part">4 · Operations</p>
+<h2>Eleven operations over a layer of scripts</h2>
+<figure>
+<svg aria-label="The loop: you capture into raw/inbox, ingest writes the wiki, query reads it and files good answers back as syntheses, brief produces stakeholder updates from human-reviewed pages only, lint checks weekly, and verify — the only human edge — promotes pages; the weekly and sprint ticks drive lint and the verify queue." role="img" viewbox="0 0 760 280">
+<defs>
+<marker id="ar3" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk" d="M0,0 L10,5 L0,10 z"></path></marker>
+<marker id="ar3-acc" markerheight="8" markerwidth="8" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path class="mk-acc" d="M0,0 L10,5 L0,10 z"></path></marker>
+</defs>
+<!-- main row -->
+<rect class="box-soft" height="56" rx="4" width="130" x="20" y="115"></rect>
+<text class="t" text-anchor="middle" x="85" y="138">capture</text>
+<text class="s" text-anchor="middle" x="85" y="156">you point · /tos-pull</text>
+<rect class="box" height="56" rx="4" width="140" x="180" y="115"></rect>
+<text class="t" text-anchor="middle" x="250" y="138">/tos-ingest</text>
+<text class="s" text-anchor="middle" x="250" y="156">10–15 pages touched</text>
+<rect class="box-acc" height="86" rx="4" width="140" x="350" y="100"></rect>
+<text class="t" text-anchor="middle" x="420" y="130">wiki/</text>
+<text class="s" text-anchor="middle" x="420" y="150">pages · index.md</text>
+<text class="s" text-anchor="middle" x="420" y="166">log.md</text>
+<rect class="box" height="56" rx="4" width="90" x="515" y="115"></rect>
+<text class="t" text-anchor="middle" x="560" y="138">/tos-query</text>
+<text class="s" text-anchor="middle" x="560" y="156">index → body</text>
+<rect class="box-soft" height="56" rx="4" width="120" x="630" y="115"></rect>
+<text class="t" text-anchor="middle" x="690" y="138">answer</text>
+<text class="s" text-anchor="middle" x="690" y="156">cites tier + age</text>
+<line class="ln" marker-end="url(#ar3)" x1="150" x2="178" y1="143" y2="143"></line>
+<line class="ln" marker-end="url(#ar3)" x1="320" x2="348" y1="143" y2="143"></line>
+<line class="ln" marker-end="url(#ar3)" x1="490" x2="513" y1="143" y2="143"></line>
+<line class="ln" marker-end="url(#ar3)" x1="605" x2="628" y1="143" y2="143"></line>
+<!-- file back -->
+<path class="ln" d="M 690 115 V 70 H 465 V 98" marker-end="url(#ar3)"></path>
+<text class="l" text-anchor="middle" x="577" y="62">good answers filed back as Synthesis</text>
+<!-- lint -->
+<rect class="box" height="42" rx="4" width="140" x="350" y="10"></rect>
+<text class="t" text-anchor="middle" x="420" y="28">/tos-lint</text>
+<text class="s" text-anchor="middle" x="420" y="44">script, then agent</text>
+<line class="ln" marker-end="url(#ar3)" x1="385" x2="385" y1="52" y2="98"></line>
+<text class="s" text-anchor="end" x="377" y="80">reports</text>
+<!-- verify -->
+<rect class="box-acc" height="42" rx="4" width="140" x="350" y="222"></rect>
+<text class="t acc" text-anchor="middle" x="420" y="240">/tos-verify</text>
+<text class="s" text-anchor="middle" x="420" y="256">human:rafael</text>
+<line class="ln-acc" marker-end="url(#ar3-acc)" x1="420" x2="420" y1="222" y2="188"></line>
+<text class="l acc" x="430" y="209">promotes</text>
+<!-- weekly + sprint -->
+<rect class="box" height="42" rx="4" width="300" x="20" y="222"></rect>
+<text class="t" text-anchor="middle" x="170" y="240">/tos-weekly · /tos-sprint</text>
+<text class="s" text-anchor="middle" x="170" y="256">Monday tick · sprint-boundary tick</text>
+<line class="ln" marker-end="url(#ar3)" x1="320" x2="348" y1="243" y2="243"></line>
+<!-- brief -->
+<path class="ln" d="M 490 180 H 565 V 220" marker-end="url(#ar3)"></path>
+<text class="s" x="571" y="206">reviewed pages only</text>
+<rect class="box" height="42" rx="4" width="100" x="515" y="222"></rect>
+<text class="t" text-anchor="middle" x="565" y="240">/tos-brief</text>
+<text class="s" text-anchor="middle" x="565" y="256">per audience</text>
+<line class="ln" marker-end="url(#ar3)" x1="615" x2="628" y1="243" y2="243"></line>
+<rect class="box-soft" height="42" rx="4" width="120" x="630" y="222"></rect>
+<text class="t" text-anchor="middle" x="690" y="240">stakeholders</text>
+<text class="s" text-anchor="middle" x="690" y="256">update · why</text>
+</svg>
+<figcaption>Fig. 4 — The loop. Capture is you pointing and <code>/tos-pull</code> reading through a connector; everything to the right of it is agent work. Two things leave the wiki: answers to you, which cite their tier, and briefs to others, which may only draw on human-reviewed pages. <code>/tos-measure</code> (not drawn) feeds attested numbers into the sprint tick.</figcaption>
+</figure>
+<p>Each operation is a slash command in Claude Code, with its procedure in <code>.claude/commands/</code>. A command above phase 1 refuses to run until the config raises <code>rollout.phase</code>, and says which number would enable it.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Command</th><th>What it does</th><th>Phase</th></tr></thead>
+<tbody>
+<tr><td class="mono">/tos-init</td><td>Create or refresh the data root described by the config; <code>--with-examples</code> installs eleven worked pages.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-pull</td><td>Read a pointer or a named feed through a connector and hand it to ingest; nothing verbatim unless <code>--pin</code>.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-ingest</td><td>Turn a source, or the inbox, into pages: one Source page and the 10–15 touches it implies.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-query</td><td>Answer from the wiki, citing each page with its trust tier and age.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-lint</td><td>Health-check the bundle: the deterministic script, then the agent pass; <code>--fix</code> repairs the mechanical findings.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-verify</td><td>Promote a page you have read — the only way a <code>human:</code> verification is ever written.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-weekly</td><td>The Monday tick: the ranked portfolio, then the queues; <code>--apply</code> executes your inline answers.</td><td class="num">1</td></tr>
+<tr><td class="mono">/tos-measure</td><td>Run an Attested Computation over a metric snapshot and file the receipt.</td><td class="num">2</td></tr>
+<tr><td class="mono">/tos-sprint</td><td>Sprint-boundary review: goal against outcome, with attested numbers.</td><td class="num">2</td></tr>
+<tr><td class="mono">/tos-brief</td><td>An outbound update for one audience, from human-reviewed fresh pages only.</td><td class="num">3</td></tr>
+<tr><td class="mono">/tos-retro</td><td>Quarterly: objectives, visions, system re-reviews, people re-verification, engine pruning.</td><td class="num">4</td></tr>
+</tbody>
+</table>
+</div>
+<h3>The writes a script owns</h3>
+<p>An operation is a procedure the agent follows; a <em>write</em> is a line of text with an exact shape — a log bullet, an index entry, a page's opening frontmatter, a <code>verified</code> entry. A canonical format re-derived from prose on every run is not canonical, it is a strong tendency, and the failures are quiet: a log bullet grep no longer matches, an index entry without its description, a horizon counted from the wrong calendar day. So each of those writes is a script, and the command files call it rather than describe it.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Script</th><th>Owns</th></tr></thead>
+<tbody>
+<tr><td class="mono">uv run config</td><td>Resolving and printing the config: paths, actor, timezone, phase. Every other script starts here.</td></tr>
+<tr><td class="mono">uv run init</td><td>The data root: layout, every directory's <code>index.md</code>, the bundle root's <code>okf_version</code>, the vault files, the first log entry, <code>git init</code>.</td></tr>
+<tr><td class="mono">uv run new</td><td>A page from its template, with <code>generated</code>, <code>status: draft</code> and <code>stale_after</code> computed from the registry — and its index entry.</td></tr>
+<tr><td class="mono">uv run log</td><td>One bullet in <code>wiki/log.md</code>, under today's date, newest first, with a label from the fixed set.</td></tr>
+<tr><td class="mono">uv run index</td><td>Adding or refreshing a page's line in its directory index, <em>in place</em>, so re-indexing cannot re-rank the priority-ordered portfolio.</td></tr>
+<tr><td class="mono">uv run verify-mark</td><td>Appending a <code>verified</code> entry, with the gates: the agent refused outright, <code>human:</code> only with <code>--human-confirmed</code>, <code>process:*</code> accepted.</td></tr>
+<tr><td class="mono">uv run lint</td><td>The deterministic half of lint, and <code>--fix</code>.</td></tr>
+<tr><td class="mono">uv run doctor</td><td>The onboarding checklist: config, layout, engine drift, vault files, git, and the config's connector names against the MCP servers actually installed.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Three properties are deliberate. They edit frontmatter at the text level and never round-trip it through a YAML writer, so template comments, key order and the flow-style <code>generated</code> survive. Every date comes from <code>data.timezone</code>. And every page operand is bundle-relative and refused if it resolves outside <code>wiki/</code>, so a data operation cannot write to the engine. The rule that follows: <code>CLAUDE.md</code> gets shorter with each release, because each script removes a procedure from prose.</p>
+<h3>Capture: pull, then ingest</h3>
+<p>A pull checks the pointer against the connector's scope and phase, fetches read-only, and hands what it read to ingest, keeping nothing else unless you asked for a pin or the feed is a metric feed. Ingest writes or updates the Source page, then extracts what the registry recognises — concepts, project and initiative updates, objectives, RFCs and decisions, system facts, questions — creating or updating five to fifteen pages. Three rules make it safe to run unattended: every new claim is footnoted to a <code>sources[].id</code>; a contradiction with an existing page goes into that page's <em>Open questions</em> rather than overwriting it; and an internal update goes into an existing page's timeline, never a new page — on a Project that means <em>Status</em>, <em>Next</em>, <em>Risks</em> or <em>Decisions</em>, never its <em>Weekly log</em>, which only the Monday tick writes. Then the indexes, the log bullets, the note moved from <code>inbox/</code> to <code>notes/</code>, and one commit whose message is the log line.</p>
+<pre><div class="code-title">wiki/log.md — the canonical shapes, written by uv run log</div><code>## 2026-08-31
+* **Pull**: confluence ENG/9128 → [Source](sources/2026-08-28-incident-report.md), not pinned
+* **Ingest**: [Incident report](sources/2026-08-28-incident-report.md) — touched 12 pages (3 new).
+* **Query**: "Which systems depend on the search index?" → [Synthesis](syntheses/search-index-dependents.md)
+* **Verify**: [Asset search](systems/asset-search.md) — human-reviewed, promoted to stable
+* **Review**: [Week 36](reviews/2026-W36.md) applied — 11 actions</code></pre>
+<h3>Query</h3>
+<p>Read <code>wiki/index.md</code>, then the directory indexes, then candidate frontmatter, then bodies — never the whole bundle. Answer with links to the pages used and, per page, its tier and age: <em>"human-reviewed 2026-08-26"</em>, <em>"unverified, written by the agent 2026-08-25"</em>, <em>"stale since 2026-08-01"</em>. Deprecated pages are excluded unless asked for. If the answer is reusable — a comparison, an analysis, a position — it is filed back as a <code>Synthesis</code> in draft, which is how the wiki learns from being asked.</p>
+<h3>Lint</h3>
+<p>The script pass is deterministic and reports in named groups: <b>conformance</b> (frontmatter parses, <code>type</code> present — the only findings that fail the exit code) · <b>trust</b> · <b>registry</b> (a known type, in the directory the registry gives it) · <b>headings</b> (the type's required headings, in template order) · <b>provenance</b> · <b>stale</b> · <b>expiring</b> · <b>changed-since-verified</b> · <b>old-drafts</b> · <b>rfcs-stuck</b> · <b>systems</b> (unticked standards) · <b>projects</b> (role, stage, colliding or non-contiguous priorities, and the weekly log's shape, repeats, future dates, order and currency) · <b>pointers</b> · <b>objectives</b> (fields, and a nudge when a lead project links no live objective, or a team objective links no company objective from its own quarter) · <b>links</b> · <b>orphans</b> · <b>index</b> · <b>log</b>.</p>
+<p><code>--fix</code> repairs only what is mechanical — a missing index entry, a dead index line, a moved or leading-slash link — in the page body, never inside a code span or a fenced block, because a markdown-shaped frontmatter value is metadata and a link in a fenced example is an example. The agent pass does what no script can: contradictions between pages, claims without a source, missing cross-references, gaps worth a <code>Question</code>, the people policy (§8), and <b>source drift</b> — for each Source page whose pointer is a connector URL in scope, compare the recorded <code>last_modified</code> with the live one, which becomes Monday's re-pull queue. Lint adds no <code>verified</code> entries in any tier.</p>
+<h3>Verify — the one write the agent never initiates</h3>
+<p>Show the diff since the last verification. On your explicit yes, the entry is appended and <code>draft → stable</code> only if the type's gate allows; on no, you say what is wrong, the agent fixes it, and the page stays draft. Promoting an RFC also makes it a record — its horizon runs "30 d while draft, then —", so keeping the draft's expiry would report the newly stable page as stale a month later.</p>
+<h3>The Monday tick</h3>
+<p>The weekly review runs lint, then writes a <code>Review</code> page that opens with <b>Projects — ranked portfolio</b>: every active project in priority order with its role, stage, trust tier, rank movement since last week, and the week's entry drafted from the log, the week's sources and the page's git history — qualitative only, no unattested numbers. Below it come the queues: ingested this week, the verify queue, the re-pull queue, expiries, checkpoints, RFCs awaiting a decision, systems due, questions, lint findings and engine proposals. Active Projects appear in none of those queues; they are handled, including re-verified, in their rows.</p>
+<p>You answer inline, and an unanswered row means: entry accepted, rank kept, no verify. <code>--apply</code> then executes the answers, and is safe to re-run after a partial failure — per action, not per row. A row that records movement appends its <code>## &lt;ISO-week&gt;</code> entry to the project's <em>Weekly log</em> and carries it into the live sections, adding what it reports and striking only what it resolves. A row with no movement writes <b>nothing at all</b>: the gap is the record of a quiet week, and the page keeps its verification — ranking or re-pointing a project is not movement. Then priorities are renumbered 1..N, the projects index is reordered to match, each action gets its own log bullet, and the data root is committed. Engine proposals you accepted are applied in the engine repository and recorded in its changelog, with nothing about them in the data log.</p>
+<h3>Designed, not yet running</h3>
+<p><code>/tos-measure</code> and <code>/tos-sprint</code> (phase 2), <code>/tos-brief</code> (phase 3) and <code>/tos-retro</code> (phase 4) are specified in §9 and refused by their command files until the config allows them. One more is owed regardless of phase: <b>the cross-check pass</b>, which re-fetches each Source page's pointer, judges faithfulness and writes the <code>process:cross-check</code> entry the verify script already accepts, or reports drift. Until it exists, the middle tier of Fig. 3 is theory.</p>
+</section>
+<!-- ================================================================ -->
+<section id="week">
+<p class="part">5 · A Monday, concretely</p>
+<h2>One weekend in, one review out</h2>
+<p class="lead-in">Friday you dropped Thursday's leadership notes into the inbox and three pointers into <code>pull.md</code>: a neighbouring team's RFC in a Google Doc with your review comments, the Confluence incident report on Wednesday's search-latency alert, and a vendor release URL. Over the weekend the agent pulled and ingested: four <code>Source</code> pages with provenance and excerpts, nothing copied verbatim; the <code>System</code> <em>asset search</em> gained the incident, an unticked alert-budget standard and a KTLO item; a new draft <code>RFC</code> with your notes and two standards it does not address; the <code>Initiative</code> gained a timeline entry and a revised checkpoint; the <code>Project</code> gained a risk and a status line but nothing in its <em>Weekly log</em>; a <code>Decision</code> was proposed; and a <code>Question</code> was opened, because the notes assume someone owns the evaluation harness and no page says who. Twelve pages touched, four new, five index entries, eleven log bullets, one commit.</p>
+<p class="lead-in">Monday 8:30, the review is waiting:</p>
+<pre class="long"><div class="code-title">wiki/reviews/2026-W36.md — generated, answered inline</div><code>---
+<span class="k">type</span>: Review
+<span class="k">title</span>: Week 36 review
+<span class="k">generated</span>: { by: process:weekly-review, at: 2026-08-31T07:00:00+10:00 }
+<span class="k">status</span>: draft
+<span class="k">stale_after</span>: ~
+---
+# Projects — ranked portfolio
+<span class="cm">An unanswered row means: entry accepted, rank kept, no verify.</span>
+<span class="cm">rank n · entry: accept|skip · fix: … · role lead|support · stage … · checkpoint …|clear</span>
+<span class="cm">slack "#…"|clear · jira KEY-1|clear · confluence url|clear · rfc path|clear</span>
+<span class="cm">objective: path · support: … · extend · deprecate · verify</span>
+
+## 1. [Review bot pilot](../delivery/projects/review-bot-pilot.md) — lead · pilot · unverified 2026-08-25
+   <span class="cm">checkpoint 2026-08-29 passed</span>
+- **Progress**: pilot extended to the platform team; 41 PRs reviewed this week.
+- **Challenges &amp; risks**: vendor X ships an agentic reviewer — build/buy is now live.
+- **Blockers &amp; support needed**: Security wants the data-handling brief before the pilot widens
+  — needs 30 minutes from your EM to agree what we send.
+- **Open questions &amp; decisions**: [evaluate vendor X first](../design/decisions/evaluate-vendor-x.md), draft.
+→ <b>checkpoint 2026-09-05, verify</b>
+
+## 2. [Asset search relevance](../delivery/projects/asset-search-relevance.md) — support · build · human-reviewed 2026-08-12
+- no recorded movement this week
+→
+
+## 3. [Eval harness](../delivery/projects/eval-harness.md) — lead · discovery · unverified 2026-08-20
+   <span class="cm">expires 2026-09-19</span>
+- **Progress**: harness spiked over two days; nothing merged.
+- **Open questions &amp; decisions**: ownership unresolved
+  → [who owns the eval harness?](../questions/who-owns-the-eval-harness.md)
+→ <b>rank 2, objective: ../delivery/objectives/2026-q3-review-turnaround.md</b>
+
+# Ingested this week
+3 pulls · 4 sources · 12 pages touched · 4 new
+
+# Re-pull queue (source drift)
+- sources/2026-08-29-media-pipeline-v2-rfc.md — the Doc has 2 revisions since read  → re-pull
+- sources/2026-08-28-incident-report.md — Confluence page version 14 → 15           → re-pull
+
+# Verify queue (5 of 11 unverified; active projects excluded — see the portfolio)
+- [ ] systems/asset-search.md — changed since your review on 2026-07-14             → verify
+- [ ] design/rfcs/media-pipeline-v2.md — your review notes; 2 standards unaddressed → verify
+- [ ] design/decisions/evaluate-vendor-x.md — proposed Decision                     → verify
+- [ ] concepts/alert-budget.md — written 2026-08-20, never reviewed
+- [ ] syntheses/search-index-dependents.md — filed from a query on 2026-08-22
+
+# Design — awaiting your decision
+- design/rfcs/media-pipeline-v2.md — review due back to the authors by 2026-09-03
+
+# Systems
+- asset-search: alert budget breached 2026-08-26 · KTLO item added        → escalate to EM this week
+- payments-ledger: ownership review due 2026-09-04                        → schedule
+
+# Expiring · Checkpoints · Questions
+- concepts/alert-budget.md — expires 2026-09-04                            → extend
+- initiatives/ai-assisted-code-review-rollout.md — checkpoint was 2026-08-28 → move to 2026-09-11
+- questions/who-owns-the-eval-harness.md — new                             → ask at Tuesday's trio
+
+# Lint
+- 42 pages · 0 conformance errors · 3 fixed (2 index entries, 1 moved link)
+- projects: eval-harness has no `priority` — active and unranked before its first Monday
+- objectives: review-bot-pilot is a lead project whose *Expected impact* links no live objective
+- 1 contradiction: pilot end date differs between project and initiative → project is right
+
+# Engine proposals (applied in the engine repo; CHANGELOG, not this log)
+- Three rows this month needed `support:` to name someone outside the team.
+  Add a **Support requested from** label to the weekly entry vocabulary?      → yes
+</code></pre>
+<p>Thirty minutes: one rank, one checkpoint and a verify, one objective link, and one row left alone entirely — which is itself an answer. Then three verifies, two re-pulls, an extension, the contradiction resolved, the proposal accepted. <code>/tos-weekly --apply</code> does the writing, and row 2, which recorded no movement, gets no entry and no <code>generated</code> bump — only its <code>priority</code>, renumbered from 2 to 3 because row 3 moved above it — so the human review it earned on 12 August survives the week. You made a dozen decisions and typed none of the bookkeeping — and you read one page rather than eleven, because the portfolio put the projects where you were going to look anyway.</p>
+</section>
+<!-- ================================================================ -->
+<section id="domains">
+<p class="part">6 · The domains</p>
+<h2>Five rhythms, one per heading of the role</h2>
+<p>Each heading of the role description becomes a domain with its own pages, sources and Monday questions. External signals — vendor releases, benchmarks, market moves — are a feed into design and delivery rather than a domain of their own: they exist to be cited from a Vision's <em>Signals watched</em> or an Initiative's timeline.</p>
+<div class="table-wrap wide">
+<table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/></colgroup>
+<thead><tr><th>Domain</th><th>In</th><th>Out</th><th>Done looks like</th></tr></thead>
+<tbody>
+<tr><td><strong>Delivery</strong><span class="headings">"drives collaborative delivery excellence"</span></td><td>Jira epics and sprint reports, planning Docs, leadership notes, threads with Customer Success</td><td><code>Project</code> pages — the unit the week is ranked by, each with the problem it solves, the impact expected, its components and owners, and a weekly entry; <code>Initiative</code> pages for cross-functional efforts; <code>Objective</code> pages for the quarter's company and team OKRs; <code>Attested Computation</code> pages for the two or three delivery metrics you reflect on</td><td>A portfolio you can talk to your manager, the Trio and another tech lead from with no preparation, and a sprint review whose numbers carry receipts</td></tr>
+<tr><td><strong>Systems</strong><span class="headings">"monitors, assesses, and escalates issues related to system ownership"</span></td><td>Confluence runbooks and operational reviews, incident reports, repository READMEs at a commit, KTLO queries</td><td>A <code>System</code> page per system you own or support, with the owner expectations as a dated checklist, KTLO items, dependencies and runbooks; a KTLO roadmap regenerated from them</td><td>Every owned system human-reviewed within the quarter, and escalations made from a page rather than from recollection</td></tr>
+<tr><td><strong>Design</strong><span class="headings">"improves the architecture of systems"</span></td><td>RFCs in Docs or Confluence and ADRs in repositories, yours and dependent teams', at a version or a commit; design review threads; the standards you are asked to apply</td><td><code>RFC</code> pages as entry points to the canonical document, holding the options, the critique, the standards check and the outcome; a <code>Decision</code> per accepted call; <code>Concept</code> pages for the ideas the designs rest on; <code>Vision</code> pages per area of influence</td><td>An RFC queue visible on Monday, and every accepted decision traceable to its options and the standard it applied</td></tr>
+<tr><td><strong>Team &amp; stakeholders</strong><span class="headings">"helps to build a high performing team"; "models clarity of communication and stakeholder empathy"</span></td><td>Your own 1:1 and team notes, typed in as they are; named Slack threads with Customer Success, Legal, Security</td><td>A <code>Person</code> page per report and a <code>Stakeholder</code> page per partner, both under the policy in §8; <code>Playbook</code> pages for what you keep re-explaining; <code>Question</code> pages for the ambiguity you must clarify for others</td><td>1:1 prep in two minutes, no stakeholder surprised by silence, and a playbook folder you would share</td></tr>
+<tr><td><strong>Learning</strong><span class="headings">"a clear expert in one or more domains"; "mentors team members"</span></td><td>Papers, posts and talks by URL; your own notes from trying things</td><td>A <code>Learning Path</code> per goal with exit criteria you wrote — one owned by a report is a mentoring plan; <code>Concept</code> pages that accumulate across sources; a <code>Synthesis</code> stating what you currently believe</td><td>Exit criteria ticked with links to the pages that prove it, for you and for the people you mentor</td></tr>
+</tbody>
+</table>
+</div>
+<p>Delivery, systems and design run today. Team and learning wait on phases 3 and 4 — the types exist in the registry and the agent will not create them until the config says so.</p>
+</section>
+<!-- ================================================================ -->
+<section id="tooling">
+<p class="part">7 · Tooling</p>
+<h2>Obsidian reads, Claude Code writes, git remembers</h2>
+<h3>Obsidian</h3>
+<p>Open the data root as the vault — <code>Home.md</code> and <code>.obsidian/</code> are installed by <code>/tos-init</code> and are engine-owned, excluded from lint and from the log. Wikilinks off, new links relative, so Obsidian's graph and OKF consumers see the same edges. Attachments default to <code>raw/assets/</code>, keeping images in the immutable layer. The Web Clipper writes into <code>raw/inbox/</code>, so a clip is a pin. Dataview powers the dashboard: the ranked portfolio, the quarter's objectives, the unverified backlog, pages changed since verification, expiries, quiet drafts, passed checkpoints, open questions.</p>
+<pre><div class="code-title">Home.md — the unverified backlog, newest first</div><code>```dataview
+TABLE type, status, generated.at AS written, stale_after
+FROM "wiki"
+WHERE type AND !verified AND type != "Review"
+  AND !(type = "Project" AND status != "deprecated" AND stage != "paused" AND stage != "done")
+SORT generated.at DESC
+LIMIT 10
+```</code></pre>
+<p>The leading <code>type AND</code> is not decoration. <code>WHERE !verified</code> alone is true of a file with no frontmatter, so the table fills with the bundle's own <code>index.md</code> and <code>log.md</code>. The second line keeps active Projects out, since they are verified from their portfolio row instead. A query that silently matches the wrong thing is the dashboard equivalent of a check that never fires.</p>
+<h3>Connectors, and why read-only is not an instruction</h3>
+<p>One MCP connector per source — Confluence and Jira through Atlassian, Google Drive, Slack, web fetch — with read-only scopes wherever the connector offers them; markdown docs need no connector, being files at a commit. Only three things touch them: pull, the cross-check pass and the drift check. Query, brief and measure work from <code>raw/</code> and <code>wiki/</code> alone, so a connector outage degrades capture and confirmation, never the wiki.</p>
+<p><code>.claude/settings.json</code> denies the write-capable tools of the Google Drive, Slack and Atlassian servers — create, update, copy, share, trash, post, comment, react, transition, delete. Claude Code refuses those calls outright, so guardrail 11 does not rest on the agent declining a source that asks for a write. Reads are untouched.</p>
+<div class="callout">
+<p class="label">Verify the deny list against your own install</p>
+<p>A permission rule matches a tool by its <em>exact</em> name, and an MCP tool is <code>mcp__&lt;server&gt;__&lt;tool&gt;</code> where the server part is whatever you called that server. <b>An entry naming a server you do not have matches nothing, raises no error, and appears to work.</b> That is not hypothetical: an early list guarded two Atlassian server names that no install had, so sixteen rules were inert and silent. Hence the shape of the list today — nine server names across three connectors, breadth being cheap where a gap is not; a test that every entry is well-formed, unique and names a documented server; and a README that says which names were observed on a live install and which are inferred from the server's vocabulary. No test can reach a live MCP server, so after wiring a connector, ask Claude Code which tools it exposes and add what is missing. An enforcement mechanism you have not verified is a comfort, not a control.</p>
+</div>
+<h3>Claude Code and the package</h3>
+<ul>
+<li><strong>Run it in the engine folder</strong>, where <code>CLAUDE.md</code> loads, with the data root granted as an additional working directory. <code>/tos-init</code> is the only command that creates it.</li>
+<li><strong><code>uv sync</code> installs the engine</strong> and puts its executables on <code>uv run</code>: <code>config</code>, <code>init</code>, <code>lint</code>, <code>new</code>, <code>log</code>, <code>index</code>, <code>verify-mark</code>, <code>doctor</code>. They are bare verbs because the <code>tos-</code> prefix now means one thing only — a Claude Code slash command — so they are always written as <code>uv run &lt;name&gt;</code>, which is what makes them self-identifying.</li>
+<li><strong><code>CLAUDE.md</code> is the schema</strong>, loaded every run: read the config first; the two trees; the page contract; a pointer to <code>schema/types.md</code>; the operations as step lists; the guardrails; the read-order rule; the conventions for slugs, links, timestamps and actors.</li>
+<li><strong><code>schema/</code></strong> holds the registry, one template per type, eleven worked examples and the vault defaults, so a new page is a copy plus content rather than a re-derivation.</li>
+<li><strong><code>tests/</code></strong> guards what prose cannot: that malformed frontmatter is reported rather than dropped; that every shipped template and example passes lint; that init → lint works end to end; that each helper writes its canonical shape; that every deny entry is well-formed; and that a command the README gates by phase actually refuses below it, naming the same number in both places.</li>
+<li><strong>git, twice:</strong> the data root is a private repository with one commit per operation, the message being the log line; the engine is a second repository whose commits are its changelog. Neither ever contains the other.</li>
+</ul>
+</section>
+<!-- ================================================================ -->
+<section id="guardrails">
+<p class="part">8 · Guardrails</p>
+<h2>What the agent never does</h2>
+<p>These are <code>CLAUDE.md</code> §5 as it reads today. Each closes one specific failure.</p>
+<ol>
+<li>Never edit or delete anything under <code>raw/</code>. You add to it three ways only: moving a note from <code>inbox/</code> to <code>notes/</code> after ingest, writing a pinned copy on request, writing a metric snapshot for a feed. Each file is immutable once written.</li>
+<li>Never write a <code>verified</code> entry with a <code>human:</code> actor except inside <code>/tos-verify</code> on the human's explicit instruction; never any <code>verified</code> entry during ingest.</li>
+<li>Always write <code>status</code> explicitly; new pages are <code>draft</code>; <code>stable</code> only when the type's gate is met.</li>
+<li>Never delete a page: <code>status: deprecated</code>, say what superseded it, keep it indexed under a <em>Deprecated</em> heading.</li>
+<li>Every factual claim on a Concept, Synthesis, Decision, RFC, Initiative, Objective or System page carries a footnote to a <code>sources[].id</code>; a claim without one is an <em>Open question</em>.</li>
+<li>Every answer names its pages with tier and date; stale pages are called out; nothing from deprecated pages unless asked.</li>
+<li>A brief draws only on human-reviewed, fresh pages. A number comes from an attested computation's receipt or it is not a number.</li>
+<li>Update <code>generated</code> on every meaningful change, and the directory's <code>index.md</code> and root <code>log.md</code> in the same operation.</li>
+<li>Read <code>index.md</code> first, frontmatter second, bodies last.</li>
+<li>Propose engine changes in the weekly review; change the engine only when the human accepts, and record it in <code>CHANGELOG.md</code>.</li>
+<li>Connectors are read-only and used only by pull, the cross-check pass and the drift check. Never post, comment, react, transition or edit in any connected system — and the harness denies those tools, so this is enforced rather than promised.</li>
+<li>Pull only what the human pointed at or a named feed in the config; never DMs; never outside the config's scope. Nothing verbatim unless pinned or needed for a receipt.</li>
+<li>Never write the config file. Never write to the engine during a data operation.</li>
+<li><code>wiki/log.md</code> records data changes only. An engine change is never a log entry; a data migration caused by one is, labelled <code>Migration</code> with the engine version.</li>
+</ol>
+<p>Three of these are structural rather than advisory: 11 by the deny list, 2 by the verify script refusing the agent's own actor and refusing <code>human:</code> without the command's flag, 13 by every helper refusing a path that resolves outside <code>wiki/</code>. The other eleven are instructions, and worth re-reading as such.</p>
+<div class="callout warn">
+<p class="label">People and stakeholders — the policy that matters most</p>
+<p>A <code>Person</code> page contains only what your own notes state: role, the growth focus you agreed, the ownership you delegated, actions, and the thread of what was discussed. The agent never infers traits, motivations or performance, and never records health, personal circumstances, compensation or ratings, even if a note mentions them in passing — those stay in the systems built for them. A <code>Stakeholder</code> page is narrower still: role, what they need from the team, stated positions on live initiatives, when you last spoke. Every page about a person is human-reviewed before anything is prepared from it, and a 1:1 or a brief never rests on a draft. Slack is where remarks about people appear, which is why it is connected last, from named channels only, never DMs. Because nothing is copied verbatim, the vault holds your reading of a thread rather than the thread — but it does hold summaries and short excerpts of company material, so confirm your company's policy on that before phase 1, not phase 3. If a sub-bundle is ever exported, <code>team/people/</code> and <code>team/stakeholders/</code> are excluded by default.</p>
+</div>
+</section>
+<!-- ================================================================ -->
+<section id="rollout">
+<p class="part">9 · State and roadmap</p>
+<h2>What runs, and what is next</h2>
+<p><code>rollout.phase</code> in the config is the switch: below its phase a command refuses and says which number would enable it, and a connector outside the phase is not fetched. Each phase adds one rhythm, in the order the role's load demands.</p>
+<div class="phases">
+<div class="phase"><span class="when">Phase 1<br/><b>runs</b></span><p><b>Delivery, design and systems, from documents.</b> The eleven phase-1 types fed by Confluence, Google Docs, markdown repositories and the web; daily pull and ingest; query instead of search; lint with the drift check; the Monday tick with its ranked portfolio. The engine that carries it: the config layer, <code>uv run init</code>, <code>uv run lint</code> with eighteen check groups and <code>--fix</code>, the four write helpers, <code>uv run doctor</code>, a pytest suite, and a harness deny list over the connectors' write tools.</p></div>
+<div class="phase"><span class="when">Phase 2<br/>next</span><p><b>Jira and the sprint tick.</b> The Jira connector; the sprint-report feed writing JSON snapshots to <code>raw/metrics/jira/</code>; two <code>Attested Computation</code> pages over them; the executor, the attester and one script per metric under <code>src/tos/metrics/</code>; then <code>/tos-measure</code> and <code>/tos-sprint</code>. The first task is not code: capture one real query result through the connector, because the snapshot schema and the attester cannot be designed before that. Objective pages already exist for the sprint goals to point at. <b>Goal:</b> a sprint review whose numbers carry receipts.</p></div>
+<div class="phase"><span class="when">Phase 3<br/>after</span><p><b>Team and stakeholders, then Slack.</b> Person, Stakeholder and Playbook pages under the §8 policy; <code>/tos-brief</code> and the comms-due and 1:1 sections of the weekly; the Slack connector with its named channels; the people policy as a check in lint's agent pass; and a bundle exporter that lifts <code>team/playbooks/</code> out as a conformant OKF bundle of its own. <b>Goal:</b> Monday 1:1 prep in two minutes, and the first brief sent from the wiki.</p></div>
+<div class="phase"><span class="when">Phase 4<br/>later</span><p><b>Vision, learning, radar.</b> Vision pages per area of influence with the signals they watch; Learning Paths, yours and a report's mentoring plan; Drills scheduled by <code>review_due</code>; the radar overview; Trello, a personal board, if still wanted; and the quarterly <code>/tos-retro</code>. <b>Goal:</b> a vision you can socialise from a brief, with its evidence attached.</p></div>
+<div class="phase"><span class="when">No phase</span><p><b>The cross-check pass</b>, which produces the machine-confirmed tier and waits on nothing but the work. Also unphased: a migration helper for engine changes that touch existing pages, a pre-commit lint hook for the data repository, and the test suite in CI.</p></div>
+<div class="phase"><span class="when">Later</span><p><b>Extensions.</b> Packaging as a Claude Code plugin so a colleague installs the engine rather than clones it; attested computations for system health — alert budgets, SLOs; local search once a directory index passes roughly 150 entries or a query keeps reading more than twenty bodies.</p></div>
+</div>
+<p><strong>How you will know it works:</strong> most of Monday's preparation comes off the review page; every owned system has been human-reviewed this quarter; the sprint review's numbers are attested; no stakeholder update is overdue; the verify queue is never more than five; and the engine's changelog has entries, because an engine that never changed is one nobody used.</p>
+</section>
+<!-- ================================================================ -->
+<section class="pb" id="decisions">
+<p class="part">10 · Decisions</p>
+<h2>The calls this design rests on</h2>
+<p>Each of these was a real fork, and each is settled. They are here because the reason is worth more than the rule: when something in the system looks arbitrary, the answer is usually in this table.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>The call</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><strong>Relative markdown links</strong>, never wikilinks, never leading-slash paths</td><td>Portable and conformant, and Obsidian's graph agrees with an OKF consumer. Leading-slash paths would resolve against the vault root rather than <code>wiki/</code>.</td></tr>
+<tr><td><strong>OKF's <code>log.md</code> shape</strong>, data changes only</td><td>A conformant bundle must use it, and scoping it to data is what keeps engine work out of a record about your company. Labels: Creation, Pull, Ingest, Query, Brief, Measure, Lint, Verify, Review, Deprecate, Migration.</td></tr>
+<tr><td><strong>One root log</strong>, not one per directory</td><td>A single timeline is what you read. A sub-bundle gets its own log the day it is lifted out.</td></tr>
+<tr><td><strong>Internal updates are timeline entries</strong>; only external observations get their own page</td><td>A page per internal update would explode the tree and break index-first navigation.</td></tr>
+<tr><td><strong>Five hard gates, queue of five</strong></td><td>1:1 prep, anything sent outward, stable Decisions and RFC outcomes, sprint goals, and design critique given to another team all require a human-reviewed page. Everything else may stay unverified as long as answers say so — and a queue longer than five is one nobody works.</td></tr>
+<tr><td><strong>Person and Stakeholder pages exist</strong>, under the §8 policy</td><td>They are the most valuable and the most sensitive part of the system. The policy, not the omission, is what makes them safe.</td></tr>
+<tr><td><strong>Sources are referenced, not copied</strong></td><td>A local git history of company material forever is a poor price for a re-read the connector can do on demand. Verbatim only for your own notes, an explicit pin, or a metric receipt.</td></tr>
+<tr><td><strong>The middle tier is cross-check on Source pages only</strong></td><td>Faithfulness to a source is checkable by a second pass; judgement is not. Structural lint marks nothing, and every number goes through attestation instead.</td></tr>
+<tr><td><strong>Attested numbers: connector fetch, deterministic compute</strong></td><td>The feed writes an immutable snapshot; the computation runs over the file and hashes both. The fetch is provenance-stamped rather than attested, and the receipt says which is which — so no script needs credentials.</td></tr>
+<tr><td><strong>RFCs and ADRs are entry points, never copies</strong></td><td>The canonical document stays where your team already keeps it; the page carries your summary, the options, the critique, the standards check and the outcome.</td></tr>
+<tr><td><strong>Only a short named list of feeds may pull itself</strong></td><td>Everything else waits for your pointer. More feeds means less pointing and a faster-growing wiki, which is exactly what index-first navigation cannot survive.</td></tr>
+<tr><td><strong>Config is YAML at <code>~/.config/tos/config.yaml</code></strong></td><td>One syntax across the system, and outside both repositories by construction, so it cannot be committed by accident. <code>$TOS_CONFIG</code> moves it.</td></tr>
+<tr><td><strong>One data root</strong></td><td>A second doubles the review load. If the team wants the playbooks, they get the engine and their own root, with the exported bundle as the bridge.</td></tr>
+<tr><td><strong>Every canonical write is a script</strong></td><td>A format re-derived from prose drifts by the fourth Monday. The scripts also mean <code>CLAUDE.md</code> shrinks with each release.</td></tr>
+<tr><td><strong>Connector read-only is enforced by the harness</strong>, and verified per install</td><td>A rule enforced by the thing it constrains is worth little against a source that contains an instruction — and a deny entry naming a server you do not have is silently inert.</td></tr>
+<tr><td><strong>Project is the entity the week is ranked by</strong></td><td>Queues organised by lint finding are organised for the linter. The lead's week is a walk down a priority-ordered list, which is also the report they give three different audiences.</td></tr>
+<tr><td><strong>A quiet week writes nothing</strong></td><td>The gap in a weekly log is information, and a page that is not rewritten keeps the verification it earned. Ranking or re-pointing a project is not movement.</td></tr>
+<tr><td><strong>Pointers are optional, shape-checked, and not links</strong></td><td>A required pointer gets filled with something plausible; a frontmatter key that satisfied the orphan check would hide a page nobody links from a section.</td></tr>
+<tr><td><strong>Objectives are phase 1, at two levels</strong></td><td>"Which objective does this advance?" is a question a project provokes in week one, long before any sprint metric exists.</td></tr>
+<tr><td><strong>Slash commands keep <code>tos-</code>; executables are bare verbs</strong></td><td><code>/tos-init</code> exists so it does not shadow Claude Code's own <code>/init</code>; console scripts never had that collision, and are always written <code>uv run &lt;name&gt;</code>. After the split, <code>tos-</code> means "slash command" and nothing else.</td></tr>
+<tr><td><strong>Frontmatter is parsed strictly</strong></td><td>A parser that never fails is a conformance check that never fires. The permissive fallback was deleted rather than hardened.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- ================================================================ -->
+<section id="sources">
+<p class="part">11 · Sources</p>
+<h2>What this is grounded in</h2>
+<ul class="sources-list">
+<li><a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">LLM Wiki</a><span class="who">Andrej Karpathy — the three layers, ingest/query/lint, <code>index.md</code> and <code>log.md</code>, the tooling notes, "intentionally abstract".</span></li>
+<li><a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md">Open Knowledge Format — SPEC.md, v0.2</a><span class="who">Google Cloud — required <code>type</code>; <code>sources</code>, <code>generated</code>, <code>verified</code>, <code>status</code>, <code>stale_after</code>; trust tiers; actor forms; <code>Attested Computation</code>; the reserved <code>index.md</code> and <code>log.md</code> shapes; conformance rules.</span></li>
+<li><a href="https://cloud.google.com/blog/products/data-analytics/okf-v0-2-adds-trust-signals">OKF v0.2 adds trust signals</a><span class="who">Google Cloud — the agentic-trust framing: when agents continuously write and read a shared corpus, human accountability disappears unless the format carries explicit signals.</span></li>
+<li>Engineer Level 5 (Lead Engineer) — role description<span class="who">Envato — the five headings that became the domains, and the responsibilities each page type answers: system ownership and the KTLO roadmap, RFCs and ADRs, technical vision, sprint goals against OKRs, delivery metrics, stakeholder identification, mentoring, clarifying ambiguity.</span></li>
+<li><code>CLAUDE.md</code>, <code>schema/types.md</code>, <code>CHANGELOG.md</code>, <code>docs/roadmap.md</code><span class="who">This repository — the operating manual, the registry the engine actually parses, and what is built versus owed. Where this page disagrees with them, they are right: they are loaded on every run and tested; this is read by people.</span></li>
+</ul>
+<p class="footer-note">The phase-1 half of this document describes an engine that runs, checked against the code as it stands. Phases 2 to 4, the cross-check pass and every number with a receipt are still a proposal. Like everything else the agent writes, the page is <code>status: draft</code> until you have read it.</p>
+</section>
+</main>
+</div>
+</body>
+</html>
