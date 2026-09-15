@@ -459,7 +459,7 @@
 
 <div class="page">
   <header class="doc">
-    <p class="eyebrow">Onboarding · engine 0.10.2 · Phase 1</p>
+    <p class="eyebrow">Onboarding · engine 0.11.0 · Phase 1</p>
     <h1>TechLead OS Onboarding</h1>
     <p class="lede">From the engine folder on your Mac to a wiki you trust: five setup steps in about half an hour, a forty-five-minute first loop the same afternoon, and a fortnight of use that tells you whether the design holds. Each step says what to type, what you should see, and what to do when you don't.</p>
     <p class="meta"><span><b>Engine</b> wherever you clone it (<code>$TOS_ENGINE</code>)</span><span><b>Data root</b> wherever you choose (<code>$TOS_DATA</code>), named in the config</span><span><b>Setup</b> ~30 min, then a 45-min first loop</span><span><b>Acceptance</b> two weeks</span></p>
@@ -488,12 +488,12 @@
     <section id="before">
       <p class="part">0 · Before you start</p>
       <h2>What you need, and the one thing to check first</h2>
-      <p>On the Mac: <a href="https://docs.astral.sh/uv/">uv</a> (<code>brew install uv</code>) — it fetches the Python the engine asks for and installs its one dependency, PyYAML — plus git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian, Google Drive and web fetch. Phase 1 uses only those three, plus <code>md</code> for markdown in a local repository, which is read straight off disk and needs no server; Slack, Jira and Trello wait for their phases. Nothing else is installed by the engine.</p>
+      <p>On the Mac: <a href="https://docs.astral.sh/uv/">uv</a> (<code>brew install uv</code>) — it fetches the Python the engine asks for and installs its one dependency, PyYAML — plus git, Claude Code, Obsidian, and the MCP connectors you already have for Atlassian (Confluence and Jira), Google Drive, Slack and web fetch. Phase 1 reads through all of them with your own account's permissions, plus <code>md</code> for markdown in a local repository, which is read straight off disk and needs no server; only Trello waits for its phase. Nothing else is installed by the engine.</p>
       <div class="callout warn">
         <p class="label">The policy check — decision D5</p>
-        <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Docs, later Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
+        <p>The data root will hold summaries and short excerpts of company material (Confluence pages, Drive files, Jira issues, Slack threads), never copies, in a private local repository. Before Step 6 puts the first company page through it, confirm your company's policy allows that. If the answer is "in company-approved storage only", put the data root there; the config makes that a one-line change.</p>
       </div>
-      <p>One thing is already decided so you do not have to: <code>rollout.phase</code> starts at 1, which means documents only, the eleven Phase 1 page types, and the seven commands that are built. The two locations — where the engine is cloned and where the data root sits — are yours, and neither this page nor the engine assumes anything about them: the config is the one place the data root is written down, and steps 1 and 2 put both paths in shell variables so every command below pastes and runs as it stands.</p>
+      <p>One thing is already decided so you do not have to: <code>rollout.phase</code> starts at 1, which means the eleven Phase 1 page types and the seven commands that are built — it gates those, not what the connectors read. The two locations — where the engine is cloned and where the data root sits — are yours, and neither this page nor the engine assumes anything about them: the config is the one place the data root is written down, and steps 1 and 2 put both paths in shell variables so every command below pastes and runs as it stands.</p>
 
       <figure>
         <svg viewBox="0 0 760 150" role="img" aria-label="Six steps in order: the engine, the config, the data root, Obsidian, Claude Code and connectors, the first loop — about half an hour to step 5, then forty-five minutes for the loop, then a fortnight of use.">
@@ -541,12 +541,12 @@
       <p class="part">1 · The engine</p>
       <h2>Clone it wherever you like</h2>
       <p class="scen-meta"><span class="chip phase1">4 minutes</span><span class="chip">$TOS_ENGINE</span></p>
-      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, 0.5.4 is this page, 0.6.0 gave every command the <code>/tos-</code> prefix, 0.7.0 made Project the first-class entity with a weekly log and a ranked portfolio, 0.8.0 turned the bookkeeping writes into scripts and added <code>uv run doctor</code>, 0.9.0 gave Project and Initiative their connector pointers, 0.10.0 took the <code>tos-</code> prefix back off the scripts, leaving it to the slash commands, 0.10.1 replaced the v0.5 design proposal with the v1.0 design record, and 0.10.2 dropped the Google Drive folder scope, so any Doc your account can open is readable. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
+      <p>The engine is a git repository holding instructions, the type registry, templates, the code and the docs, and no data. Its history starts at 0.5.0, the rename to TechLead OS is 0.5.1, 0.5.2 turned it into an installable package, 0.5.3 fixed the dashboard, 0.5.4 is this page, 0.6.0 gave every command the <code>/tos-</code> prefix, 0.7.0 made Project the first-class entity with a weekly log and a ranked portfolio, 0.8.0 turned the bookkeeping writes into scripts and added <code>uv run doctor</code>, 0.9.0 gave Project and Initiative their connector pointers, 0.10.0 took the <code>tos-</code> prefix back off the scripts, leaving it to the slash commands, 0.10.1 replaced the v0.5 design proposal with the v1.0 design record, 0.10.2 dropped the Google Drive folder scope, and 0.11.0 dropped the rest: Confluence, Google Drive, Jira and Slack read whatever your account can, from phase 1, and only writes are gated. Clone it wherever you keep code — the directory is yours to pick — then record where it landed and install it:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>git clone git@github.com:RPAzevedo/TechLead-OS.git ~/code/techlead-os   <span class="cm"># or any directory you prefer</span>
 cd ~/code/techlead-os
 export TOS_ENGINE="$(git rev-parse --show-toplevel)"   <span class="cm"># already have a checkout? cd into it and run this line alone</span>
 
-git log --oneline          <span class="cm"># newest first; the top line is 0.10.2, the history starts at 0.5.0</span>
+git log --oneline          <span class="cm"># newest first; the top line is 0.11.0, the history starts at 0.5.0</span>
 git status --short         <span class="cm"># nothing: the tree is clean; settings.local.json is ignored on purpose</span>
 uv --version               <span class="cm"># brew install uv if this is missing</span>
 uv sync                    <span class="cm"># creates .venv, installs PyYAML and the engine's commands</span></code></pre>
@@ -563,17 +563,17 @@ uv sync                    <span class="cm"># creates .venv, installs PyYAML and
       <p class="part">2 · The config</p>
       <h2>One file, outside both repositories</h2>
       <p class="scen-meta"><span class="chip phase1">5 minutes</span><span class="chip">~/.config/tos/config.yaml</span></p>
-      <p>The config joins the engine to the data root and scopes the connectors. It lives at <code>~/.config/tos/config.yaml</code> — the one fixed path on this page — is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
+      <p>The config joins the engine to the data root and names the connectors. It lives at <code>~/.config/tos/config.yaml</code> — the one fixed path on this page — is never committed, and holds no secrets: connector authentication belongs to Claude Code's MCP configuration.</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>mkdir -p ~/.config/tos
 cp "$TOS_ENGINE"/config.example.yaml ~/.config/tos/config.yaml
 open -e ~/.config/tos/config.yaml</code></pre>
-      <p>Edit four things and leave the rest. <code>data.root</code>: the example ships the placeholder <code>~/CHANGE_ME/techlead-os-data</code>, so replace it — the data root can go anywhere the policy check allows and need not sit next to the engine. <code>data.actor</code>, the actor string that will appear in every verification you make. <code>data.timezone</code>. And the Phase 1 connector scopes, the Confluence spaces the agent may read from; Google Docs need none, since any Doc your account can open is readable. Leave <code>rollout.phase: 1</code>. Then tell this page the same path and check what the engine resolved:</p>
+      <p>Edit four things and leave the rest. <code>data.root</code>: the example ships the placeholder <code>~/CHANGE_ME/techlead-os-data</code>, so replace it — the data root can go anywhere the policy check allows and need not sit next to the engine. <code>data.actor</code>, the actor string that will appear in every verification you make. <code>data.timezone</code>. And, if you read markdown from local repositories, <code>connectors.md.scope.repos</code>; no other phase-1 connector has a scope: each reads whatever your own account can. Leave <code>rollout.phase: 1</code>. Then tell this page the same path and check what the engine resolved:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>export TOS_DATA=~/techlead-os-data      <span class="cm"># the same path you just wrote into data.root</span>
 uv run --directory "$TOS_ENGINE" config</code></pre>
       <div class="answer">
         <p class="from">expected output</p>
 <pre class="inline"><code>config:   /Users/you/.config/tos/config.yaml
-engine:   0.10.2 (config says 0.10)
+engine:   0.11.0 (config says 0.11)
 engine root: /Users/you/code/techlead-os
 data:     /Users/you/techlead-os-data  exists=False
 actor:    human:you
@@ -628,7 +628,7 @@ git: repository initialised and first commit made</code></pre>
     <section id="claude">
       <p class="part">5 · Claude Code and connectors</p>
       <h2>Start it in the engine, grant it the data</h2>
-      <p class="scen-meta"><span class="chip phase1">15 minutes</span><span class="chip">connectors: atlassian · google-drive · fetch</span></p>
+      <p class="scen-meta"><span class="chip phase1">15 minutes</span><span class="chip">connectors: atlassian · Google Drive · slack · fetch</span></p>
       <p>Claude Code loads <code>CLAUDE.md</code> from the directory it starts in, so the session always starts in the engine. The data root is a separate directory, and Claude Code will not write outside its working directory unless told. Say so on the command line and you are done:</p>
 <pre class="wrap"><div class="code-title">terminal</div><code>cd "$TOS_ENGINE" && claude --add-dir "$TOS_DATA"</code></pre>
       <p>To stop repeating the flag, grant the directory once in <code>.claude/settings.local.json</code>. The engine ignores that file rather than shipping it — it is per-machine, and your data root is not necessarily anyone else's — so it does not exist until you create it:</p>
@@ -643,16 +643,17 @@ git: repository initialised and first commit made</code></pre>
 <pre class="wrap"><div class="code-title">claude</div><code>&gt; what is the data root, which phase are we in, and which connectors may you use?</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
-        <p>The data root is the path you set in <code>data.root</code> (read from <code>~/.config/tos/config.yaml</code>); rollout phase 1; the connectors enabled for this phase are confluence, gdocs, web and md, within the scopes in the config. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
+        <p>The data root is the path you set in <code>data.root</code> (read from <code>~/.config/tos/config.yaml</code>); rollout phase 1; it may read through confluence, gdrive, jira, slack and web with your own account's permissions, and md within its repos, with trello waiting for phase 4 — never a Slack DM, and never a write to any of them. It should also say that it never writes the config and never writes outside <code>raw/</code> and <code>wiki/</code>.</p>
       </div>
-      <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it:</p>
-<pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, google-drive, fetch (or whatever you named them)</span></code></pre>
-      <p>If your servers have different names, change the config's <code>provider</code> values to match rather than renaming the servers. Then confirm the scope check works by pointing at something outside it:</p>
-<pre class="wrap"><div class="code-title">claude</div><code>&gt; /tos-pull https://example.atlassian.net/wiki/spaces/NOTINSCOPE/pages/1/Test</code></pre>
+      <p>Second, the connectors. The config names each one as <code>provider: mcp:&lt;name&gt;</code>, and the part after <code>mcp:</code> must equal the server name as Claude Code lists it, or its tool-id form — <code>claude.ai Google Drive</code> is <code>claude_ai_Google_Drive</code>, the name the example config ships and the deny list guards:</p>
+<pre class="wrap"><div class="code-title">terminal</div><code>claude mcp list       <span class="cm"># expect atlassian, claude.ai Google Drive, slack, fetch (or whatever you named them)</span></code></pre>
+      <p>If your servers have different names, change the config's <code>provider</code> values to match rather than renaming the servers. Reads are not gated — each connector reads whatever your account can — so the gate worth seeing is the one on writes. The harness withholds a denied tool from the agent altogether, so ask what it was given:</p>
+<pre class="wrap"><div class="code-title">claude</div><code>&gt; which tools can you call on the Atlassian, Google Drive and Slack servers? list any that write.</code></pre>
       <div class="answer">
         <p class="from">expected answer, in substance</p>
-        <p>A refusal that names the setting: the space is not in <code>connectors.confluence.scope.spaces</code>, so nothing was fetched, and which line in the config would allow it. That refusal is guardrail 12 working; you want to have seen it once.</p>
+        <p>Read tools only — search, fetch, read, metadata — and no create, update, comment, post, react, transition, share or trash. A write tool in that list is one <code>.claude/settings.json</code> does not name: add it to the deny list (README, <em>Connector safety</em>) before the first pull. That list is guardrail 11 working; you want to have seen it once.</p>
       </div>
+      <p>Then the one read the engine refuses whatever your permissions: <code>/tos-pull</code> a permalink to a message in one of your Slack DMs. The expected answer is a refusal naming guardrail 12, with nothing fetched.</p>
       <p>Finally, <code>/tos-init</code> from inside the session does nothing new on an existing data root; it re-installs the vault files and reports any drift between the engine version and the config. Run it once so you know what the no-op looks like.</p>
     </section>
 
@@ -728,8 +729,8 @@ EOF</code></pre>
       <h2>Enabling what is designed but not yet built</h2>
       <p>The commands for later phases exist and refuse to run until <code>rollout.phase</code> reaches them, so nothing is improvised. Each phase is two weeks in the design, and each needs engine work before the config changes:</p>
       <div class="phases">
-        <div class="phase"><span class="when">Phase 2<br>Jira · sprint tick</span><p>Build first: <code>src/tos/metrics/</code> (executor, attester, a sprint-completion script), the <code>/tos-sprint</code> and <code>/tos-measure</code> procedures, the sprint-report feed. Then: Jira scope in the config, the feed uncommented, <code>rollout.phase: 2</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
-        <div class="phase"><span class="when">Phase 3<br>team · Slack · /tos-brief</span><p>Build first: the <code>/tos-brief</code> procedure, the Slack pull procedure (named channels, digests, "awaiting you"), the comms-due and 1:1 sections of the weekly. Then: Slack channels in scope, the people policy re-read, <code>rollout.phase: 3</code>. Goal: 1:1 prep in two minutes; the first brief sent from the wiki.</p></div>
+        <div class="phase"><span class="when">Phase 2<br>Jira · sprint tick</span><p>Build first: <code>src/tos/metrics/</code> (executor, attester, a sprint-completion script), the <code>/tos-sprint</code> and <code>/tos-measure</code> procedures, the sprint-report feed. Then: the feed uncommented, <code>rollout.phase: 2</code>. Goal: a sprint review whose numbers carry receipts.</p></div>
+        <div class="phase"><span class="when">Phase 3<br>team · /tos-brief</span><p>Build first: the <code>/tos-brief</code> procedure, the Slack "awaiting you" list with draft replies, the comms-due and 1:1 sections of the weekly. Then: the people policy re-read, <code>rollout.phase: 3</code>. Goal: 1:1 prep in two minutes; the first brief sent from the wiki.</p></div>
         <div class="phase"><span class="when">Phase 4<br>vision · learning · radar</span><p>Build first: the <code>/tos-retro</code> procedure, the radar overview synthesis, Learning Path and Drill handling in the weekly. Then: Trello (personal) if wanted, <code>rollout.phase: 4</code>. Goal: a vision you can socialise, with the signals it watches attached.</p></div>
       </div>
       <p>Each phase's build is a change to the engine, recorded in <code>CHANGELOG.md</code>; enabling it is a change to your config; neither touches <code>wiki/log.md</code> unless a migration of existing pages follows, and then it is logged as one.</p>
@@ -751,7 +752,10 @@ EOF</code></pre>
             <tr><td><code>frontmatter is not valid YAML</code> in a lint report</td><td>A page's frontmatter really is malformed — an unclosed <code>[</code>, an unquoted value containing <code>: </code>, a stray line.</td><td>Open the page at the line named and fix it. Lint exits 1 until it parses; OKF requires it.</td></tr>
             <tr><td><code>git: not available</code> or no first commit</td><td>git missing, or no identity.</td><td>The script commits as <code>tos-engine</code> when no identity is set; if git is missing, install it and run <code>git init</code> in the data root yourself.</td></tr>
             <tr><td>Claude Code refuses to write under the data root</td><td>The additional directory is not granted.</td><td>Edit <code>.claude/settings.local.json</code> to your data root, or start with <code>claude --add-dir</code>.</td></tr>
-            <tr><td>"<code>/tos-pull</code> refused: … not in scope"</td><td>Working as designed: the pointer is outside <code>connectors.&lt;name&gt;.scope</code>.</td><td>Add the space or repo to the scope in the config if it should be in.</td></tr>
+            <tr><td><code>/tos-pull</code> reports a failed fetch</td><td>Your account cannot open the source; the engine adds no read restriction of its own.</td><td>Ask for access, or point at something you can open.</td></tr>
+            <tr><td><code>/tos-pull</code> refused a Slack DM</td><td>Working as designed: guardrail 12.</td><td>If it matters, write it up yourself as a note in <code>raw/inbox/</code>.</td></tr>
+            <tr><td>A write tool appears when you list a connector server's tools</td><td>The deny list does not name that server's tool.</td><td>Add it to <code>.claude/settings.json</code> (README, <em>Connector safety</em>).</td></tr>
+            <tr><td><code>doctor</code> warns on <code>connectors</code>: <code>gdocs</code> is <code>gdrive</code>, or a <code>scope</code> is ignored</td><td>A config written before 0.11.0.</td><td>Rename the key and delete the scope blocks it names; until then they are ignored, not obeyed.</td></tr>
             <tr><td>"<code>/tos-sprint</code> is not enabled until phase 2"</td><td>Working as designed.</td><td>§9. Build the phase before raising <code>rollout.phase</code>.</td></tr>
             <tr><td>The agent could not find a connector named in the config</td><td><code>provider: mcp:&lt;name&gt;</code> does not match <code>claude mcp list</code>.</td><td>Change the config's provider to the listed name.</td></tr>
             <tr><td>Dataview tables empty or erroring in <code>Home.md</code></td><td>Plugin not enabled, or a query line edited.</td><td>Enable Dataview; re-run <code>/tos-init</code> to reinstall <code>Home.md</code> (it is engine-owned).</td></tr>
@@ -773,7 +777,7 @@ EOF</code></pre>
         <li><code>uv run --directory "$TOS_ENGINE" init --with-examples</code> ran; <code>… lint</code> reports 0 conformance errors and the one intended finding.</li>
         <li><code>uv run --directory "$TOS_ENGINE" doctor</code> reports every check <code>ok</code>, or a <code>warn</code> I understand — usually a connector name <code>claude mcp list</code> does not show.</li>
         <li>Obsidian opens the data root; Dataview is enabled; <code>Home.md</code> shows the example pages.</li>
-        <li>Claude Code starts in the engine, names the data root and the phase, and refuses a pointer outside scope.</li>
+        <li>Claude Code starts in the engine, names the data root and the phase, lists no write tool on any connector server, and refuses a Slack DM.</li>
         <li><code>claude mcp list</code> names match the config's <code>provider</code> values.</li>
         <li>Five sources in: one note ingested, four pointers pulled; three queries answered with tiers; one lint; the pages I would quote verified.</li>
         <li>Examples removed once I no longer need them as reference.</li>
@@ -781,7 +785,7 @@ EOF</code></pre>
         <li>Monday: <code>/tos-weekly</code>, answered inline, <code>--apply</code>.</li>
         <li>Day 15: verdict written as the engine's first changelog entries.</li>
       </ul>
-      <p class="footer-note">Companion to the design (v1.0), the engine (0.10.2) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
+      <p class="footer-note">Companion to the design (v1.0), the engine (0.11.0) and the scenarios page. Paths on this page are the two variables set in §1 and §2; the config is the one place the data root is written down.</p>
     </section>
   </main>
 </div>

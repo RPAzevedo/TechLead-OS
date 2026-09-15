@@ -30,3 +30,10 @@ def test_example_config_parses():
     cfg = load_yaml((ENGINE_ROOT / "config.example.yaml").read_text(encoding="utf8"))
     assert cfg["data"]["root"]
     assert cfg["rollout"]["phase"] == 1
+
+
+def test_example_config_scopes_only_md_and_the_phase_4_trello():
+    """Reads follow the human's own permissions; md's repos say which local paths are md at all."""
+    connectors = load_yaml((ENGINE_ROOT / "config.example.yaml").read_text(encoding="utf8"))["connectors"]
+    assert "gdocs" not in connectors
+    assert sorted(n for n, c in connectors.items() if "scope" in (c or {})) == ["md", "trello"]

@@ -138,9 +138,21 @@ def main(argv) -> int:
             if not ident.stdout.strip():
                 c.add("git identity", "warn", "no user.email — commits fall back to tos-engine <tos@localhost>")
 
+    # what a pre-0.11 config leaves behind: gdocs was renamed, and every scope but md's and trello's was dropped
+    connectors = cfg.get("connectors") or {}
+    leftover = []
+    if "gdocs" in connectors:
+        leftover.append("`gdocs` is `gdrive` since 0.11.0 — still read as gdrive; rename the key")
+    # gdocs too: straight from 0.10.1 it may still carry its folder scope, and renaming the
+    # mapping wholesale would carry that into gdrive for a second doctor run to find
+    leftover += [f"`{n}.scope` is ignored — delete it" for n in ("confluence", "gdocs", "gdrive", "jira", "slack")
+                 if isinstance(connectors.get(n), dict) and "scope" in connectors[n]]
+    if leftover:
+        c.add("connectors", "warn", "; ".join(leftover))
+
     # connectors vs the MCP servers actually installed
     servers = {}  # mcp server name -> connector names
-    for name, conn in (cfg.get("connectors") or {}).items():
+    for name, conn in connectors.items():
         provider = str((conn or {}).get("provider") or "")
         if provider.startswith("mcp:"):
             servers.setdefault(provider[4:], []).append(name)

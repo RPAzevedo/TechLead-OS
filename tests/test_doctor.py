@@ -68,7 +68,7 @@ def test_server_names_are_parsed_exactly_not_matched_as_substrings(bare, capsys,
     cfg_path = bare.parent / "config.yaml"
     cfg_path.write_text(cfg_path.read_text(encoding="utf8")
                         + "connectors:\n  confluence:\n    provider: mcp:atlassian\n"
-                          "  gdocs:\n    provider: mcp:claude_ai_Google_Drive\n", encoding="utf8")
+                          "  gdrive:\n    provider: mcp:claude_ai_Google_Drive\n", encoding="utf8")
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: SAMPLE)
     assert doctor.main(["--json"]) == 0
     rows = {r["check"]: r for r in json.loads(capsys.readouterr().out)}
@@ -84,7 +84,7 @@ def connectors(bare, text):
 
 
 def test_deny_list_coverage_uses_the_same_exact_names(bare, capsys, monkeypatch):
-    connectors(bare, "connectors:\n  gdocs:\n    provider: mcp:claude_ai_Google_Drive\n")
+    connectors(bare, "connectors:\n  gdrive:\n    provider: mcp:claude_ai_Google_Drive\n")
     monkeypatch.setattr(doctor, "claude_mcp_list", lambda: SAMPLE)
     assert doctor.main(["--json"]) == 0
     rows = {r["check"]: r for r in json.loads(capsys.readouterr().out)}
@@ -95,7 +95,7 @@ def test_deny_list_coverage_uses_the_same_exact_names(bare, capsys, monkeypatch)
 def test_one_guarded_server_does_not_clear_an_unguarded_one(bare, capsys, monkeypatch):
     """A newly wired-up connector with no deny entries must not be hidden by a
     guarded one — that is a false all-clear on the safety check."""
-    connectors(bare, "connectors:\n  gdocs:\n    provider: mcp:claude_ai_Google_Drive\n"
+    connectors(bare, "connectors:\n  gdrive:\n    provider: mcp:claude_ai_Google_Drive\n"
                      "  notes:\n    provider: mcp:brand_new_server\n")
     monkeypatch.setattr(doctor, "claude_mcp_list",
                         lambda: SAMPLE + "brand_new_server: npx foo - Connected\n")
@@ -104,6 +104,37 @@ def test_one_guarded_server_does_not_clear_an_unguarded_one(bare, capsys, monkey
     assert rows["deny list"]["status"] == "warn"
     assert "brand_new_server" in rows["deny list"]["detail"]
     assert "notes" in rows["deny list"]["detail"]  # names the connector that would use it
+
+
+def test_a_gdocs_key_is_reported_as_renamed_with_its_scope(bare, capsys, monkeypatch):
+    """Straight from 0.10.1, `gdocs` may still carry its folder scope: one pass names both."""
+    connectors(bare, "connectors:\n  gdocs:\n    provider: mcp:claude_ai_Google_Drive\n    scope: { folders: [] }\n")
+    monkeypatch.setattr(doctor, "claude_mcp_list", lambda: None)
+    assert doctor.main(["--json"]) == 0
+    rows = {r["check"]: r for r in json.loads(capsys.readouterr().out)}
+    assert rows["connectors"]["status"] == "warn"
+    assert "`gdocs` is `gdrive`" in rows["connectors"]["detail"]
+    assert "`gdocs.scope`" in rows["connectors"]["detail"]
+
+
+def test_a_scope_is_reported_everywhere_but_md(bare, capsys, monkeypatch):
+    """Reads follow the human's permissions since 0.11.0; md's repos still say which paths are md."""
+    connectors(bare, "connectors:\n  confluence:\n    provider: mcp:atlassian\n    scope: { spaces: [ENG] }\n"
+                     "  slack:\n    provider: mcp:slack\n    scope: { channels: [], dms: false }\n"
+                     "  md:\n    provider: filesystem\n    scope: { repos: [] }\n")
+    monkeypatch.setattr(doctor, "claude_mcp_list", lambda: None)
+    assert doctor.main(["--json"]) == 0
+    detail = {r["check"]: r for r in json.loads(capsys.readouterr().out)}["connectors"]["detail"]
+    assert "`confluence.scope`" in detail and "`slack.scope`" in detail
+    assert "md.scope" not in detail
+
+
+def test_a_current_config_has_no_connectors_row(bare, capsys, monkeypatch):
+    connectors(bare, "connectors:\n  gdrive:\n    provider: mcp:claude_ai_Google_Drive\n"
+                     "  md:\n    provider: filesystem\n    scope: { repos: [] }\n  web:\n")
+    monkeypatch.setattr(doctor, "claude_mcp_list", lambda: None)
+    assert doctor.main(["--json"]) == 0
+    assert "connectors" not in {r["check"] for r in json.loads(capsys.readouterr().out)}
 
 
 def test_deny_list_is_skipped_when_no_connector_server_is_installed(bare, capsys, monkeypatch):

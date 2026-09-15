@@ -84,8 +84,7 @@ def check_pointers(fm: dict, path: str, page_dir: Path, wiki: Path, rep) -> None
 
     Shape only, and only when present: `slack`, `jira`, `confluence` and `rfc` are notes to the
     human and to a later /tos-pull, never a requirement, so nothing here is a conformance error.
-    Recording where work lives is not reading it — no rollout phase and no connector scope enter
-    into it; those belong to /tos-pull alone.
+    Recording where work lives is not reading it; reading belongs to /tos-pull alone.
 
     A relative `rfc` is resolved like a body link but is deliberately not one: it adds no inbound
     link, because the orphan check exists to make you link the page from a section (`superseded_by`

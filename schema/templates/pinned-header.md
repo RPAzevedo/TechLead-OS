@@ -1,8 +1,8 @@
 ---
 # Header for a verbatim copy under raw/pinned/<connector>/YYYY-MM-DD-<slug>.md
 # raw/ is outside the OKF bundle; this header is a convention, not a conformance rule.
-connector: <slack | gdocs | confluence | jira | trello | md | web>
-pointer: <thread | digest | doc | page | jql | board | path | url>
+connector: <slack | gdrive | confluence | jira | trello | md | web>
+pointer: <thread | digest | doc | sheet | deck | file | page | issue | jql | board | path | url>
 resource: <URL, permalink, path@commit>
 title: <Human label>
 author: <name, or "#channel (n participants)">

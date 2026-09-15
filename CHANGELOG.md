@@ -2,6 +2,29 @@
 
 Engine changes only. Data changes are logged in `<data.root>/wiki/log.md`; a data migration caused by an engine change is logged there as `Migration` with the engine version.
 
+## 0.11.0 — 2026-09-14
+
+**Reads follow your own permissions: Confluence, Google Drive, Jira and Slack read whatever your account can, from
+phase 1. Only writes are gated.**
+
+- The config's `scope` blocks for Confluence, Jira and Slack are gone, and `rollout.phase` no longer gates connectors:
+  Jira and Slack are readable in phase 1 alongside Confluence, Google Drive and the web. A source your account cannot
+  open is a failed fetch, not something to work around. The phase still gates commands and page types; Trello still
+  waits for phase 4 and keeps its board list, and `md` keeps its list of local repositories. The drift check
+  re-reads Jira keys, JQL and Slack channel windows as well as URLs, under the same checks as a pull.
+- `gdocs` becomes `gdrive` and reads any Drive file — Sheets, Slides, PDFs and Office files as well as Docs. A Drive
+  folder, a JQL query and a Slack channel window are legal pointers. Past log lines and `raw/pinned/gdocs/` keep the
+  old name.
+- Two read rules remain: only what you point at or a named feed, and never a Slack DM or group DM. Writes stay denied
+  by `.claude/settings.json`, now the one gate on a connected system — confirm its Slack and Atlassian entries
+  against your install. The example config's Drive provider was `mcp:google-drive`, which no deny entry named; it is
+  now `mcp:claude_ai_Google_Drive`, the server the Drive entries were verified against, and a test fails if an
+  example provider that can write goes unguarded. The Slack entries named tools without the `slack_` prefix both
+  Slack servers use, so none was in force; they now list the write tools Slack publishes for its official server
+  and those of the reference server, and a test holds the prefix.
+- In your config: rename `gdocs` to `gdrive`, check its provider is a server the deny list names, delete the `scope`
+  under confluence, jira and slack, and set `engine: "0.11"`. Until then they are ignored, not obeyed, and `uv run doctor` names each one. No data migration.
+
 ## 0.10.2 — 2026-09-14
 
 **A Google Doc is readable whenever your account can open it: `gdocs` drops its folder scope.**

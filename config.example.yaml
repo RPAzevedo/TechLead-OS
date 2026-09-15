@@ -4,7 +4,7 @@
 # configuration; the one script that could ever need a token is given the NAME of
 # an environment variable, never a value.
 
-engine: "0.10"                         # the engine version this config was written for
+engine: "0.11"                         # the engine version this config was written for
 
 data:
   root: ~/CHANGE_ME/techlead-os-data   # replace this: raw/, wiki/, Home.md, .obsidian/ live here (created
@@ -13,25 +13,24 @@ data:
   actor: human:CHANGE_ME               # replace this: the human actor in every verified entry
 
 rollout:
-  phase: 1                             # 1: documents; 2: Jira + sprint tick; 3: team, Slack, /tos-brief; 4: vision, learning, radar
+  phase: 1                             # commands and page types, not reads: 1: delivery, design, systems;
+                                       # 2: sprint tick; 3: team, /tos-brief; 4: vision, learning, radar, trello
 
-connectors:
+connectors:                            # no scope but md's and trello's: the rest read whatever your own account
+                                       # can; the write tools are denied in .claude/settings.json
   confluence:
     provider: mcp:atlassian            # the MCP server name as configured in Claude Code
-    scope: { spaces: ["ENG", "PDLC"] }
+  gdrive:                              # Docs, Sheets, Slides, PDFs, Office files
+    provider: mcp:claude_ai_Google_Drive   # `claude.ai Google Drive` in its tool-id form, the one the deny list guards
+  jira:
+    provider: mcp:atlassian
+  slack:                               # never a DM or group DM
+    provider: mcp:slack
   web:
     provider: mcp:fetch
   md:
     provider: filesystem
     scope: { repos: [] }               # e.g. ["~/code/asset-search"] — local repos read straight off disk
-  gdocs:                               # phase 1; no scope — any Doc your Google account can open
-    provider: mcp:google-drive
-  jira:                                # phase 2
-    provider: mcp:atlassian
-    scope: { projects: [], boards: [] }
-  slack:                               # phase 3
-    provider: mcp:slack
-    scope: { channels: [], dms: false }
   trello:                              # phase 4, personal board (D12)
     provider: mcp:trello
     scope: { boards: [] }

@@ -11,7 +11,8 @@ import re
 
 import pytest
 
-from tos.common import ENGINE_ROOT
+from tos.common import ENGINE_ROOT, load_yaml
+from tos.doctor import tool_prefix
 
 SETTINGS = json.loads((ENGINE_ROOT / ".claude" / "settings.json").read_text(encoding="utf8"))
 DENY = SETTINGS["permissions"]["deny"]
@@ -43,3 +44,28 @@ def test_the_readme_documents_every_server_the_list_guards():
     assert SAFETY, "README.md has no `## Connector safety` section"
     missing = sorted(s for s in servers() if f"`{s}`" not in SAFETY.group(1))
     assert not missing, f"guarded but undocumented: {missing}"
+
+
+@pytest.mark.parametrize("server", ["slack", "claude_ai_Slack"])
+def test_slack_entries_carry_the_prefix_its_servers_use(server):
+    """Slack's official server and the reference one both name their tools `slack_*`.
+
+    Until 0.11.0 the list denied `mcp__slack__send_message` and its like, which match no Slack
+    server: every Slack entry was inert while the prefix check above still counted it as guarded.
+    """
+    tools = [m.group("tool") for e in DENY for m in [ENTRY_RE.match(e)] if m and m.group("server") == server]
+    assert "slack_send_message" in tools
+    assert all(t.startswith("slack_") for t in tools), [t for t in tools if not t.startswith("slack_")]
+
+
+def test_every_example_connector_that_can_write_is_guarded():
+    """The example config is what gets copied, and a provider the list does not name has no write gate.
+
+    `mcp:google-drive` shipped that way until 0.11.0. fetch has no write tools to deny; trello —
+    phase 4, its server never seen — is the one connector left unguarded, which is why it stays gated.
+    """
+    connectors = load_yaml((ENGINE_ROOT / "config.example.yaml").read_text(encoding="utf8"))["connectors"]
+    unguarded = sorted(n for n, c in connectors.items()
+                       if str((c or {}).get("provider", "")).startswith("mcp:")
+                       and tool_prefix(c["provider"][4:]) not in servers())
+    assert unguarded == ["trello", "web"]
